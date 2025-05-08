@@ -2,4 +2,5 @@
 out/*
 CMakeFiles/*
 build/*
-.vscode/*
+.*/
+submod/

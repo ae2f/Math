@@ -1,17 +1,13 @@
-# Core-Template
-- Rel-v2.3.5
-> Template project under https://github.com/ae2f/Core.
+# Math
+- Rel-v0.0.0
+
+> Goal of this is to make a custom number type for C.
+
+> As always, keep your expectation low.  
+> It is not thread-safe, especially when the memory goes bit-wised.
 
 # Dependency
 - gcc
 - make
 - cmake
-
-# Directory
-> The projects under the template has two possible custom directories.
-
-## cmake
-> It contains the cmake utility functions and its documents.
-
-## submod
-> It could possibly contain the dependency of current project.
+- ae2f::Core
