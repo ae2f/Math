@@ -253,10 +253,11 @@
       __ae2f_MathIntNxt(0, i, (__in), (__in_vec), &(__i), &(__i_vec));         \
                                                                                \
       __ae2f_MathIntNxt(0, i, (__out), (__out_vec), &(__o), &(__o_vec));       \
+      ivecbp = __i.vecbegpoint + __i.sz - 1;                                   \
+      ivecbpq = ivecbp >> 3;                                                   \
+      ivecbpr = ivecbp & 7;                                                    \
                                                                                \
-      sbit = __o.sign &&                                                       \
-             ae2f_BitVecGet((__i_vec)[ivecbpq],                                \
-                            (__i_vec)[__i.vecbegpoint + __i.sz - 1] & 7);      \
+      sbit = __o.sign && ae2f_BitVecGet((__i_vec)[ivecbpq], ivecbpr);          \
                                                                                \
       for (j = 0; j < __o.sz; j++) {                                           \
         ovecbp = __o.vecbegpoint + j;                                          \
@@ -975,22 +976,24 @@ __ae2f_MathIntBitL(ae2f_MathMemOutErr reterr, size_t count, size_t bitcount,
     size_t i, c;                                                               \
     bool __sign;                                                               \
                                                                                \
-    /** __ae2f_MathIntFill(reterr, count, out, out_vec, 1, o_vec_buf); */      \
+    __ae2f_MathIntFill(reterr, count, out, out_vec, 0, o_vec_buf);             \
                                                                                \
     for (c = 0; c < (count); c++) {                                            \
       __ae2f_MathIntNxt(0, c, a, a_vec, &___a, &a_vec_buf);                    \
       __ae2f_MathIntNxt(0, c, b, b_vec, &___b, &b_vec_buf);                    \
       __ae2f_MathIntNxt(0, c, out, out_vec, &___o, &o_vec_buf);                \
                                                                                \
-      __sign = __ae2f_MathIntIsNegative(&___a, a_vec_buf);                     \
+      __sign = __ae2f_MathIntIsNegative(&___a, a_vec_buf); /* sign of a */     \
                                                                                \
       i = 0;                                                                   \
+      if (__sign) {                                                            \
+        __ae2f_MathIntFlip(reterr, 1, &___b, b_vec_buf, &___o, o_vec_buf,      \
+                           b_vec_buf2, o_vec_buf2); /* complement 2 */         \
+      }                                                                        \
       while (___o.sz && i < ___a.sz - __sign) {                                \
-        if (ae2f_BitVecGet(((___a.vecbegpoint + i) >> 3)[a_vec_buf],           \
-                           (___a.vecbegpoint + i) &                            \
-                               7)) { /** Addition (conditional) */             \
-          (o_vec_buf3) = (o_vec_buf2) = o_vec_buf;                             \
-          (b_vec_buf2) = (b_vec_buf);                                          \
+        if (__sign ^ ae2f_BitVecGet(((___a.vecbegpoint + i) >> 3)[a_vec_buf],  \
+                                    (___a.vecbegpoint + i) &                   \
+                                        7)) { /** Addition (conditional) */    \
                                                                                \
           if (__sign)                                                          \
             __ae2f_MathIntSub(reterr, 1, &___b, b_vec_buf, &___o, o_vec_buf,   \

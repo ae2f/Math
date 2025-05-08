@@ -428,9 +428,9 @@ int cmp() {
 
 static int mul() {
 	{
-		union {int8_t i; uint8_t b[1]; } a =  { .i = -3};
+		union {int8_t i; uint8_t b[1]; } a =  { .i = 3};
 		union { int32_t i; uint8_t b[1]; } b = { .i = 200};
-		union { int16_t i; uint8_t b[1]; } o = { .i = 200};
+		union { int16_t i; uint8_t b[1]; } o = { .i = 0};
 		uint64_t buf;
 
 		ae2f_err_t e = 0;
@@ -444,21 +444,68 @@ static int mul() {
 		bi.sz = 32;
 		bi.vecbegpoint = 0;
 
-		oi = bi;
+		oi.sign = 1;
+		oi.vecbegpoint = 0;
 		oi.sz = 16;
 
-		ae2f_bMathMem BUFF[5] = {0, };
+		ae2f_bMathMem BUFF[6] = {0, };
 
-		__ae2f_MathIntMul(&e, 1, &ai, a.b, &bi, b.b, &oi, o.b, BUFF[0], BUFF[1], BUFF[2], BUFF[3], BUFF[4], BUFF[5]);
+		__ae2f_MathIntMul(
+				&e
+				, 1
+				, &ai
+				, a.b
+				, &bi
+				, b.b
+				, &oi
+				, o.b
+				, BUFF[0]
+				, BUFF[1]
+				, BUFF[2]
+				, BUFF[3]
+				, BUFF[4]
+				, BUFF[5]
+				);
 
 		if(e) {
 			printf("Test::mul Error occurred: %d\n", e);
 			return 1;
 		}
 
-		if(b.i != -600)
+		if(o.i != 600)
 		{
-			printf("Test::mul Expected -600 but got %d\n", b.i);
+			printf("Test::mul Expected -600 but got %d\n", o.i);
+			return 1;
+		}
+
+
+		a.i = -3; /** When a is negative, test goes failed */
+		b.i = -2;
+		__ae2f_MathIntMul(
+				&e
+				, 1
+				, &ai
+				, a.b
+				, &bi
+				, b.b
+				, &oi
+				, o.b
+				, BUFF[0]
+				, BUFF[1]
+				, BUFF[2]
+				, BUFF[3]
+				, BUFF[4]
+				, BUFF[5]
+				);
+
+		if(e) {
+			printf("Test::mul Error occurred: %d\n", e);
+			return 1;
+		}
+
+		if(o.i != -6)
+		{
+			printf("Test::mul Expected -6 but got %d\n", o.i);
 			return 1;
 		}
 	} puts("Test::mul has succeed");
