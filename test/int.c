@@ -3,7 +3,7 @@
 
 static int flip() {
 	{
-		ae2f_err_t e;
+		ae2f_err_t e = 0;
 		uint8_t a = 3, 
 			*_buf[2];
 		ae2f_MathInt aa;
@@ -70,7 +70,7 @@ static int cast() {
 	{
 		union { int8_t i; uint8_t v[1]; } a = { .i = -1 };
 		union { int32_t i; uint8_t v[1]; } b;
-		ae2f_err_t e;
+		ae2f_err_t e = 0;
 
 		ae2f_MathInt ai, bi;
 		ai.sign = 1;
@@ -133,7 +133,7 @@ static int add_sub() {
 				union __2
 				, 3
 				);
-		ae2f_err_t e;
+		ae2f_err_t e = 0;
 
 		ae2f_MathInt ai, bi;
 		ai.sign = 1;
@@ -232,19 +232,25 @@ static int add_sub() {
 
 int cmp() {
 	{
-		int8_t a = -1;
-		ae2f_err_t e;
+		union {
+			uint8_t b[1];
+			int8_t i;
+		} a = { .i = -1 };
+		ae2f_err_t e = 0;
+
+		uint8_t* vec;
 
 		ae2f_MathInt ai;
 		ai.sign = 1;
 		ai.sz = 8;
-		ai.vec = (uint8_t*)&a;
 		ai.vecbegpoint = 0;
 
 		ae2f_CmpFunRet_t ret;
-		if((e = __ae2f_MathIntCmpZero(1, &ai, &ret)))
-		{
-			printf("Test::cmp0 casted error %d\n", e);
+
+		__ae2f_MathIntCmpZero(&e, 1, &ai, a.b, &ret, vec);
+
+		if(e) {
+			printf("Test::cmp0 returned error: %d\n", e);
 			return 1;
 		}
 
@@ -258,9 +264,10 @@ int cmp() {
 			return 1;
 		}
 
-		a = 0;
+		a.i = 0;
+		__ae2f_MathIntCmpZero(&e, 1, &ai, a.b, &ret, vec);
 
-		if((e = __ae2f_MathIntCmpZero(1, &ai, &ret)))
+		if((e))
 		{
 			printf("Test::cmp0 casted error %d\n", e);
 			return 1;
@@ -276,9 +283,10 @@ int cmp() {
 			return 1;
 		}
 
-		a = 1;
+		a.i = 1;
 
-		if((e = __ae2f_MathIntCmpZero(1, &ai, &ret)))
+		__ae2f_MathIntCmpZero(&e, 1, &ai, a.b, &ret, vec);
+		if((e))
 		{
 			printf("Test::cmp0 casted error %d\n", e);
 			return 1;
@@ -301,22 +309,22 @@ int cmp() {
 		ae2f_err_t e;
 		ae2f_CmpFunRet_t ret;
 
-		int8_t a = -1;
+		union {int8_t i; uint8_t b[1]; } a = { .i = -1 };
 		ae2f_MathInt ai;
 		ai.sign = 1;
 		ai.sz = 8;
-		ai.vec = (uint8_t*)&a;
 		ai.vecbegpoint = 0; /* Making a number */
 
-		int16_t b = -1;
+		union {int16_t i; uint8_t b[1]; }b = { .i = -1};
 		ae2f_MathInt bi;
 		bi.sign = 1;
 		bi.sz = 15;
-		bi.vec = (uint8_t*)&b;
 		bi.vecbegpoint = 0; /* Making a number */
 
+		ae2f_bMathMem __mem[2];
+		__ae2f_MathIntCmp(&e, 1, &ai, a.b, &bi, b.b, &ret, __mem[0], __mem[1]);
 
-		if((e = __ae2f_MathIntCmp(1, &ai, &bi, &ret)))
+		if(e)
 		{
 			printf("Test::cmp::equal casted error: %d\n", e);
 			return 1;
@@ -331,8 +339,9 @@ int cmp() {
 			return 1;
 		}
 
-		b = 1;
-		if((e = __ae2f_MathIntCmp(1, &ai, &bi, &ret)))
+		b.i = 1;
+		__ae2f_MathIntCmp(&e, 1, &ai, a.b, &bi, b.b, &ret, __mem[0], __mem[1]);
+		if((e))
 		{
 			printf("Test::cmp::equal casted error: %d\n", e);
 			return 1;
@@ -348,8 +357,9 @@ int cmp() {
 			return 1;
 		}
 
-		b = -300;
-		if((e = __ae2f_MathIntCmp(1, &ai, &bi, &ret)))
+		b.i = -300;
+		__ae2f_MathIntCmp(&e, 1, &ai, a.b, &bi, b.b, &ret, __mem[0], __mem[1]);
+		if((e))
 		{
 			printf("Test::cmp::equal casted error: %d\n", e);
 			return 1;
@@ -366,10 +376,10 @@ int cmp() {
 			return 1;
 		}
 
-		a = 50;
-		b = 300;
-
-		if((e = __ae2f_MathIntCmp(1, &ai, &bi, &ret)))
+		a.i = 50;
+		b.i = 300;
+		__ae2f_MathIntCmp(&e, 1, &ai, a.b, &bi, b.b, &ret, __mem[0], __mem[1]);
+		if((e))
 		{
 			printf("Test::cmp::equal casted error: %d\n", e);
 			return 1;
@@ -388,10 +398,11 @@ int cmp() {
 
 		}
 
-		a = 3;
-		b = 2;
+		a.i = 3;
+		b.i = 2;
 
-		if((e = __ae2f_MathIntCmp(1, &ai, &bi, &ret)))
+		__ae2f_MathIntCmp(&e, 1, &ai, a.b, &bi, b.b, &ret, __mem[0], __mem[1]);
+		if((e))
 		{
 			printf("Test::cmp::equal casted error: %d\n", e);
 			return 1;
@@ -417,39 +428,37 @@ int cmp() {
 
 static int mul() {
 	{
-		int8_t a = -3;
-		int32_t b = 200;
+		union {int8_t i; uint8_t b[1]; } a =  { .i = -3};
+		union { int32_t i; uint8_t b[1]; } b = { .i = 200};
+		union { int16_t i; uint8_t b[1]; } o = { .i = 200};
 		uint64_t buf;
 
-		ae2f_err_t e;
+		ae2f_err_t e = 0;
 
-		ae2f_MathInt ai, bi;
+		ae2f_MathInt ai, bi, oi;
 		ai.sign = 1;
 		ai.sz = 8;
-		ai.vec = (uint8_t*)&a;
 		ai.vecbegpoint = 0;
 
 		bi.sign = 1;
 		bi.sz = 32;
-		bi.vec = (uint8_t*)&b;
 		bi.vecbegpoint = 0;
 
-		e = __ae2f_MathIntMul(
-				1
-				, &ai
-				, &bi
-				, &bi
-				, (ae2f_MathMem)&buf
-				);
+		oi = bi;
+		oi.sz = 16;
+
+		ae2f_bMathMem BUFF[5] = {0, };
+
+		__ae2f_MathIntMul(&e, 1, &ai, a.b, &bi, b.b, &oi, o.b, BUFF[0], BUFF[1], BUFF[2], BUFF[3], BUFF[4], BUFF[5]);
 
 		if(e) {
 			printf("Test::mul Error occurred: %d\n", e);
 			return 1;
 		}
 
-		if(b != -600)
+		if(b.i != -600)
 		{
-			printf("Test::mul Expected -200 but got %d\n", b);
+			printf("Test::mul Expected -600 but got %d\n", b.i);
 			return 1;
 		}
 	} puts("Test::mul has succeed");
