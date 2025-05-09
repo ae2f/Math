@@ -306,7 +306,7 @@ int cmp() {
 
 
 	{
-		ae2f_err_t e;
+		ae2f_err_t e = 0;
 		ae2f_CmpFunRet_t ret;
 
 		union {int8_t i; uint8_t b[1]; } a = { .i = -1 };
@@ -513,11 +513,15 @@ static int mul() {
 }
 
 int main() {
-	return 
+	int a = 
 		flip() 
 		|| cast() 
 		|| add_sub() 
 		|| cmp()
 		|| mul()
+		|| 0
 		;
+
+	printf("Final Output: %d\n", a);
+	return a; //!(a == 0 || a == -0);
 }
