@@ -1045,27 +1045,63 @@ inline static void __ae2f_MathIntBitSz(size_t *retsz, ae2f_MathInt *a,
   *(retsz) = __sz + 1;
 }
 
+#define ae2f_MathIntBump_POSITIVE 0
+#define ae2f_MathIntBump_NEGATIVE 1
+
+/**
+ * @brief
+ * if (`bump`) `a`--; else `a`++;
+ * */
+inline static void __ae2f_MathIntBump(ae2f_err_t *reterr, size_t count,
+                                      uint8_t bump, const ae2f_MathInt *a,
+                                      ae2f_iMathMem a_vec,
+                                      ae2f_bMathMem a_vec_buf) {
+  if ((reterr) && *(reterr))
+    return;
+  if (!(count))
+    return;
+
+  if (!((a) && (a_vec))) {
+    if (reterr)
+      *(reterr) |= ae2f_errGlob_PTR_IS_NULL;
+    return;
+  }
+
+  size_t i, j;
+  uint8_t b = 0b10, c;
+
+  ae2f_MathInt __a = ae2f_RecordMk(ae2f_MathInt, 0, 0, 0);
+
+  for (i = 0; i < (count); i++) {
+    __ae2f_MathIntNxt(reterr, i, a, a_vec, &__a, &a_vec_buf);
+
+    for (j = 0; j < __a.sz; j++) {
+      c = a_vec_buf[(__a.vecbegpoint + j) >> 3];
+      b = (b >> 1) + !!(bump) + ae2f_BitVecGet(c, (__a.vecbegpoint + j) & 7);
+      a_vec_buf[(__a.vecbegpoint + j) >> 3] =
+          ae2f_BitVecSet(c, (__a.vecbegpoint) & 7, b & 1);
+    }
+  }
+}
+
 /**
  * @warning
  * It does not handle negative values.
  *
  * @brief
+ * Unsigned division
+ *
  * `r` = `a`; `q` = `r` / `b`; `r` %= `b`;
  *
  * */
-inline static void __ae2f_MathIntDivPositive(
-    ae2f_err_t *reterr, size_t count,
-
-    const ae2f_MathInt *a, ae2f_iMathMem a_vec, const ae2f_MathInt *b,
-    ae2f_iMathMem b_vec,
-
+inline static void __ae2f_MathIntDivU(
+    ae2f_err_t *reterr, size_t count, const ae2f_MathInt *a,
+    ae2f_iMathMem a_vec, const ae2f_MathInt *b, ae2f_iMathMem b_vec,
     const ae2f_MathInt *q, ae2f_oMathMem q_vec, const ae2f_MathInt *r,
-    ae2f_oMathMem r_vec,
-
-    const ae2f_bMathMem a_vec_buf, const ae2f_bMathMem b_vec_buf,
-    const ae2f_bMathMem b_vec_buf2, ae2f_bMathMem q_vec_buf,
-    ae2f_bMathMem r_vec_buf, ae2f_bMathMem r_vec_buf2, ae2f_bMathMem r_vec_buf3,
-    ae2f_bMathMem r_vec_buf4) {
+    ae2f_oMathMem r_vec, const ae2f_bMathMem a_vec_buf,
+    const ae2f_bMathMem b_vec_buf, const ae2f_bMathMem b_vec_buf2,
+    ae2f_bMathMem q_vec_buf, ae2f_bMathMem r_vec_buf, ae2f_bMathMem r_vec_buf2,
+    ae2f_bMathMem r_vec_buf3, ae2f_bMathMem r_vec_buf4) {
   if (!(count))
     return;
   if ((reterr) && *(reterr))
@@ -1118,20 +1154,24 @@ inline static void __ae2f_MathIntDivPositive(
   size_t i, j;
   ae2f_CmpFunRet_t cmpret = 0;
 
-  ae2f_MathInt __b, __r2 = ae2f_RecordMk(ae2f_MathInt, 0, 0, 0), __q, __r;
+  ae2f_MathInt __b, __r2 = ae2f_RecordMk(ae2f_MathInt, 0, (b)->sz, 0), __q, __r;
+
   for (i = 0; i < (count); i++) {
     __ae2f_MathIntNxt(reterr, i, b, b_vec, &__b, &b_vec_buf);
     __ae2f_MathIntNxt(reterr, i, q, q_vec, &__q, &q_vec_buf);
     __ae2f_MathIntNxt(reterr, i, r, r_vec, &__r, &r_vec_buf);
 
+    __ae2f_MathIntCmpZero(reterr, 1, &__b, b_vec_buf, &cmpret, b_vec_buf2);
+    if (!cmpret && (reterr)) /* `b` is zero. terminating... */
+      *(reterr) |= ae2f_errGlob_WRONG_OPERATION;
+
     __b.sign = __q.sign = __r.sign = 0;
 
     __ae2f_MathIntBitSz(&__r.sz, &__r, r_vec_buf);
     __ae2f_MathIntBitSz(&__b.sz, &__b, b_vec_buf);
+
     if (__b.sz > __r.sz)
       continue;
-
-    __r2.sz = __b.sz;
 
     for (j = __r.sz - __b.sz - 1; j != ae2f_static_cast(size_t, -1); j--) {
       __r2.vecbegpoint = (__r.vecbegpoint + j) & 7;
@@ -1142,14 +1182,17 @@ inline static void __ae2f_MathIntDivPositive(
                         b_vec_buf2, r_vec_buf3);
 
       /* if b <= r2: r2 -= b; */
-      if (cmpret >= 0) {
+      if (cmpret <= 0) {
         __ae2f_MathIntSub(reterr, 1, &__r2, r_vec_buf2, &__b, b_vec_buf, &__r2,
                           r_vec_buf2, r_vec_buf3, b_vec_buf2, r_vec_buf4);
+
+        /** q */
+        if (j < __q.sz) {
+          (q_vec_buf)[(__q.vecbegpoint + j) >> 3] |=
+              1 << ((__q.vecbegpoint + j) & 7);
+        }
       }
     }
-
-    __ae2f_MathIntBitSz(&__r.sz, &__r, r_vec_buf);
-    __ae2f_MathIntBitSz(&__b.sz, &__b, b_vec_buf);
   }
 }
 

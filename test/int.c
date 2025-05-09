@@ -209,7 +209,7 @@ static int add_sub() {
 				, &bi
 				, b.v
 				, &bi
-				, b.v
+				, a.v
 				, _buf[0]
 				, _buf[1]
 				, _buf[2]
@@ -220,7 +220,7 @@ static int add_sub() {
 			return 1;
 		}
 
-		if(b.i != -4)
+		if(a.i != -4)
 		{
 			printf("Test::subtract Expected -4 but got %d\n", b);
 			return 1;
@@ -512,6 +512,114 @@ static int mul() {
 	return 0;
 }
 
+static int div() {
+	{
+		union {int32_t i; uint8_t b[1]; } a =  { .i = 10000};
+		union { int16_t i; uint8_t b[1]; } b = { .i = 7};
+		union { int16_t i; uint8_t b[1]; } oq = { .i = 0};
+		union { int32_t i; uint8_t b[1]; } or = { .i = 0};
+
+		ae2f_err_t e = 0;
+
+		ae2f_MathInt ai, bi, oqi, ori;
+		ai.sign = 1;
+		ai.sz = 32;
+		ai.vecbegpoint = 0;
+
+		bi.sign = 1;
+		bi.sz = 16;
+		bi.vecbegpoint = 0;
+
+		oqi.sign = 1;
+		oqi.vecbegpoint = 0;
+		oqi.sz = 16;
+
+		ori.sign = 1;
+		ori.vecbegpoint = 0;
+		ori.sz = 32;
+
+		ae2f_bMathMem buf[8] = {0, };
+
+		__ae2f_MathIntDivU(
+				&e
+				, 1
+				, &ai
+				, a.b
+				, &bi
+				, b.b
+				, &oqi
+				, oq.b
+				, &ori
+				, or.b
+				, buf[0]
+				, buf[1]
+				, buf[2]
+				, buf[3]
+				, buf[4]
+				, buf[5]
+				, buf[6]
+				, buf[7]
+				);
+
+
+		printf("A, %d, B: %d, Q: %d, R: %d\n", a.i, b.i, oq.i, or.i);
+		if(e) {
+			printf("Test::div+ casted error %d\n", e);
+			return 1;
+		}
+
+		if(or.i != a.i % b.i) {
+			printf("Test::div+ Expected %d but got %d\n", a.i % b.i, or.i);
+			return 1;
+		}
+
+		if(oq.i != a.i / b.i) {
+			printf("Test::div+ Expected %d but got %d\n", a.i / b.i, oq.i);
+			return 1;
+		}
+
+		__ae2f_MathIntDivU(
+				&e
+				, 1
+				, &ai
+				, a.b
+				, &bi
+				, b.b
+				, &oqi
+				, oq.b
+				, &ori
+				, or.b
+				, buf[0]
+				, buf[1]
+				, buf[2]
+				, buf[3]
+				, buf[4]
+				, buf[5]
+				, buf[6]
+				, buf[7]
+				);
+
+
+		printf("A, %d, B: %d, Q: %d, R: %d\n", a.i, b.i, oq.i, or.i);
+		if(e) {
+			printf("Test::div+ casted error %d\n", e);
+			return 1;
+		}
+
+		if(or.i != a.i % b.i) {
+			printf("Test::div+ Expected %d but got %d\n", a.i % b.i, or.i);
+			return 1;
+		}
+
+		if(oq.i != a.i / b.i) {
+			printf("Test::div+ Expected %d but got %d\n", a.i / b.i, oq.i);
+			return 1;
+		}
+
+	} puts("Test::div+ has succeed.");
+	return 0;
+}
+
 int main() {
 	int a = 
 		flip() 
@@ -519,6 +627,7 @@ int main() {
 		|| add_sub() 
 		|| cmp()
 		|| mul()
+		|| div()
 		|| 0
 		;
 
