@@ -538,7 +538,7 @@ static int div() {
 		ori.vecbegpoint = 0;
 		ori.sz = 32;
 
-		ae2f_bMathMem buf[8] = {0, };
+		ae2f_bMathMem __buf[8] = {0, };
 
 		__ae2f_MathIntDivU(
 				&e
@@ -551,14 +551,14 @@ static int div() {
 				, oq.b
 				, &ori
 				, or.b
-				, buf[0]
-				, buf[1]
-				, buf[2]
-				, buf[3]
-				, buf[4]
-				, buf[5]
-				, buf[6]
-				, buf[7]
+				, (__buf[0])
+				, (__buf[1])
+				, (__buf[2])
+				, (__buf[3])
+				, (__buf[4])
+				, (__buf[5])
+				, (__buf[6])
+				, (__buf[7])
 				);
 
 
@@ -578,6 +578,8 @@ static int div() {
 			return 1;
 		}
 
+		a.i = 3;
+		b.i = 5;
 		__ae2f_MathIntDivU(
 				&e
 				, 1
@@ -589,15 +591,16 @@ static int div() {
 				, oq.b
 				, &ori
 				, or.b
-				, buf[0]
-				, buf[1]
-				, buf[2]
-				, buf[3]
-				, buf[4]
-				, buf[5]
-				, buf[6]
-				, buf[7]
+				, __buf[0]
+				, __buf[1]
+				, __buf[2]
+				, __buf[3]
+				, __buf[4]
+				, __buf[5]
+				, __buf[6]
+				, __buf[7]
 				);
+
 
 
 		printf("A, %d, B: %d, Q: %d, R: %d\n", a.i, b.i, oq.i, or.i);
