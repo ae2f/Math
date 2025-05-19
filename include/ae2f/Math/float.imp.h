@@ -71,6 +71,8 @@
                   3;                                                           \
   }
 
+#define __ae2f_MathFloatCastVar ae2f_RecordMk(struct {}, 0, )
+
 inline void ae2f_MathFloatCast(ae2f_err_t *err, const ae2f_MathFloat *ifloat_t,
                                ae2f_iMathMem ifloat,
                                const ae2f_MathFloat *ofloat_t,
@@ -80,10 +82,11 @@ inline void ae2f_MathFloatCast(ae2f_err_t *err, const ae2f_MathFloat *ifloat_t,
   else if (!((ifloat_t) && (ifloat) && (ofloat_t) && (ofloat)))
     (err) && (*(err) = ae2f_errGlob_PTR_IS_NULL);
   else {
-
     /* sign: easy */
     __ae2f_MathFloatSetSign(ofloat_t, ofloat,
                             __ae2f_MathFloatGetSign(ifloat_t, ifloat));
+
+    /* Exponent */
   }
 }
 
