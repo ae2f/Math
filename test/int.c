@@ -429,10 +429,7 @@ static int div() {
         0,
     };
 
-    __ae2f_MathIntDivU(&e, 1, &ai, a.b, &bi, b.b, &oqi, oq.b, &ori, or.b,
-                       (__buf[0]), (__buf[1]), (__buf[2]), (__buf[3]),
-                       (__buf[4]), (__buf[5]), (__buf[6]), (__buf[7]));
-
+    __ae2f_MathIntDivU(&e, &ai, a.b, &bi, b.b, &oqi, oq.b, &ori, or.b);
     printf("A, %d, B: %d, Q: %d, R: %d\n", a.i, b.i, oq.i, or.i);
     if (e) {
       printf("Test::div+ casted error %d\n", e);
@@ -451,9 +448,7 @@ static int div() {
 
     a.i = 3;
     b.i = 5;
-    __ae2f_MathIntDivU(&e, 1, &ai, a.b, &bi, b.b, &oqi, oq.b, &ori, or.b,
-                       __buf[0], __buf[1], __buf[2], __buf[3], __buf[4],
-                       __buf[5], __buf[6], __buf[7]);
+    __ae2f_MathIntDivU(&e, &ai, a.b, &bi, b.b, &oqi, oq.b, &ori, or.b);
 
     printf("A, %d, B: %d, Q: %d, R: %d\n", a.i, b.i, oq.i, or.i);
     if (e) {

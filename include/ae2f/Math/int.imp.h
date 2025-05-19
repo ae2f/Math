@@ -366,7 +366,7 @@
  * @param a		{const ae2f_MathInt*}
  * @param a_vec		{ae2f_oMathMem}
  * @param mask		{uint}
- * @param masklen	{size_t}
+ * @param masklen	{uint8_t}
  * */
 #define __ae2f_MathIntFill(reterr, a, a_vec, mask, masklen)                    \
   {                                                                            \
@@ -412,7 +412,7 @@
  * */
 #define __ae2f_MathIntCmpZero(reterr, in, in_vec, out)                         \
   {                                                                            \
-    if (!(out) || (reterr) && *(reterr))                                       \
+    if (!(out) || ((reterr) && *(reterr)))                                     \
       ;                                                                        \
     else if (!((in) && (in_vec))) {                                            \
       (reterr) && (*(reterr) |= ae2f_errGlob_PTR_IS_NULL);                     \
@@ -432,13 +432,14 @@
         for (__ae2f_MathIntCmpZeroVar.i = 0;                                   \
              __ae2f_MathIntCmpZeroVar.i < (in)->sz;                            \
              __ae2f_MathIntCmpZeroVar.i++) {                                   \
+          bool _ = 0;                                                          \
           __ae2f_MathIntCmpZeroVar.ivecbpr =                                   \
               ((in)->vecbegpoint + __ae2f_MathIntCmpZeroVar.i) & 7;            \
           __ae2f_MathIntCmpZeroVar.ivecbpq =                                   \
               ((in)->vecbegpoint + __ae2f_MathIntCmpZeroVar.i) >> 3;           \
                                                                                \
-          if (ae2f_BitVecGet((in_vec)[__ae2f_MathIntCmpZeroVar.ivecbpq],       \
-                             __ae2f_MathIntCmpZeroVar.ivecbpr)) {              \
+          if ((_ = ae2f_BitVecGet((in_vec)[__ae2f_MathIntCmpZeroVar.ivecbpq],  \
+                                  __ae2f_MathIntCmpZeroVar.ivecbpr))) {        \
             *(out) = ae2f_CmpFunRet_RISLESSER;                                 \
             break;                                                             \
           }                                                                    \
@@ -675,10 +676,12 @@
       } __ae2f_MathIntSzVar;                                                   \
       __ae2f_MathIntSzVar.sz = (a)->sz - 1;                                    \
       for (; __ae2f_MathIntSzVar.sz != ae2f_static_cast(size_t, -1);           \
-           __ae2f_MathIntSzVar.sz--)                                           \
-        if (ae2f_BitVecGet((a_vec)[__ae2f_MathIntSzVar.sz >> 3],               \
-                           __ae2f_MathIntSzVar.sz & 7))                        \
+           __ae2f_MathIntSzVar.sz--) {                                         \
+        if (ae2f_BitVecGet(                                                    \
+                (a_vec)[(__ae2f_MathIntSzVar.sz + (a)->vecbegpoint) >> 3],     \
+                (__ae2f_MathIntSzVar.sz + (a)->vecbegpoint) & 7))              \
           break;                                                               \
+      }                                                                        \
       *(retsz) = __ae2f_MathIntSzVar.sz + 1;                                   \
     }                                                                          \
   }
@@ -737,97 +740,74 @@
  *
  * @param reterr	{ae2f_MathMemOutErr}
  * @param count		{size_t}
- * @param a		{const
- * ae2f_MathInt*}
+ * @param a		{const ae2f_MathInt*}
  * @param a_vec		{ae2f_iMathMem}
- * @param b		{const
- * ae2f_MathInt*}
+ * @param b		{const ae2f_MathInt*}
  * @param b_vec		{ae2f_iMathMem}
- * @param q		{const
- * ae2f_MathInt*}
+ * @param q		{const ae2f_MathInt*}
  * @param q_vec		{ae2f_oMathMem}
- * @param r		{const
- * ae2f_MathInt*}
+ * @param r		{const ae2f_MathInt*}
  * @param r_vec		{ae2f_oMathMem}
- * @param a_vec_buf	{typeof(a_vec)&}
- * Must be an L-value
- * @param b_vec_buf	{typeof(b_vec)&}
- * Must be an L-value
- * @param b_vec_buf2	{typeof(b_vec)&}
- * Must be an L-value
- * @param q_vec_buf	{typeof(q_vec)&}
- * Must be an L-value
- * @param r_vec_buf	{typeof(r_vec)&}
- * Must be an L-value
- * @param r_vec_buf2	{typeof(r_vec)&}
- * Must be an L-value
- * @param r_vec_buf3	{typeof(r_vec)&}
- * Must be an L-value
- * @param r_vec_buf4	{typeof(r_vec)&}
- * Must be an L-value
  * */
-#define __ae2f_MathIntDivU(reterr, count, a, a_vec, b, b_vec, q, q_vec, r,     \
-                           r_vec, a_vec_buf, b_vec_buf, b_vec_buf2, q_vec_buf, \
-                           r_vec_buf, r_vec_buf2, r_vec_buf3, r_vec_buf4)      \
+#define __ae2f_MathIntDivU(reterr, a, a_vec, b, b_vec, q, q_vec, r, r_vec)     \
   {                                                                            \
+    struct {                                                                   \
+      size_t j, ridx2;                                                         \
+      ae2f_CmpFunRet_t cmpret;                                                 \
+      ae2f_MathInt _r, r2, _b, _q;                                             \
+    } __var;                                                                   \
     if ((reterr) && *(reterr))                                                 \
       ;                                                                        \
                                                                                \
-    if (!((a) && (a_vec) && (b) && (b_vec) && (q) && (q_vec) && (r) &&         \
-          (r_vec))) {                                                          \
+    else if (!((a) && (a_vec) && (b) && (b_vec) && (q) && (q_vec) && (r) &&    \
+               (r_vec))) {                                                     \
                                                                                \
       if (reterr)                                                              \
         *(reterr) = ae2f_errGlob_PTR_IS_NULL;                                  \
-    } else {                                                                   \
+    }                                                                          \
+                                                                               \
+    else {                                                                     \
       __ae2f_MathIntFill(reterr, q, q_vec, 0, 1);                              \
       __ae2f_MathIntCast(reterr, a, a_vec, r, r_vec);                          \
                                                                                \
-      size_t i, j;                                                             \
-      ae2f_CmpFunRet_t cmpret = 0;                                             \
+      __var.cmpret = 0;                                                        \
+      __var._r = *(r);                                                         \
+      __var.r2 = ae2f_RecordMk(ae2f_MathInt, 0, 0, (b)->sz);                   \
+      __var._b = *(b);                                                         \
+      __var._q = *(q);                                                         \
+      __ae2f_MathIntCmpZero(reterr, &__var._b, b_vec, &__var.cmpret);          \
+      if (!__var.cmpret) /* `b` is zero.                                       \
+      terminating...                                                           \
+      */                                                                       \
+      {                                                                        \
+        (reterr) && (*(reterr) |= ae2f_errGlob_WRONG_OPERATION);               \
+      } else {                                                                 \
+        __var._b.sign = __var._r.sign = __var._q.sign = 0;                     \
+        __ae2f_MathIntSz(&__var._r.sz, &__var._r, r_vec);                      \
+        __ae2f_MathIntSz(&__var._b.sz, &__var._b, b_vec);                      \
+        if (__var._b.sz <= __var._r.sz)                                        \
+          for (__var.j = __var._r.sz - __var._b.sz - 1;                        \
+               __var.j != ae2f_static_cast(size_t, -1); __var.j--) {           \
+            __var.r2.vecbegpoint =                                             \
+                (ae2f_static_cast(uint8_t, __var._r.vecbegpoint) + __var.j) &  \
+                7;                                                             \
+            __var.ridx2 = ((__var._r.vecbegpoint + __var.j) >> 3);             \
+            /* b cmp r2 */                                                     \
+            __ae2f_MathIntCmp(reterr, &__var._b, b_vec, &__var.r2,             \
+                              (r_vec) + __var.ridx2, &__var.cmpret);           \
+            /* if b <= r2: r2 -= b; */                                         \
+            if ((__var.cmpret) <= 0) {                                         \
+              __ae2f_MathIntSub(reterr, &__var.r2, (r_vec) + __var.ridx2,      \
+                                &__var._b, b_vec, &__var.r2,                   \
+                                (r_vec) + __var.ridx2);                        \
                                                                                \
-      ae2f_MathInt __b, __r2 = ae2f_RecordMk(ae2f_MathInt, 0, (b)->sz, 0),     \
-                        __q, __r;                                              \
-                                                                               \
-      for (i = 0; i < (count); i++) {                                          \
-        __ae2f_MathIntNxt(reterr, i, b, b_vec, &__b, &(b_vec_buf));            \
-        __ae2f_MathIntNxt(reterr, i, q, q_vec, &__q, &(q_vec_buf));            \
-        __ae2f_MathIntNxt(reterr, i, r, r_vec, &__r, &(r_vec_buf));            \
-                                                                               \
-        __ae2f_MathIntCmpZero(reterr, &__b, b_vec_buf, &cmpret);               \
-        if (!cmpret && (reterr)) /* `b` is zero.                               \
-                                    terminating...                             \
-                                  */                                           \
-          *(reterr) |= ae2f_errGlob_WRONG_OPERATION;                           \
-                                                                               \
-        __b.sign = __q.sign = __r.sign = 0;                                    \
-                                                                               \
-        __ae2f_MathIntSz(&__r.sz, &__r, r_vec_buf);                            \
-        __ae2f_MathIntSz(&__b.sz, &__b, b_vec_buf);                            \
-                                                                               \
-        if (__b.sz > __r.sz)                                                   \
-          continue;                                                            \
-                                                                               \
-        for (j = __r.sz - __b.sz - 1; j != ae2f_static_cast(size_t, -1);       \
-             j--) {                                                            \
-          __r2.vecbegpoint = (__r.vecbegpoint + j) & 7;                        \
-          (r_vec_buf2) = (r_vec_buf) + ((__r.vecbegpoint + j) >> 3);           \
-                                                                               \
-          /* b cmp r2 */                                                       \
-          __ae2f_MathIntCmp(reterr, &__b, b_vec_buf, &__r2, r_vec_buf2,        \
-                            &cmpret);                                          \
-                                                                               \
-          /* if b <= r2: r2 -= b; */                                           \
-          if (cmpret <= 0) {                                                   \
-            __ae2f_MathIntSub(reterr, &__r2, r_vec_buf2, &__b, b_vec_buf,      \
-                              &__r2, r_vec_buf2);                              \
-                                                                               \
-            /** q */                                                           \
-            if (j < __q.sz) {                                                  \
-              (q_vec_buf)[(__q.vecbegpoint + j) >> 3] |=                       \
-                  1 << ((__q.vecbegpoint + j) & 7);                            \
+              /** q */                                                         \
+              if (__var.j < __var._q.sz) {                                     \
+                (q_vec)[(__var._q.vecbegpoint + __var.j) >> 3] |=              \
+                    1 << ((__var._q.vecbegpoint + __var.j) & 7);               \
+              }                                                                \
             }                                                                  \
           }                                                                    \
-        }                                                                      \
       }                                                                        \
     }                                                                          \
   }
