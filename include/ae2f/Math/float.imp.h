@@ -28,11 +28,10 @@
  * # ae2f_oMathMem
  * */
 #define __ae2f_MathFloatSetSign(afloat_t, afloat, _sign_bit)                   \
-  if ((afloat_t)->sign && (afloat) && (afloat_t)) {                            \
-    (((afloat_t)->exp + (afloat_t)->man) >> 3)[afloat] =                       \
-        ae2f_BitVecSet((((afloat_t)->exp + (afloat_t)->man) >> 3)[afloat],     \
-                       (((afloat_t)->exp + (afloat_t)->man) & 7), _sign_bit);  \
-  }
+  ((afloat_t)->sign && (afloat) && (afloat_t)) &&                              \
+      ((((afloat_t)->exp + (afloat_t)->man) >> 3)[afloat] = ae2f_BitVecSet(    \
+           (((afloat_t)->exp + (afloat_t)->man) >> 3)[afloat],                 \
+           (((afloat_t)->exp + (afloat_t)->man) & 7), _sign_bit))
 
 /**
  * @macro __ae2f_MathFloatElSz
@@ -43,6 +42,30 @@
  * */
 #define __ae2f_MathFloatElSz(afloat_t)                                         \
   ((afloat_t)->sign + (afloat_t)->exp + (afloat_t)->man)
+
+#define __ae2f_MathFloatMan(reterr, af, af_vec, oi, oi_vec_ptr)                \
+  if ((reterr) && *(reterr))                                                   \
+    ;                                                                          \
+  else if (!((af) && (af_vec) && (oi) && (oi_vec_ptr)))                        \
+    ((reterr)) && (*(reterr) = ae2f_errGlob_PTR_IS_NULL);                      \
+  else {                                                                       \
+    (oi)->sign = 0;                                                            \
+    (oi)->vecbegpoint = (af)->bstart;                                          \
+    (oi)->sz = (af)->man;                                                      \
+    *(oi_vec_ptr) = (af_vec);                                                  \
+  }
+
+#define __ae2f_MathFloatExp(reterr, af, af_vec, oi, oi_vec_ptr)                \
+  if ((reterr) && *(reterr))                                                   \
+    ;                                                                          \
+  else if (!((af) && (af_vec) && (oi) && (oi_vec_ptr)))                        \
+    ((reterr)) && (*(reterr) = ae2f_errGlob_PTR_IS_NULL);                      \
+  else {                                                                       \
+    (oi)->sign = 0;                                                            \
+    (oi)->vecbegpoint = ((af)->man + (af)->bstart);                            \
+    (oi)->sz = (af)->exp;                                                      \
+    *(oi_vec_ptr) = (af_vec);                                                  \
+  }
 
 /**
  * @macro __ae2f_MathFloatNxt
@@ -71,8 +94,6 @@
                   3;                                                           \
   }
 
-#define __ae2f_MathFloatCastVar ae2f_RecordMk(struct {}, 0, )
-
 inline void ae2f_MathFloatCast(ae2f_err_t *err, const ae2f_MathFloat *ifloat_t,
                                ae2f_iMathMem ifloat,
                                const ae2f_MathFloat *ofloat_t,
@@ -82,7 +103,7 @@ inline void ae2f_MathFloatCast(ae2f_err_t *err, const ae2f_MathFloat *ifloat_t,
   else if (!((ifloat_t) && (ifloat) && (ofloat_t) && (ofloat)))
     (err) && (*(err) = ae2f_errGlob_PTR_IS_NULL);
   else {
-    /* sign: easy */
+    /* sign */
     __ae2f_MathFloatSetSign(ofloat_t, ofloat,
                             __ae2f_MathFloatGetSign(ifloat_t, ifloat));
 

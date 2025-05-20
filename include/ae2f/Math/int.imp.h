@@ -28,7 +28,7 @@
       } __ae2f_MathIntNxtVar;                                                  \
       __ae2f_MathIntNxtVar.__len = (_int)->vecbegpoint + (_int)->sz * (_idx);  \
       *(_out_int) = *(_int);                                                   \
-      (_out_int)->vecbegpoint = __ae2f_MathIntNxtVar.__len & 7;                \
+      (_out_int)->vecbegpoint = __ae2f_MathIntNxtVar.__len;                    \
       *(_out_int_vec) = (_int_vec) + (__ae2f_MathIntNxtVar.__len >> 3);        \
     }                                                                          \
   }
@@ -86,12 +86,12 @@
         __ae2f_MathIntCastVar.ovecbp =                                         \
             (__out)->vecbegpoint + __ae2f_MathIntCastVar.j;                    \
         __ae2f_MathIntCastVar.ovecbpq = __ae2f_MathIntCastVar.ovecbp >> 3;     \
-        __ae2f_MathIntCastVar.ovecbpr = __ae2f_MathIntCastVar.ovecbp & 7;      \
+        __ae2f_MathIntCastVar.ovecbpr = __ae2f_MathIntCastVar.ovecbp;          \
                                                                                \
         __ae2f_MathIntCastVar.ivecbp =                                         \
             (__in)->vecbegpoint + __ae2f_MathIntCastVar.j;                     \
         __ae2f_MathIntCastVar.ivecbpq = __ae2f_MathIntCastVar.ivecbp >> 3;     \
-        __ae2f_MathIntCastVar.ivecbpr = __ae2f_MathIntCastVar.ivecbp & 7;      \
+        __ae2f_MathIntCastVar.ivecbpr = __ae2f_MathIntCastVar.ivecbp;          \
                                                                                \
         (__o_vec)[__ae2f_MathIntCastVar.ovecbpq] = ae2f_BitVecSet(             \
             (__o_vec)[__ae2f_MathIntCastVar.ovecbpq],                          \
@@ -110,12 +110,12 @@
         __ae2f_MathIntCastVar.ovecbp =                                         \
             (__out)->vecbegpoint + __ae2f_MathIntCastVar.j;                    \
         __ae2f_MathIntCastVar.ovecbpq = __ae2f_MathIntCastVar.ovecbp >> 3;     \
-        __ae2f_MathIntCastVar.ovecbpr = __ae2f_MathIntCastVar.ovecbp & 7;      \
+        __ae2f_MathIntCastVar.ovecbpr = __ae2f_MathIntCastVar.ovecbp;          \
                                                                                \
         __ae2f_MathIntCastVar.ivecbp =                                         \
             (__in)->vecbegpoint + __ae2f_MathIntCastVar.j;                     \
         __ae2f_MathIntCastVar.ivecbpq = __ae2f_MathIntCastVar.ivecbp >> 3;     \
-        __ae2f_MathIntCastVar.ivecbpr = __ae2f_MathIntCastVar.ivecbp & 7;      \
+        __ae2f_MathIntCastVar.ivecbpr = __ae2f_MathIntCastVar.ivecbp;          \
                                                                                \
         __ae2f_MathIntCastVar.ovecbpq[__o_vec] =                               \
             ae2f_BitVecSet(__ae2f_MathIntCastVar.ovecbpq[__o_vec],             \
@@ -170,7 +170,7 @@
       __ae2f_MathIntFlipVar.buf = 0b10;                                        \
       __ae2f_MathIntFlipVar.ivecbp = (__i)->vecbegpoint + (__i)->sz - 1;       \
       __ae2f_MathIntFlipVar.ivecbpq = __ae2f_MathIntFlipVar.ivecbp >> 3;       \
-      __ae2f_MathIntFlipVar.ivecbpr = __ae2f_MathIntFlipVar.ivecbp & 7;        \
+      __ae2f_MathIntFlipVar.ivecbpr = __ae2f_MathIntFlipVar.ivecbp;            \
                                                                                \
       __ae2f_MathIntFlipVar.sbit =                                             \
           (__o)->sign &&                                                       \
@@ -182,12 +182,12 @@
         __ae2f_MathIntFlipVar.ovecbp =                                         \
             (__o)->vecbegpoint + __ae2f_MathIntFlipVar.j;                      \
         __ae2f_MathIntFlipVar.ovecbpq = __ae2f_MathIntFlipVar.ovecbp >> 3;     \
-        __ae2f_MathIntFlipVar.ovecbpr = __ae2f_MathIntFlipVar.ovecbp & 7;      \
+        __ae2f_MathIntFlipVar.ovecbpr = __ae2f_MathIntFlipVar.ovecbp;          \
                                                                                \
         __ae2f_MathIntFlipVar.ivecbp =                                         \
             (__i)->vecbegpoint + __ae2f_MathIntFlipVar.j;                      \
         __ae2f_MathIntFlipVar.ivecbpq = __ae2f_MathIntFlipVar.ivecbp >> 3;     \
-        __ae2f_MathIntFlipVar.ivecbpr = __ae2f_MathIntFlipVar.ivecbp & 7;      \
+        __ae2f_MathIntFlipVar.ivecbpr = __ae2f_MathIntFlipVar.ivecbp;          \
                                                                                \
         __ae2f_MathIntFlipVar.buf =                                            \
             !(__ae2f_MathIntFlipVar.j < (__i)->sz                              \
@@ -198,7 +198,7 @@
                                                                                \
         (__o_vec)[__ae2f_MathIntFlipVar.ovecbpq] = ae2f_BitVecSet(             \
             (__o_vec)[__ae2f_MathIntFlipVar.ovecbpq],                          \
-            __ae2f_MathIntFlipVar.ovecbpr, __ae2f_MathIntFlipVar.buf & 1);     \
+            __ae2f_MathIntFlipVar.ovecbpr, __ae2f_MathIntFlipVar.buf);         \
       }                                                                        \
     }                                                                          \
   }
@@ -251,17 +251,17 @@
         __ae2f_MathIntAddVar.avecbp =                                          \
             (_a)->vecbegpoint + __ae2f_MathIntAddVar.j;                        \
         __ae2f_MathIntAddVar.avecbpq = __ae2f_MathIntAddVar.avecbp >> 3;       \
-        __ae2f_MathIntAddVar.avecbpr = __ae2f_MathIntAddVar.avecbp & 7;        \
+        __ae2f_MathIntAddVar.avecbpr = __ae2f_MathIntAddVar.avecbp;            \
                                                                                \
         __ae2f_MathIntAddVar.bvecbp =                                          \
             (_b)->vecbegpoint + __ae2f_MathIntAddVar.j;                        \
         __ae2f_MathIntAddVar.bvecbpq = __ae2f_MathIntAddVar.bvecbp >> 3;       \
-        __ae2f_MathIntAddVar.bvecbpr = __ae2f_MathIntAddVar.bvecbp & 7;        \
+        __ae2f_MathIntAddVar.bvecbpr = __ae2f_MathIntAddVar.bvecbp;            \
                                                                                \
         __ae2f_MathIntAddVar.ovecbp =                                          \
             (_o)->vecbegpoint + __ae2f_MathIntAddVar.j;                        \
         __ae2f_MathIntAddVar.ovecbpq = __ae2f_MathIntAddVar.ovecbp >> 3;       \
-        __ae2f_MathIntAddVar.ovecbpr = __ae2f_MathIntAddVar.ovecbp & 7;        \
+        __ae2f_MathIntAddVar.ovecbpr = __ae2f_MathIntAddVar.ovecbp;            \
                                                                                \
         __ae2f_MathIntAddVar.buf =                                             \
             (__ae2f_MathIntAddVar.j < (_a)->sz                                 \
@@ -275,7 +275,7 @@
             (__ae2f_MathIntAddVar.buf >> 1);                                   \
         __ae2f_MathIntAddVar.ovecbpq[_o_vec] = ae2f_BitVecSet(                 \
             __ae2f_MathIntAddVar.ovecbpq[_o_vec],                              \
-            __ae2f_MathIntAddVar.ovecbpr, __ae2f_MathIntAddVar.buf & 1);       \
+            __ae2f_MathIntAddVar.ovecbpr, __ae2f_MathIntAddVar.buf);           \
       }                                                                        \
     }                                                                          \
   }
@@ -301,12 +301,16 @@
       ((reterr) && (*(reterr) |= ae2f_errGlob_PTR_IS_NULL));                   \
     } else {                                                                   \
       struct {                                                                 \
-        size_t j, ovecbp, ovecbpq, avecbp, avecbpq, bvecbp, bvecbpq;           \
+        size_t j;                                                              \
+        union {                                                                \
+          size_t p;                                                            \
+          struct {                                                             \
+            uint8_t r : 3;                                                     \
+            size_t q : (sizeof(size_t) << 3) - 3;                              \
+          };                                                                   \
+        } ovecb, avecb, bvecb; /* for 8-div handling */                        \
         uint8_t buf : 2;                                                       \
         uint8_t sb2 : 2;                                                       \
-        uint8_t ovecbpr : 3;                                                   \
-        uint8_t avecbpr : 3;                                                   \
-        uint8_t bvecbpr : 3;                                                   \
       } __ae2f_MathIntSubVar;                                                  \
       __ae2f_MathIntSubVar.buf = 0b10; /**                                     \
                                         * 0: a                                 \
@@ -324,34 +328,28 @@
                                                                                \
       for (__ae2f_MathIntSubVar.j = 0; __ae2f_MathIntSubVar.j < (_o)->sz;      \
            __ae2f_MathIntSubVar.j++) {                                         \
-        __ae2f_MathIntSubVar.avecbp =                                          \
+        __ae2f_MathIntSubVar.avecb.p =                                         \
             (_a)->vecbegpoint + __ae2f_MathIntSubVar.j;                        \
-        __ae2f_MathIntSubVar.avecbpq = __ae2f_MathIntSubVar.avecbp >> 3;       \
-        __ae2f_MathIntSubVar.avecbpr = __ae2f_MathIntSubVar.avecbp & 7;        \
                                                                                \
-        __ae2f_MathIntSubVar.bvecbp =                                          \
+        __ae2f_MathIntSubVar.bvecb.p =                                         \
             (_b)->vecbegpoint + __ae2f_MathIntSubVar.j;                        \
-        __ae2f_MathIntSubVar.bvecbpq = __ae2f_MathIntSubVar.bvecbp >> 3;       \
-        __ae2f_MathIntSubVar.bvecbpr = __ae2f_MathIntSubVar.bvecbp & 7;        \
                                                                                \
-        __ae2f_MathIntSubVar.ovecbp =                                          \
+        __ae2f_MathIntSubVar.ovecb.p =                                         \
             (_o)->vecbegpoint + __ae2f_MathIntSubVar.j;                        \
-        __ae2f_MathIntSubVar.ovecbpq = __ae2f_MathIntSubVar.ovecbp >> 3;       \
-        __ae2f_MathIntSubVar.ovecbpr = __ae2f_MathIntSubVar.ovecbp & 7;        \
                                                                                \
         __ae2f_MathIntSubVar.buf =                                             \
             (__ae2f_MathIntSubVar.j < (_a)->sz                                 \
-                 ? ae2f_BitVecGet(__ae2f_MathIntSubVar.avecbpq[_a_vec],        \
-                                  __ae2f_MathIntSubVar.avecbpr)                \
+                 ? ae2f_BitVecGet(__ae2f_MathIntSubVar.avecb.q[_a_vec],        \
+                                  __ae2f_MathIntSubVar.avecb.r)                \
                  : __ae2f_MathIntSubVar.sb2 & 1) +                             \
             !(__ae2f_MathIntSubVar.j < (_b)->sz                                \
-                  ? ae2f_BitVecGet(__ae2f_MathIntSubVar.bvecbpq[_b_vec],       \
-                                   __ae2f_MathIntSubVar.bvecbpr)               \
+                  ? ae2f_BitVecGet(__ae2f_MathIntSubVar.bvecb.q[_b_vec],       \
+                                   __ae2f_MathIntSubVar.bvecb.r)               \
                   : __ae2f_MathIntSubVar.sb2 >> 1) /* ~`b` */                  \
             + (__ae2f_MathIntSubVar.buf >> 1);                                 \
-        __ae2f_MathIntSubVar.ovecbpq[_o_vec] = ae2f_BitVecSet(                 \
-            __ae2f_MathIntSubVar.ovecbpq[_o_vec],                              \
-            __ae2f_MathIntSubVar.ovecbpr, __ae2f_MathIntSubVar.buf & 1);       \
+        __ae2f_MathIntSubVar.ovecb.q[_o_vec] = ae2f_BitVecSet(                 \
+            __ae2f_MathIntSubVar.ovecb.q[_o_vec],                              \
+            __ae2f_MathIntSubVar.ovecb.r, __ae2f_MathIntSubVar.buf & 1);       \
       }                                                                        \
     }                                                                          \
   }
@@ -772,7 +770,9 @@
                                                                                \
       __var.cmpret = 0;                                                        \
       __var._r = *(r);                                                         \
-      __var.r2 = ae2f_RecordMk(ae2f_MathInt, 0, 0, (b)->sz);                   \
+      __var.r2.sz = (b)->sz;                                                   \
+      __var.r2.vecbegpoint = 0;                                                \
+      __var.r2.sign = 0;                                                       \
       __var._b = *(b);                                                         \
       __var._q = *(q);                                                         \
       __ae2f_MathIntCmpZero(reterr, &__var._b, b_vec, &__var.cmpret);          \
