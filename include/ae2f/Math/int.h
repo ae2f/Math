@@ -20,9 +20,9 @@
 /** @brief The custom integer type. Following 2-complement standards. */
 typedef struct ae2f_MathInt {
   /** @brief Whether it has sign bit or not. */
-  bool sign : 1;
+  unsigned sign : 1;
   /** @brief From which bit point is the start of the integer. */
-  size_t vecbegpoint : 3;
+  unsigned vecbegpoint : 3;
   /** @brief the size as bits, including the sign */
   size_t sz;
 
