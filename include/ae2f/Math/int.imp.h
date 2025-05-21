@@ -14,12 +14,12 @@
  * @param _int_vec	{ae2f_bmathMem}
  * @param _idx		{intptr_t}
  * @param _out_int	{ae2f_MathInt*}
- * @param _out_int_vec	{typeof(_int_vec)*}
+ * @param _out_int_idx	{size_t*}
  * */
 #define __ae2f_MathIntNxt(_reterr, _idx, _int, _int_vec, _out_int,             \
-                          _out_int_vec)                                        \
+                          _out_int_idx)                                        \
   {                                                                            \
-    if (!((_int) && (_out_int) && (_int_vec) && (_out_int_vec))) {             \
+    if (!((_int) && (_out_int) && (_int_vec) && (_out_int_idx))) {             \
       if ((_reterr))                                                           \
         *ae2f_reinterpret_cast(ae2f_MathMemOutErr, _reterr) |=                 \
             ae2f_errGlob_PTR_IS_NULL;                                          \
@@ -30,7 +30,7 @@
       __ae2f_MathIntNxtVar.__len = (_int)->vecbegpoint + (_int)->sz * (_idx);  \
       *(_out_int) = *(_int);                                                   \
       (_out_int)->vecbegpoint = __ae2f_MathIntNxtVar.__len;                    \
-      *(_out_int_vec) = (_int_vec) + (__ae2f_MathIntNxtVar.__len >> 3);        \
+      *(_out_int_idx) = (__ae2f_MathIntNxtVar.__len >> 3);                     \
     }                                                                          \
   }
 
@@ -68,6 +68,10 @@
     else if (!((__in) && (__out) && (__i_vec) && (__o_vec))) {                 \
       if ((reterr))                                                            \
         *(reterr) |= ae2f_errGlob_PTR_IS_NULL;                                 \
+    } else if ((__i_vec) == (__o_vec) &&                                       \
+               ((__in) == (__out) ||                                           \
+                ((__in)->sz == (__out)->sz && (__in)->sign == (__out)->sign && \
+                 (__in)->vecbegpoint == (__out)->vecbegpoint))) {              \
     } else {                                                                   \
       struct __ae2f_MathIntCastVar_t {                                         \
         size_t j;                                                              \

@@ -18,10 +18,10 @@
  */
 typedef struct ae2f_MathFloat {
   /** @brief whether has sign or not */
-  bool sign : 1;
+  unsigned sign : 1;
 
   /** @brief aka stride */
-  size_t bstart : 3;
+  unsigned bstart : 3;
 
   /** @brief the size of exponent as bits */
   size_t exp;
@@ -29,6 +29,14 @@ typedef struct ae2f_MathFloat {
   /** @brief the size of mantissa as bits */
   size_t man;
 } ae2f_MathFloat;
+
+#define ae2f_MathFloat32_SIGN 1
+#define ae2f_MathFloat32_EXP 8
+#define ae2f_MathFloat32_MAN 23
+
+#define ae2f_MathFloat64_SIGN 1
+#define ae2f_MathFloat64_EXP 11
+#define ae2f_MathFloat64_MAN 52
 
 #include <ae2f/Pack/End.h>
 

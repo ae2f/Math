@@ -23,7 +23,7 @@ typedef struct ae2f_MathInt {
   unsigned sign : 1;
   /** @brief From which bit point is the start of the integer. */
   unsigned vecbegpoint : 3;
-  /** @brief the size as bits, including the sign */
+  /** @brief the size as bits, including the sign bit */
   size_t sz;
 
 } ae2f_MathInt;
