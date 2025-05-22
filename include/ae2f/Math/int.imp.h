@@ -638,6 +638,26 @@
     }                                                                          \
   }
 
+/**
+ * @macro __ae2f_MathIntNullSz
+ * @brief
+ * Count of series of null[0]s on right size.
+ * @param retsz	{ae2f_err_t}
+ * @param _a	{const ae2f_MathInt*}
+ * @param a_vec	{ae2f_iMathMem}
+ * */
+#define __ae2f_MathIntNullSz(retsz, _a, a_vec)                                 \
+  {                                                                            \
+    if ((retsz)) {                                                             \
+      for (*(retsz) = 0;                                                       \
+           *(retsz) < (_a)->sz &&                                              \
+           !_ae2f_BitVecGetRanged((a_vec)[*(retsz) >> 3], *(retsz) & 7,        \
+                                  (*(retsz) & 7) + 1, unsigned char);          \
+           *(retsz)++)                                                         \
+        ;                                                                      \
+    }                                                                          \
+  }
+
 #define ae2f_MathIntBump_POSITIVE 0
 #define ae2f_MathIntBump_NEGATIVE 1
 

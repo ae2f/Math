@@ -9,9 +9,9 @@
  * @tparam uint_t is unsigned int type.
  * */
 #define ae2f_MathUtilDiv8(uint_t)                                              \
-  union __ae2f_MathUtilDiv8__##uint_t {                                                                      \
+  union __ae2f_MathUtilDiv8__##uint_t {                                        \
     uint_t p;                                                                  \
-    struct {                                                                   \
+    struct __ae2f_MathUtilDiv8__##uint_t##__packer {                           \
       unsigned r : 3;                                                          \
       uint_t q : (sizeof(uint_t) << 3) - 3;                                    \
     } b;                                                                       \
@@ -27,10 +27,10 @@
  * @param c_sz bit size of `c`
  * */
 #define __ae2f_MathUtilFlag2(c_sz, ...)                                        \
-  union __ae2f_MathUtilFlag2__##c_sz {                                                                      \
+  union __ae2f_MathUtilFlag2__##c_sz {                                         \
     unsigned a : 2;                                                            \
     unsigned c : c_sz;                                                         \
-    struct {                                                                   \
+    struct __ae2f_MathUtilFlag2__##c_sz##__packer {                            \
       unsigned _0 : 1;                                                         \
       unsigned _1 : 1;                                                         \
       __VA_ARGS__                                                              \

@@ -1,7 +1,7 @@
 /**
  * @file float.h
  * @brief
- * 2^(`exp`-1) - 1 -> `exp` count of 1's as bits
+ * 2^(`exp`-1) - 1 -> `exp - 1` count of 1's as bits
  */
 
 #ifndef ae2f_Math_float_h
@@ -30,6 +30,8 @@ typedef struct ae2f_MathFloat {
   size_t man;
 } ae2f_MathFloat;
 
+#include <ae2f/Pack/End.h>
+
 #define ae2f_MathFloat32_SIGN 1
 #define ae2f_MathFloat32_EXP 8
 #define ae2f_MathFloat32_MAN 23
@@ -38,6 +40,14 @@ typedef struct ae2f_MathFloat {
 #define ae2f_MathFloat64_EXP 11
 #define ae2f_MathFloat64_MAN 52
 
-#include <ae2f/Pack/End.h>
+/**
+ * @brief
+ * `ofloat` = `ifloat`;
+ * */
+static inline void ae2f_MathFloatCast(ae2f_err_t *err,
+                                      const ae2f_MathFloat *ifloat_t,
+                                      ae2f_iMathMem ifloat,
+                                      const ae2f_MathFloat *ofloat_t,
+                                      ae2f_oMathMem ofloat);
 
 #endif

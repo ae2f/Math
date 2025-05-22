@@ -63,9 +63,24 @@
   else {                                                                       \
     (oi)->sign = 0;                                                            \
     (oi)->vecbegpoint = *(retoivecidx) = ((af)->man + (af)->bstart);           \
-    (oi)->sz = (af)->exp;                                                      \
+    (oi)->sz = (af)->exp - 1;                                                  \
     *(retoivecidx) >>= 3;                                                      \
   }
+
+#define __ae2f_MathFloatExpEndIdx(af) ((af)->man + (af)->exp + (af)->bstart - 1)
+
+#define __ae2f_MathFloatExpGetSign(af, af_vec)                                 \
+  ((af) && (af_vec)                                                            \
+       ? (ae2f_BitVecGet((af_vec)[__ae2f_MathFloatExpEndIdx(af) >> 3],         \
+                         (__ae2f_MathFloatExpEndIdx(af) & 7)))                 \
+       : 0)
+
+#define __ae2f_MathFloatExpSetSign(af, af_vec, mask)                           \
+  ((af) && (af_vec)                                                            \
+       ? ((af_vec)[__ae2f_MathFloatExpEndIdx(af) >> 3] =                       \
+              (ae2f_BitVecSet((af_vec)[__ae2f_MathFloatExpEndIdx(af) >> 3],    \
+                              (__ae2f_MathFloatExpEndIdx(af) & 7), mask)))     \
+       : 0)
 
 /**
  * @macro __ae2f_MathFloatNxt
@@ -87,10 +102,95 @@
     (err) && (*err) = ae2f_errGlob_PTR_IS_NULL;                                \
   } else {                                                                     \
     *(ofloat_t) = *(ifloat_t);                                                 \
-    (ofloat_t)->bstart =                                                       \
+    (ofloat_t)->bstart = *(p_ofloatidx) =                                      \
         ((ifloat_t)->bstart + __ae2f_MathFloatElSz(ifloat_t) * (idx));         \
-    *(p_ofloatidx) =                                                           \
-        ((ifloat_t)->bstart + __ae2f_MathFloatElSz(ifloat_t) * (idx)) >> 3;    \
+    *(p_ofloatidx) >>= 3;                                                      \
+  }
+
+/**
+ * @macro __ae2f_MathFloatCast
+ * @brief `ofloat` = `ifloat`;
+ *
+ * @param err 		{ae2f_err_t*}
+ * @param ifloat_t	{const ae2f_MathFloat*}
+ * @param ifloat	{ae2f_iMathMem}
+ * @param ofloat_t	{const ae2f_MathFloat*}
+ * @param ofloat	{ae2f_oMathMem}
+ * */
+#define __ae2f_MathFloatCast(err, ifloat_t, ifloat, ofloat_t, ofloat)          \
+  {                                                                            \
+    if ((err) && *(err))                                                       \
+      ;                                                                        \
+    else if (!((ifloat_t) && (ifloat) && (ofloat_t) && (ofloat)))              \
+      (err) && (*(err) = ae2f_errGlob_PTR_IS_NULL);                            \
+    else {                                                                     \
+      struct __ae2f_MathFloatCastVar_t {                                       \
+        size_t c1, c2;                                                         \
+        ae2f_MathUtilDiv8(size_t) odiv, idiv, idx;                             \
+        unsigned sign : 1;                                                     \
+      } __ae2f_MathFloatCastVar;                                               \
+                                                                               \
+      /* sign */                                                               \
+      __ae2f_MathFloatSetSign(ofloat_t, ofloat,                                \
+                              __ae2f_MathFloatGetSign(ifloat_t, ifloat));      \
+                                                                               \
+      /* exp */                                                                \
+      __ae2f_MathFloatCastVar.idx.p = 0;                                       \
+      __ae2f_MathFloatCastVar.c1 = (ifloat_t)->exp - 1;                        \
+      __ae2f_MathFloatCastVar.c2 = (ofloat_t)->exp - 1;                        \
+                                                                               \
+      __ae2f_MathFloatCastVar.idiv.p = (ifloat_t)->bstart + (ifloat_t)->man;   \
+      __ae2f_MathFloatCastVar.odiv.p = (ofloat_t)->bstart + (ofloat_t)->man;   \
+                                                                               \
+      for (; __ae2f_MathFloatCastVar.idx.p < __ae2f_MathFloatCastVar.c2;       \
+           __ae2f_MathFloatCastVar.idx.p++) {                                  \
+                                                                               \
+        ((ofloat)[__ae2f_MathFloatCastVar.odiv.b.q]) = ae2f_BitVecSet(         \
+            (ofloat)[__ae2f_MathFloatCastVar.odiv.b.q],                        \
+            __ae2f_MathFloatCastVar.odiv.b.r,                                  \
+            (__ae2f_MathFloatCastVar.idx.p < __ae2f_MathFloatCastVar.c1        \
+                 ? (__ae2f_MathFloatCastVar.sign = (ae2f_BitVecGet(            \
+                        (ifloat)[__ae2f_MathFloatCastVar.idiv.b.q],            \
+                        __ae2f_MathFloatCastVar.idiv.b.r)))                    \
+                 : __ae2f_MathFloatCastVar.sign));                             \
+        __ae2f_MathFloatCastVar.idiv.p++;                                      \
+        __ae2f_MathFloatCastVar.odiv.p++;                                      \
+      }                                                                        \
+                                                                               \
+      __ae2f_MathFloatCastVar.odiv.b.r =                                       \
+          __ae2f_MathFloatExpGetSign(ifloat_t, ifloat);                        \
+                                                                               \
+      __ae2f_MathFloatExpSetSign(ofloat_t, ofloat,                             \
+                                 __ae2f_MathFloatCastVar.odiv.b.r);            \
+      /* fraction */                                                           \
+      __ae2f_MathFloatCastVar.idx.p = 0;                                       \
+      __ae2f_MathFloatCastVar.c1 = __ae2f_MathFloatCastVar.idiv.p =            \
+          (ifloat_t)->man - 1;                                                 \
+      __ae2f_MathFloatCastVar.c2 = __ae2f_MathFloatCastVar.odiv.p =            \
+          (ofloat_t)->man - 1;                                                 \
+                                                                               \
+      __ae2f_MathFloatCastVar.idiv.p += (ifloat_t)->bstart;                    \
+      __ae2f_MathFloatCastVar.odiv.p += (ofloat_t)->bstart;                    \
+                                                                               \
+      for (; __ae2f_MathFloatCastVar.idx.p < __ae2f_MathFloatCastVar.c2;       \
+           __ae2f_MathFloatCastVar.idx.p++) {                                  \
+        if (__ae2f_MathFloatCastVar.idiv.p != (ifloat_t)->bstart - 1) {        \
+          (ofloat)[__ae2f_MathFloatCastVar.odiv.b.q] = ae2f_BitVecSet(         \
+              (ofloat)[__ae2f_MathFloatCastVar.odiv.b.q],                      \
+              __ae2f_MathFloatCastVar.odiv.b.r,                                \
+              (ae2f_BitVecGet((ifloat)[__ae2f_MathFloatCastVar.idiv.b.q],      \
+                              __ae2f_MathFloatCastVar.idiv.b.r)));             \
+          __ae2f_MathFloatCastVar.idiv.p--;                                    \
+        } else {                                                               \
+          (ofloat)[__ae2f_MathFloatCastVar.odiv.b.q] =                         \
+              ae2f_BitVecSet((ofloat)[__ae2f_MathFloatCastVar.odiv.b.q],       \
+                             __ae2f_MathFloatCastVar.odiv.b.r, 0);             \
+        }                                                                      \
+        __ae2f_MathFloatCastVar.odiv.p--;                                      \
+        /* if (__ae2f_MathFloatCastVar.idiv.p == (ifloat_t)->bstart - 1)       \
+          __ae2f_MathFloatCastVar.idiv.p += __ae2f_MathFloatCastVar.c1 - 1; */ \
+      }                                                                        \
+    }                                                                          \
   }
 
 /**
@@ -98,70 +198,10 @@
  * @brief
  * `ofloat` = `ifloat`;
  * */
-static inline void __ae2f_MathFloatCast(ae2f_err_t *err,
-                                        const ae2f_MathFloat *ifloat_t,
-                                        ae2f_iMathMem ifloat,
-                                        const ae2f_MathFloat *ofloat_t,
-                                        ae2f_oMathMem ofloat) {
-  if ((err) && *(err))
-    ;
-  else if (!((ifloat_t) && (ifloat) && (ofloat_t) && (ofloat)))
-    (err) && (*(err) = ae2f_errGlob_PTR_IS_NULL);
-  else {
-    struct __ae2f_MathFloatCastVar_t {
-      ae2f_MathInt __ifint[1], __ofint[1];
-      size_t ifidx, ofidx;
-    } __ae2f_MathFloatCastVar;
-
-    /* sign */
-    __ae2f_MathFloatSetSign(ofloat_t, ofloat,
-                            __ae2f_MathFloatGetSign(ifloat_t, ifloat));
-
-    /* Exponent */
-    __ae2f_MathFloatExp(err, ifloat_t, ifloat, __ae2f_MathFloatCastVar.__ifint,
-                        &__ae2f_MathFloatCastVar.ifidx);
-
-    *__ae2f_MathFloatCastVar.__ofint = *__ae2f_MathFloatCastVar.__ifint;
-    __ae2f_MathFloatCastVar.__ofint[0].sz--;
-
-    __ae2f_MathIntFill(err, __ae2f_MathFloatCastVar.__ofint,
-                       __ae2f_MathFloatCastVar.ofidx + (ofloat), 0b1, 1);
-
-    __ae2f_MathIntSub(err, __ae2f_MathFloatCastVar.__ofint,
-                      (ofloat) + __ae2f_MathFloatCastVar.ofidx,
-                      __ae2f_MathFloatCastVar.__ifint,
-                      (ifloat) + __ae2f_MathFloatCastVar.ifidx,
-                      __ae2f_MathFloatCastVar.__ofint,
-                      (ofloat) + __ae2f_MathFloatCastVar.ofidx);
-
-    /* Man */
-    __ae2f_MathFloatMan(err, ifloat_t, ifloat, __ae2f_MathFloatCastVar.__ifint,
-                        &__ae2f_MathFloatCastVar.ifidx);
-    __ae2f_MathFloatMan(err, ofloat_t, ofloat, __ae2f_MathFloatCastVar.__ofint,
-                        &__ae2f_MathFloatCastVar.ofidx);
-
-    __ae2f_MathIntCast(err, __ae2f_MathFloatCastVar.__ifint,
-                       (ifloat) + __ae2f_MathFloatCastVar.ifidx,
-                       __ae2f_MathFloatCastVar.__ofint,
-                       (ofloat) + __ae2f_MathFloatCastVar.ofidx);
-  }
-}
-
-/**
- * @macro __ae2f_MathIntToFloat
- * `ofloat_t` `ofloat` = `iint`;
- *
- * @param err
- * */
-#define __ae2f_MathIntToFloat(err, iint_t, iint, ofloat_t, ofloat)             \
-  do {                                                                         \
-    if ((err) && *(err)) /* When err is not 0 */                               \
-      break;                                                                   \
-    if (!((iint_t) && (iint) && (ofloat_t) && (ofloat))) {                     \
-      if (err) /* When four are null */                                        \
-        *(err) |= ae2f_errGlob_PTR_IS_NULL;                                    \
-      break;                                                                   \
-    }                                                                          \
-  } while (0)
+static inline void ae2f_MathFloatCast(ae2f_err_t *err,
+                                      const ae2f_MathFloat *ifloat_t,
+                                      ae2f_iMathMem ifloat,
+                                      const ae2f_MathFloat *ofloat_t,
+                                      ae2f_oMathMem ofloat);
 
 #endif
