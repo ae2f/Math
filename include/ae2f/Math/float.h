@@ -44,10 +44,9 @@ typedef struct ae2f_MathFloat {
  * @brief
  * `ofloat` = `ifloat`;
  * */
-static inline void ae2f_MathFloatCast(ae2f_err_t *err,
-                                      const ae2f_MathFloat *ifloat_t,
-                                      ae2f_iMathMem ifloat,
-                                      const ae2f_MathFloat *ofloat_t,
-                                      ae2f_oMathMem ofloat);
+ae2f_extern ae2f_SHAREDEXPORT void
+ae2f_MathFloatCast(ae2f_err_t *err, const ae2f_MathFloat *ifloat_t,
+                   ae2f_iMathMem ifloat, const ae2f_MathFloat *ofloat_t,
+                   ae2f_oMathMem ofloat);
 
 #endif

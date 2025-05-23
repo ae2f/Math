@@ -21,7 +21,6 @@
 /**
  * @macro __ae2f_MathFloatSetSign
  * @brief Sets a sign bit
- * @returns void
  * @param afloat_t
  * # const ae2f_MathFloat*
  * @param afloat
@@ -32,6 +31,16 @@
       ((((afloat_t)->exp + (afloat_t)->man) >> 3)[afloat] = ae2f_BitVecSet(    \
            (((afloat_t)->exp + (afloat_t)->man) >> 3)[afloat],                 \
            (((afloat_t)->exp + (afloat_t)->man) & 7), _sign_bit))
+
+/**
+ * @macro __ae2f_MathFloatFlipSign
+ * @brief Flips a sign bit
+ * @param afloat_t 	{const ae2f_MathFloat*}
+ * @param afloat	{ae2f_oMathMem}
+ * */
+#define __ae2f_MathFloatFlipSign(afloat_t, afloat)                             \
+  ((afloat) && (afloat_t) && (afloat_t)->sign &&                               \
+   ((((afloat_t)->exp + (afloat_t)->man) >> 3)[afloat] ^= 0b10000000))
 
 /**
  * @macro __ae2f_MathFloatElSz
@@ -187,21 +196,23 @@
                              __ae2f_MathFloatCastVar.odiv.b.r, 0);             \
         }                                                                      \
         __ae2f_MathFloatCastVar.odiv.p--;                                      \
-        /* if (__ae2f_MathFloatCastVar.idiv.p == (ifloat_t)->bstart - 1)       \
-          __ae2f_MathFloatCastVar.idiv.p += __ae2f_MathFloatCastVar.c1 - 1; */ \
       }                                                                        \
     }                                                                          \
   }
 
-/**
- * @macro __ae2f_MathFloatCast
- * @brief
- * `ofloat` = `ifloat`;
- * */
-static inline void ae2f_MathFloatCast(ae2f_err_t *err,
-                                      const ae2f_MathFloat *ifloat_t,
-                                      ae2f_iMathMem ifloat,
-                                      const ae2f_MathFloat *ofloat_t,
-                                      ae2f_oMathMem ofloat);
+static inline void __ae2f_MathFloatFlip(ae2f_err_t *err,
+                                        const ae2f_MathFloat *_if,
+                                        ae2f_iMathMem _if_vec,
+                                        const ae2f_MathFloat *_of,
+                                        ae2f_oMathMem _of_vec) {
+  if ((err) && *(err))
+    ;
+  else if (!((_if) && (_if_vec) && (_of) && (_of_vec)))
+    (err) && (*(err) = ae2f_errGlob_PTR_IS_NULL);
+  else {
+    __ae2f_MathFloatCast(err, _if, _if_vec, _of, _of_vec);
+    __ae2f_MathFloatFlipSign(_of, _of_vec);
+  }
+}
 
 #endif

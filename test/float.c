@@ -141,6 +141,19 @@ static uint64_t castftof() {
       return 1;
     }
 
+    af.a = -0.0023;
+
+    __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
+    printf("[castf64tof32] Expected %f and got %f\n", af.a, bf.a);
+    if (e) {
+      printf("[castf64tof32] got error %d\n", e);
+      return 1;
+    }
+    if (DIFFSQR(bf.a, af.a)) {
+      printf("[castf64tof32] Expected %f but got %f\n", af.a, bf.a);
+      return 1;
+    }
+
     puts("[castf64tof32] went successful.");
   }
 
@@ -193,4 +206,183 @@ static uint64_t castftof() {
   return 0;
 }
 
-int main() { return castftof(); }
+static uint64_t flip() {
+  {
+    ae2f_MathFloat a, b;
+    float32buf af;
+    float32buf bf;
+
+    puts("[flipf32tof32] start");
+
+    af.a = 134;
+
+    a = float32header;
+    b = float32header;
+
+    ae2f_err_t e = 0;
+    __ae2f_MathFloatFlip(&e, &a, af.b, &b, bf.b);
+
+    if (e) {
+      printf("[flipf32tof32] got error %d\n", e);
+      return 2;
+    }
+    if (DIFFSQR(bf.a, -af.a)) {
+      printf("[flipf32tof32] Expected %f but got %f\n", -af.a, bf.a);
+      printf("%u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3]);
+      printf("%u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3]);
+      return 2;
+    }
+
+    puts("[flipf32tof32] went successful.");
+  }
+
+  {
+    ae2f_MathFloat a, b;
+    float64buf af;
+    float64buf bf;
+
+    puts("[flipf64tof64] start");
+
+    a = float64header;
+    b = float64header;
+
+    ae2f_err_t e = 0;
+
+    af.a = 3;
+    __ae2f_MathFloatFlip(&e, &a, af.b, &b, bf.b);
+
+    printf("[flipf64tof64] Expected %f and got %f\n", -af.a, bf.a);
+
+    if (e) {
+      printf("[flipf64tof64] got error %d\n", e);
+      return 2;
+    }
+    if (DIFFSQR(bf.a, -af.a)) {
+      printf("[flipf64tof64] Expected %f but got %f\n", -af.a, bf.a);
+      return 2;
+    }
+
+    af.a = 0.06;
+    __ae2f_MathFloatFlip(&e, &a, af.b, &b, bf.b);
+
+    if (e) {
+      printf("[flipf64tof64] got error %d\n", e);
+      return 2;
+    }
+    if (DIFFSQR(bf.a, -af.a)) {
+      printf("[flipf64tof64] Expected %f but got %f\n", -af.a, bf.a);
+      printf("%u %u %u %u %u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3],
+             af.b[4], af.b[5], af.b[6], af.b[7]);
+      printf("%u %u %u %u %u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3],
+             bf.b[4], bf.b[5], bf.b[6], bf.b[7]);
+      return 2;
+    }
+
+    puts("[flipf64tof64] went successful.");
+  }
+
+  {
+    ae2f_MathFloat a, b;
+    float64buf af;
+    float32buf bf;
+
+    puts("[flipf64tof32] start");
+
+    a = float64header;
+    b = float32header;
+
+    ae2f_err_t e = 0;
+
+    af.a = 134;
+
+    __ae2f_MathFloatFlip(&e, &a, af.b, &b, bf.b);
+    printf("[flipf64tof32] Expected %f and got %f\n", -af.a, bf.a);
+
+    if (e) {
+      printf("[flipf64tof32] got error %d\n", e);
+      return 1;
+    }
+    if (DIFFSQR(bf.a, -af.a)) {
+      printf("[flipf64tof32] Expected %f but got %f\n", -af.a, bf.a);
+      return 1;
+    }
+
+    af.a = 0.0023;
+
+    __ae2f_MathFloatFlip(&e, &a, af.b, &b, bf.b);
+    printf("[flipf64tof32] Expected %f and got %f\n", -af.a, bf.a);
+    if (e) {
+      printf("[flipf64tof32] got error %d\n", e);
+      return 1;
+    }
+    if (DIFFSQR(bf.a, -af.a)) {
+      printf("[flipf64tof32] Expected %f but got %f\n", -af.a, bf.a);
+      return 1;
+    }
+
+    af.a = -0.0023;
+
+    __ae2f_MathFloatFlip(&e, &a, af.b, &b, bf.b);
+    printf("[flipf64tof32] Expected %f and got %f\n", -af.a, bf.a);
+    if (e) {
+      printf("[flipf64tof32] got error %d\n", e);
+      return 1;
+    }
+    if (DIFFSQR(bf.a, -af.a)) {
+      printf("[flipf64tof32] Expected %f but got %f\n", -af.a, bf.a);
+      return 1;
+    }
+
+    puts("[flipf64tof32] went successful.");
+  }
+
+  {
+    ae2f_MathFloat a, b;
+    float32buf af;
+    float64buf bf;
+
+    puts("[flipf32tof64] start");
+
+    a = float32header;
+    b = float64header;
+
+    ae2f_err_t e = 0;
+
+    af.a = 134;
+
+    __ae2f_MathFloatFlip(&e, &a, af.b, &b, bf.b);
+    printf("[flipf32tof64] Expected %f and got %f\n", -af.a, bf.a);
+    if (e) {
+      printf("[flipf32tof64] got error %d\n", e);
+      return 1;
+    }
+    if (DIFFSQR(bf.a, -af.a)) {
+      printf("[flipf32tof64] Expected %f but got %f\n", -af.a, bf.a);
+      return 1;
+    }
+
+    af.a = 0.001;
+    bf.a = 0;
+    __ae2f_MathFloatFlip(&e, &a, (const unsigned char *)af.b, &b, bf.b);
+    printf("%u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3]);
+    printf("%u %u %u %u %u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3],
+           bf.b[4], bf.b[5], bf.b[6], bf.b[7]);
+
+    printf("[flipf32tof64] Expected %f and got %f\n", -af.a, bf.a);
+
+    if (e) {
+      printf("[flipf32tof64] got error %d\n", e);
+      return 1;
+    }
+    if (DIFFSQR(bf.a, -af.a)) {
+      printf("[flipf32tof64] Expected %f but got %f\n", -af.a, bf.a);
+      return 1;
+    }
+
+    puts("[flipf32tof64] went successful.");
+  }
+
+  return 0;
+}
+
+int main() { return castftof() | flip(); }
