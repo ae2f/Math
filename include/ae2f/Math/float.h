@@ -17,17 +17,17 @@
  * This follows IEEE standard.
  */
 typedef struct ae2f_MathFloat {
-  /** @brief whether has sign or not */
-  unsigned sign : 1;
-
-  /** @brief aka stride */
-  unsigned bstart : 3;
-
   /** @brief the size of exponent as bits */
   size_t exp;
 
   /** @brief the size of mantissa as bits */
   size_t man;
+
+  /** @brief whether has sign or not */
+  unsigned sign : 1;
+
+  /** @brief aka stride */
+  unsigned bstart : 3;
 } ae2f_MathFloat;
 
 #include <ae2f/Pack/End.h>
@@ -40,6 +40,27 @@ typedef struct ae2f_MathFloat {
 #define ae2f_MathFloat64_EXP 11
 #define ae2f_MathFloat64_MAN 52
 
+typedef enum ae2f_eMathFloatWhich {
+  /** @brief NaN */
+  ae2f_eMathFloatWhich_NAN = 0b011,
+  /** @brief Infinity */
+  ae2f_eMathFloatWhich_INF = 0b010,
+
+  /** @brief Number (mantissa) */
+  ae2f_eMathFloatWhich_NUM = 0b001,
+
+  /** @brief Number, 1. */
+  ae2f_eMathFloatWhich_ONE = 0b001,
+
+  /** @brief 0 */
+  ae2f_eMathFloatWhich_NIL = 0b000,
+
+  /** @brief Sign bit */
+  ae2f_eMathFloatWhich_SGN = 0b100,
+} ae2f_eMathFloatWhich;
+
+typedef unsigned char ae2f_eMathFloatWhich_t;
+
 /**
  * @brief
  * `ofloat` = `ifloat`;
@@ -48,5 +69,19 @@ ae2f_extern ae2f_SHAREDEXPORT void
 ae2f_MathFloatCast(ae2f_err_t *err, const ae2f_MathFloat *ifloat_t,
                    ae2f_iMathMem ifloat, const ae2f_MathFloat *ofloat_t,
                    ae2f_oMathMem ofloat);
+
+/**
+ * @brief
+ * `ofloat` = -`ifloat`;
+ * */
+ae2f_extern ae2f_SHAREDEXPORT void ae2f_MathFloatFlip(ae2f_err_t *err,
+                                                      const ae2f_MathFloat *_if,
+                                                      ae2f_iMathMem _if_vec,
+                                                      const ae2f_MathFloat *_of,
+                                                      ae2f_oMathMem _of_vec);
+
+ae2f_extern ae2f_SHAREDCALL void
+ae2f_MathFloatCheck(ae2f_err_t *err, ae2f_eMathFloatWhich_t *retwhich,
+                    ae2f_MathFloat *_af, ae2f_iMathMem _af_vec);
 
 #endif

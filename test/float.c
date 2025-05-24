@@ -1,6 +1,8 @@
 
-#include <ae2f/Math/float.imp.h>
+
 #include <stdio.h>
+
+#include <ae2f/Math/float.imp.h>
 
 const ae2f_MathFloat float32header = {.bstart = 0,
                                       .exp = ae2f_MathFloat32_EXP,
@@ -9,8 +11,13 @@ const ae2f_MathFloat float32header = {.bstart = 0,
                      float64header = {.man = ae2f_MathFloat64_MAN,
                                       .exp = ae2f_MathFloat64_EXP,
                                       .sign = ae2f_MathFloat64_SIGN,
-                                      .bstart = 0};
+                                      .bstart = 0},
+                     float16header = {
+                         .man = 10, .exp = 5, .sign = 1, .bstart = 6};
 
+typedef union float16buf {
+  uint8_t b[4];
+} float16buf;
 typedef union float32buf {
   float a;
   uint8_t b[1];
@@ -25,9 +32,10 @@ typedef union float64buf {
 
 static uint64_t castftof() {
   {
-    ae2f_MathFloat a, b;
+    ae2f_MathFloat a, b, c;
     float32buf af;
     float32buf bf;
+    float16buf cf;
 
     puts("[castf32tof32] start");
 
@@ -35,9 +43,11 @@ static uint64_t castftof() {
 
     a = float32header;
     b = float32header;
+    c = float16header;
 
     ae2f_err_t e = 0;
-    __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
+    __ae2f_MathFloatCast(&e, &a, af.b, &c, cf.b);
+    __ae2f_MathFloatCast(&e, &c, cf.b, &b, bf.b);
 
     if (e) {
       printf("[castf32tof32] got error %d\n", e);

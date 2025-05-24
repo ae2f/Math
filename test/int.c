@@ -1,3 +1,4 @@
+
 #include <ae2f/Math/int.imp.h>
 #include <stdio.h>
 
@@ -473,8 +474,51 @@ static int div() {
 #define div() 1
 #endif
 
+int select() {
+  {
+    union {
+      int8_t i;
+      uint8_t b[1];
+    } a = {.i = 3};
+    union {
+      int32_t i;
+      uint8_t b[1];
+    } b = {.i = 200};
+    union {
+      int16_t i;
+      uint8_t b[1];
+    } o = {.i = 0};
+    uint64_t buf;
+
+    ae2f_err_t e = 0;
+
+    ae2f_MathInt ai, bi, oi;
+    ai.sign = 1;
+    ai.sz = 8;
+    ai.vecbegpoint = 0;
+
+    bi.sign = 1;
+    bi.sz = 32;
+    bi.vecbegpoint = 0;
+
+    oi.sign = 1;
+    oi.vecbegpoint = 0;
+    oi.sz = 16;
+
+    __ae2f_MathIntSel(&e, &ai, a.b, &bi, b.b, &oi, o.b, -1);
+    if (o.i != 3) {
+      printf("Test::select expected %d but got %d", 3, o.i);
+      return 1;
+    }
+  }
+
+  puts("Test::select has succeed.");
+  return 0;
+}
+
 int main() {
-  int a = flip() || cast() || add_sub() || cmp() || mul() || div() || 0;
+  int a =
+      flip() || cast() || add_sub() || cmp() || mul() || div() || select() || 0;
 
   printf("Final Output: %d\n", a);
   return a; //!(a == 0 || a == -0);

@@ -19,13 +19,12 @@
 
 /** @brief The custom integer type. Following 2-complement standards. */
 typedef struct ae2f_MathInt {
+  /** @brief the size as bits, including the sign bit */
+  size_t sz;
   /** @brief Whether it has sign bit or not. */
   unsigned sign : 1;
   /** @brief From which bit point is the start of the integer. */
   unsigned vecbegpoint : 3;
-  /** @brief the size as bits, including the sign bit */
-  size_t sz;
-
 } ae2f_MathInt;
 
 #include <ae2f/Pack/End.h>
@@ -139,5 +138,12 @@ ae2f_extern ae2f_SHAREDCALL void ae2f_MathIntDivU(
     ae2f_MathMemOutErr *reterr, const ae2f_MathInt *a, ae2f_iMathMem a_vec,
     const ae2f_MathInt *b, ae2f_iMathMem b_vec, const ae2f_MathInt *q,
     ae2f_oMathMem q_vec, const ae2f_MathInt *r, ae2f_oMathMem r_vec) noexcept;
+
+ae2f_extern ae2f_SHAREDCALL void
+ae2f_MathIntSel(ae2f_err_t *err, const ae2f_MathInt *_ai,
+                const uint8_t *_ai_vec, const ae2f_MathInt *_bi,
+                const uint8_t *_bi_vec, const ae2f_MathInt *_oi,
+                uint8_t *_oi_vec, int8_t selector) noexcept;
+
 #endif
 #endif

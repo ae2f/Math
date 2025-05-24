@@ -787,4 +787,19 @@
     }                                                                          \
   }
 
+#define __ae2f_MathIntSel(err, _ai, _ai_vec, _bi, _bi_vec, _oi, _oi_vec,       \
+                          selector)                                            \
+  {                                                                            \
+    ae2f_CmpFunRet_t __ae2f_MathIntSelVar;                                     \
+    __ae2f_MathIntSelVar = 0;                                                  \
+    __ae2f_MathIntCmp(err, _ai, _ai_vec, _bi, _bi_vec, &__ae2f_MathIntSelVar); \
+    if ((err) && *(err))                                                       \
+      ;                                                                        \
+    else if (selector < 0 == __ae2f_MathIntSelVar < 0) {                       \
+      __ae2f_MathIntCast(err, _ai, _ai_vec, _oi, _oi_vec);                     \
+    } else {                                                                   \
+      __ae2f_MathIntCast(err, _bi, _bi_vec, _oi, _oi_vec);                     \
+    }                                                                          \
+  }
+
 #endif

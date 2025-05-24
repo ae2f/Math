@@ -1,6 +1,8 @@
 #ifndef ae2f_Math_Util_h
 #define ae2f_Math_Util_h
 
+#include <ae2f/BitVec.h>
+
 /**
  * @brief
  * `b.r` = `p` % 8;	[remainder] \n
@@ -42,5 +44,25 @@
  * `b._1` = `a` >> 1;	[2nd bit]
  * */
 typedef __ae2f_MathUtilFlag2(2) ae2f_MathUtilFlag2;
+
+#define __ae2f_MathUtilBVGetRanged(vec, istart, iend)                          \
+  _ae2f_BitVecGetRanged(vec, istart, iend, unsigned)
+
+#define __ae2f_MathUtilBVGet(vec, i) __ae2f_MathUtilBVGetRanged(vec, i, (i) + 1)
+
+#define __ae2f_MathUtilBVGetArr(vecarr, i)                                     \
+  __ae2f_MathUtilBVGet((vecarr)[(i) >> 3], (i) & 7)
+
+#define __ae2f_MathUtilBVSetRanged(vec, istart, iend, val)                     \
+  _ae2f_BitVecSetRanged(vec, istart, iend, val, unsigned)
+
+#define __ae2f_MathUtilBVSet(vec, i, val)                                      \
+  __ae2f_MathUtilBVSetRanged(vec, (i), (i) + 1, (val))
+
+#define __ae2f_MathUtilBVSetAssign(vec, i, val)                                \
+  ((vec) = (__ae2f_MathUtilBVSet(vec, i, val)))
+
+#define __ae2f_MathUtilBVSetAssignArr(vecarr, i, val)                          \
+  __ae2f_MathUtilBVSetAssign((vecarr)[(i) >> 3], (i) & 7, (val))
 
 #endif
