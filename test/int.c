@@ -506,8 +506,24 @@ int select() {
     oi.sz = 16;
 
     __ae2f_MathIntSel(&e, &ai, a.b, &bi, b.b, &oi, o.b, -1);
+
+    if (e) {
+      printf("Test::select Error: %d\n", e);
+      return 1;
+    }
     if (o.i != 3) {
       printf("Test::select expected %d but got %d", 3, o.i);
+      return 1;
+    }
+
+    __ae2f_MathIntSel(&e, &ai, a.b, &bi, b.b, &oi, o.b, 1);
+
+    if (e) {
+      printf("Test::select Error: %d\n", e);
+      return 1;
+    }
+    if (o.i != 200) {
+      printf("Test::select expected %d but got %d", 200, o.i);
       return 1;
     }
   }

@@ -46,15 +46,16 @@
 typedef __ae2f_MathUtilFlag2(2) ae2f_MathUtilFlag2;
 
 #define __ae2f_MathUtilBVGetRanged(vec, istart, iend)                          \
-  _ae2f_BitVecGetRanged(vec, istart, iend, unsigned)
+  _ae2f_BitVecGetRanged((vec), (istart), (iend), unsigned char)
 
-#define __ae2f_MathUtilBVGet(vec, i) __ae2f_MathUtilBVGetRanged(vec, i, (i) + 1)
+#define __ae2f_MathUtilBVGet(vec, i)                                           \
+  __ae2f_MathUtilBVGetRanged((vec), (i), ((i) + 1))
 
 #define __ae2f_MathUtilBVGetArr(vecarr, i)                                     \
   __ae2f_MathUtilBVGet((vecarr)[(i) >> 3], (i) & 7)
 
 #define __ae2f_MathUtilBVSetRanged(vec, istart, iend, val)                     \
-  _ae2f_BitVecSetRanged(vec, istart, iend, val, unsigned)
+  _ae2f_BitVecSetRanged((vec), (istart), (iend), (val), unsigned char)
 
 #define __ae2f_MathUtilBVSet(vec, i, val)                                      \
   __ae2f_MathUtilBVSetRanged(vec, (i), (i) + 1, (val))
