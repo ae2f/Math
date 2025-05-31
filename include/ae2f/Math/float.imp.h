@@ -15,8 +15,7 @@
  * */
 #define __ae2f_MathFloatGetSign(afloat_t, afloat)                              \
   ((afloat) && (afloat_t) && (afloat_t)->sign &&                               \
-   ae2f_BitVecGet((((afloat_t)->exp + (afloat_t)->man) >> 3)[afloat],          \
-                  (((afloat_t)->exp + (afloat_t)->man) & 7)))
+   __ae2f_MathUtilBVGetArr(afloat, (((afloat_t)->exp + (afloat_t)->man))))
 
 /**
  * @def __ae2f_MathFloatSetSign
@@ -79,8 +78,7 @@
 
 #define __ae2f_MathFloatExpGetSign(af, af_vec)                                 \
   ((af) && (af_vec)                                                            \
-       ? (ae2f_BitVecGet((af_vec)[__ae2f_MathFloatExpEndIdx(af) >> 3],         \
-                         (__ae2f_MathFloatExpEndIdx(af) & 7)))                 \
+       ? (__ae2f_MathUtilBVGetArr((af_vec), (__ae2f_MathFloatExpEndIdx(af))))  \
        : 0)
 
 #define __ae2f_MathFloatExpSetSign(af, af_vec, mask)                           \
@@ -181,16 +179,17 @@
       for (; __ae2f_MathFloatCastVar.idx.p < __ae2f_MathFloatCastVar.c2;       \
            __ae2f_MathFloatCastVar.idx.p++) {                                  \
         if (__ae2f_MathFloatCastVar.idiv.p != (ifloat_t)->bstart - 1) {        \
-          (ofloat)[__ae2f_MathFloatCastVar.odiv.b.q] = ae2f_BitVecSet(         \
+          __ae2f_MathUtilBVSetAssign(                                          \
               (ofloat)[__ae2f_MathFloatCastVar.odiv.b.q],                      \
               __ae2f_MathFloatCastVar.odiv.b.r,                                \
-              (ae2f_BitVecGet((ifloat)[__ae2f_MathFloatCastVar.idiv.b.q],      \
-                              __ae2f_MathFloatCastVar.idiv.b.r)));             \
+              (__ae2f_MathUtilBVGet(                                           \
+                  (ifloat)[__ae2f_MathFloatCastVar.idiv.b.q],                  \
+                  __ae2f_MathFloatCastVar.idiv.b.r)));                         \
           __ae2f_MathFloatCastVar.idiv.p--;                                    \
         } else {                                                               \
-          (ofloat)[__ae2f_MathFloatCastVar.odiv.b.q] =                         \
-              ae2f_BitVecSet((ofloat)[__ae2f_MathFloatCastVar.odiv.b.q],       \
-                             __ae2f_MathFloatCastVar.odiv.b.r, 0);             \
+          __ae2f_MathUtilBVSetAssign(                                          \
+              (ofloat)[__ae2f_MathFloatCastVar.odiv.b.q],                      \
+              __ae2f_MathFloatCastVar.odiv.b.r, 0);                            \
         }                                                                      \
         __ae2f_MathFloatCastVar.odiv.p--;                                      \
       }                                                                        \
@@ -247,6 +246,15 @@
     }                                                                          \
   }
 
+/**
+ * @def __ae2f_MathFloatInf
+ * @brief
+ * `_of` = 0;
+ *
+ * @param err		{ae2f_err_t*}
+ * @param _of		{const ae2f_MathFloat*}
+ * @param _of_vec	{ae2f_oMathMem}
+ * */
 #define __ae2f_MathFloatZero(err, _of, _of_vec)                                \
   __ae2f_MathFloatMkWhich(err, _of, _of_vec, ae2f_eMathFloatWhich_NIL)
 
@@ -305,16 +313,16 @@
       for (__ae2f_MathFloatCheckVar.i = 0;                                     \
            __ae2f_MathFloatCheckVar.i < (_af)->man;                            \
            __ae2f_MathFloatCheckVar.i++, __ae2f_MathFloatCheckVar.ii.p++)      \
-        if (ae2f_BitVecGet((_af_vec)[__ae2f_MathFloatCheckVar.ii.b.q],         \
-                           __ae2f_MathFloatCheckVar.ii.b.r)) {                 \
+        if (__ae2f_MathUtilBVGet((_af_vec)[__ae2f_MathFloatCheckVar.ii.b.q],   \
+                                 __ae2f_MathFloatCheckVar.ii.b.r)) {           \
           __ae2f_MathFloatCheckVar.flags.b._0 = 1;                             \
           break;                                                               \
         }                                                                      \
                                                                                \
       for (; __ae2f_MathFloatCheckVar.i < (_af)->exp;                          \
            __ae2f_MathFloatCheckVar.i++, __ae2f_MathFloatCheckVar.ii.p++)      \
-        if (!ae2f_BitVecGet((_af_vec)[__ae2f_MathFloatCheckVar.ii.b.q],        \
-                            __ae2f_MathFloatCheckVar.ii.b.r)) {                \
+        if (!__ae2f_MathUtilBVGet((_af_vec)[__ae2f_MathFloatCheckVar.ii.b.q],  \
+                                  __ae2f_MathFloatCheckVar.ii.b.r)) {          \
           __ae2f_MathFloatCheckVar.flags.b._1 = 0;                             \
           break;                                                               \
         }                                                                      \
@@ -323,14 +331,138 @@
     }                                                                          \
   }
 
+/**
+ * @def __ae2f_MathFloatNormalise
+ * @brief
+ * Normalise `_if`.
+ *
+ * @param err       {ae2f_err_t*}
+ * @param _if       {ae2f_MathFloat*}
+ * @param _if_vec   {ae2f_bMathMem}
+ */
+#define __ae2f_MathFloatNormalise(err, _if, _if_vec)                           \
+  {                                                                            \
+    struct __ae2f_MathFloatNormaliseVar_t {                                    \
+      size_t i, shift;                                                         \
+      ae2f_MathUtilDiv8(size_t) div, src_div, dst_div, exp_div;                \
+      ae2f_eMathFloatWhich_t which;                                            \
+    } __ae2f_MathFloatNormaliseVar;                                            \
+                                                                               \
+    /* Check for special cases */                                              \
+    __ae2f_MathFloatNormaliseVar.which = 0;                                    \
+    __ae2f_MathFloatGetWhich(err, _if, _if_vec,                                \
+                             &__ae2f_MathFloatNormaliseVar.which);             \
+                                                                               \
+    if ((err) && *(err))                                                       \
+      ;                                                                        \
+    else if (!((_if) && (_if_vec))) {                                          \
+      if (err)                                                                 \
+        (*err) = ae2f_errGlob_PTR_IS_NULL;                                     \
+      ;                                                                        \
+    } else if (__ae2f_MathFloatNormaliseVar.which &                            \
+               (ae2f_eMathFloatWhich_NAN | ae2f_eMathFloatWhich_INF |          \
+                ae2f_eMathFloatWhich_NIL)) {                                   \
+      ; /* No normalization needed for special cases */                        \
+    } else {                                                                   \
+      /* Find the position of the most significant 1 bit in the mantissa */    \
+      __ae2f_MathFloatNormaliseVar.shift = 0;                                  \
+      __ae2f_MathFloatNormaliseVar.div.p = (_if)->bstart;                      \
+                                                                               \
+      /* Search for the first 1 bit in the mantissa */                         \
+      for (__ae2f_MathFloatNormaliseVar.i = 0;                                 \
+           __ae2f_MathFloatNormaliseVar.i < (_if)->man;                        \
+           __ae2f_MathFloatNormaliseVar.i++,                                   \
+          __ae2f_MathFloatNormaliseVar.div.p++) {                              \
+        if (__ae2f_MathUtilBVGet(                                              \
+                (_if_vec)[__ae2f_MathFloatNormaliseVar.div.b.q],               \
+                __ae2f_MathFloatNormaliseVar.div.b.r)) {                       \
+          break;                                                               \
+        }                                                                      \
+        __ae2f_MathFloatNormaliseVar.shift++;                                  \
+      }                                                                        \
+      /* If no 1 bit found, the number is zero */                              \
+      if (__ae2f_MathFloatNormaliseVar.shift == (_if)->man) {                  \
+        __ae2f_MathFloatZero(err, _if, _if_vec);                               \
+        ;                                                                      \
+      } else {                                                                 \
+                                                                               \
+        /* Shift the mantissa left by 'shift' positions */                     \
+        if (__ae2f_MathFloatNormaliseVar.shift > 0) {                          \
+          /* Shift the mantissa */                                             \
+          for (__ae2f_MathFloatNormaliseVar.i = 0;                             \
+               __ae2f_MathFloatNormaliseVar.i <                                \
+               (_if)->man - __ae2f_MathFloatNormaliseVar.shift;                \
+               __ae2f_MathFloatNormaliseVar.i++) {                             \
+            __ae2f_MathFloatNormaliseVar.src_div.p =                           \
+                (_if)->bstart + __ae2f_MathFloatNormaliseVar.i +               \
+                __ae2f_MathFloatNormaliseVar.shift;                            \
+            __ae2f_MathFloatNormaliseVar.dst_div.p =                           \
+                (_if)->bstart + __ae2f_MathFloatNormaliseVar.i;                \
+                                                                               \
+            __ae2f_MathUtilBVSetAssign(                                        \
+                (_if_vec)[__ae2f_MathFloatNormaliseVar.dst_div.b.q],           \
+                __ae2f_MathFloatNormaliseVar.dst_div.b.r,                      \
+                __ae2f_MathUtilBVGet(                                          \
+                    (_if_vec)[__ae2f_MathFloatNormaliseVar.src_div.b.q],       \
+                    __ae2f_MathFloatNormaliseVar.src_div.b.r));                \
+          }                                                                    \
+                                                                               \
+          /* Clear the remaining bits */                                       \
+          for (__ae2f_MathFloatNormaliseVar.i =                                \
+                   (_if)->man - __ae2f_MathFloatNormaliseVar.shift;            \
+               __ae2f_MathFloatNormaliseVar.i < (_if)->man;                    \
+               __ae2f_MathFloatNormaliseVar.i++) {                             \
+            __ae2f_MathFloatNormaliseVar.div.p =                               \
+                (_if)->bstart + __ae2f_MathFloatNormaliseVar.i;                \
+            __ae2f_MathUtilBVSetAssign(                                        \
+                (_if_vec)[__ae2f_MathFloatNormaliseVar.div.b.q],               \
+                __ae2f_MathFloatNormaliseVar.div.b.r, 0);                      \
+          }                                                                    \
+                                                                               \
+          /* Adjust the exponent */                                            \
+          __ae2f_MathFloatNormaliseVar.exp_div.p = (_if)->bstart + (_if)->man; \
+                                                                               \
+          /* Subtract shift from exponent */                                   \
+          for (__ae2f_MathFloatNormaliseVar.i = 0;                             \
+               __ae2f_MathFloatNormaliseVar.i < (_if)->exp - 1;                \
+               __ae2f_MathFloatNormaliseVar.i++,                               \
+              __ae2f_MathFloatNormaliseVar.exp_div.p++) {                      \
+            if (__ae2f_MathFloatNormaliseVar.shift > 0) {                      \
+              if (__ae2f_MathUtilBVGet(                                        \
+                      (_if_vec)[__ae2f_MathFloatNormaliseVar.exp_div.b.q],     \
+                      __ae2f_MathFloatNormaliseVar.exp_div.b.r)) {             \
+                __ae2f_MathUtilBVSetAssign(                                    \
+                    (_if_vec)[__ae2f_MathFloatNormaliseVar.exp_div.b.q],       \
+                    __ae2f_MathFloatNormaliseVar.exp_div.b.r, 0);              \
+                __ae2f_MathFloatNormaliseVar.shift--;                          \
+              }                                                                \
+            }                                                                  \
+          }                                                                    \
+        }                                                                      \
+      }                                                                        \
+    }                                                                          \
+  }
+
+/**
+ * @brief
+ * `_of` = `_af` + `_bf`;
+ *
+ * @param err		{ae2f_err_t*}
+ * @param _af		{const ae2f_MathFloat*}
+ * @param _af_vec	{ae2f_iMathMem}
+ * @param _bf		{const ae2f_MathFloat*}
+ * @param _bf_vec	{ae2f_iMathMem}
+ * @param _of		{const ae2f_MathFloat*}
+ * @param _of_vec	{ae2f_oMathMem}
+ * */
 static inline void
 __ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
                     ae2f_iMathMem _af_vec, const ae2f_MathFloat *_bf,
                     ae2f_iMathMem _bf_vec, const ae2f_MathFloat *_of,
                     ae2f_oMathMem _of_vec) {
-
   ae2f_eMathFloatWhich_t whicha, whichb;
   ae2f_MathInt inta, intb;
+  size_t intaidx = 0, intbidx = 0;
 
   whicha = whichb = 0;
 
@@ -363,6 +495,62 @@ __ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
       break;
 
     case ae2f_eMathFloatWhich_NUM:
+    {
+      struct __ae2f_MathFloatAddVar_t {
+        ae2f_MathInt inta, intb;
+        size_t intaidx, intbidx;
+        size_t expa, expb;
+        int signa, signb;
+        size_t shift;
+        ae2f_MathInt aligned_a, aligned_b;
+      } var;
+
+      /* Get mantissa parts */
+      __ae2f_MathFloatMan(err, _af, _af_vec, &var.inta, &var.intaidx);
+      __ae2f_MathFloatMan(err, _bf, _bf_vec, &var.intb, &var.intbidx);
+
+      /* Get exponents */
+      __ae2f_MathFloatExp(err, _af, _af_vec, &var.inta, &var.intaidx);
+      __ae2f_MathFloatExp(err, _bf, _bf_vec, &var.intb, &var.intbidx);
+
+      /* Get signs */
+      var.signa = __ae2f_MathFloatGetSign(_af, _af_vec);
+      var.signb = __ae2f_MathFloatGetSign(_bf, _bf_vec);
+
+      /* Get exponent values */
+      var.expa = var.intaidx;
+      var.expb = var.intbidx;
+
+      /* Create aligned mantissas */
+      var.aligned_a = var.inta;
+      var.aligned_b = var.intb;
+
+      /* Align mantissas based on exponent difference */
+      if (var.expa > var.expb) {
+        var.shift = var.expa - var.expb;
+        /* Shift b's mantissa right by adjusting size and using BitL */
+        var.aligned_b.sz = var.intb.sz - var.shift;
+        __ae2f_MathIntBitL(err, var.shift, &var.intb, _bf_vec, &var.aligned_b, _of_vec);
+      } else if (var.expb > var.expa) {
+        var.shift = var.expb - var.expa;
+        /* Shift a's mantissa right by adjusting size and using BitL */
+        var.aligned_a.sz = var.inta.sz - var.shift;
+        __ae2f_MathIntBitL(err, var.shift, &var.inta, _af_vec, &var.aligned_a, _of_vec);
+      }
+
+      /* Add mantissas */
+      __ae2f_MathIntAdd(err, &var.aligned_a, _af_vec, &var.aligned_b, _bf_vec, &var.inta, _of_vec);
+
+      /* Copy result to output */
+      __ae2f_MathFloatCast(err, _af, _of_vec, _of, _of_vec);
+
+      /* Set sign based on addition result */
+      __ae2f_MathFloatSetSign(_of, _of_vec, var.inta.sign);
+
+      /* Normalize result */
+      __ae2f_MathFloatNormalise(err, _of, _of_vec);
+    }
+      break;
     }
   }
 }

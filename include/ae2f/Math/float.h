@@ -84,4 +84,8 @@ ae2f_extern ae2f_SHAREDCALL void
 ae2f_MathFloatCheck(ae2f_err_t *err, ae2f_eMathFloatWhich_t *retwhich,
                     ae2f_MathFloat *_af, ae2f_iMathMem _af_vec);
 
+/** @brief Normalise `_if`  */
+ae2f_extern ae2f_SHAREDEXPORT void __ae2f_MathFloatNormalise(ae2f_err_t *err,
+                                                             ae2f_MathFloat *_if,
+                                                             ae2f_bMathMem _if_vec);
 #endif

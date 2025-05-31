@@ -2,7 +2,12 @@
 
 #include <stdio.h>
 
+#include <ae2f/Math/float.auto.imp.h>
 #include <ae2f/Math/float.imp.h>
+
+#define putsprefix ""
+#define puts(s) puts(putsprefix " " s)
+#define printf(f, ...) printf(putsprefix f, __VA_ARGS__)
 
 const ae2f_MathFloat float32header = {.bstart = 0,
                                       .exp = ae2f_MathFloat32_EXP,
@@ -395,4 +400,85 @@ static uint64_t flip() {
   return 0;
 }
 
-int main() { return castftof() | flip(); }
+static uint64_t normalise() {
+  {
+    puts("[normalise32] start");
+    ae2f_MathFloat a = float32header;
+    float32buf af;
+
+    af.a = 134;
+
+    ae2f_err_t e = 0;
+    __ae2f_MathFloatNormalise(&e, &a, af.b);
+
+    if (e) {
+      printf("[normalise32] got error %d\n", e);
+      return 1;
+    }
+
+    if (af.a != 134) {
+      printf("[normalise32] Expected %f but got %f\n", 134, af.a);
+      return 1;
+    }
+
+    puts("[normalise32] went successful");
+  }
+
+  {
+    puts("[normalise64] start");
+    ae2f_err_t e = 0;
+    ae2f_MathFloat a = float64header;
+    float64buf af;
+
+    af.a = 134;
+    __ae2f_MathFloatNormalise(&e, &a, af.b);
+
+    if (e) {
+      printf("[normalise64] got error %d\n", e);
+      return 1;
+    }
+
+    if (af.a != 134) {
+      printf("[normalise64] Expected %f but got %f\n", 134, af.a);
+      return 1;
+    }
+
+    puts("[normalise64] went successful");
+  }
+  return 0;
+}
+
+static uint64_t add() {
+  {
+#define putsprefix "[f32addf32f32]"
+    puts("start");
+    ae2f_MathFloat a = float32header;
+    ae2f_MathFloat b = float32header;
+    ae2f_MathFloat o = float32header;
+
+    float32buf af, bf, of;
+    ae2f_err_t e = 0;
+
+    af.a = 3;
+    bf.a = 7;
+    of.a = 0;
+
+    __ae2f_MathFloatAdd(&e, &a, af.b, &b, bf.b, &o, of.b);
+
+    if (e) {
+      printf("got error %d\n", e);
+      return 1;
+    }
+
+    if (of.a != 10) {
+      printf(" Expected %f but got %f\n", 10, of.a);
+      return 1;
+    }
+
+    puts("went successful");
+  }
+
+  return 0;
+}
+
+int main() { return castftof() | flip() | normalise() | add(); }

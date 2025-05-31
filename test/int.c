@@ -532,9 +532,101 @@ int select() {
   return 0;
 }
 
+int shiftl() {
+  {
+      union {
+      int8_t i;
+      uint8_t b[1];
+    } a = {.i = 3};
+    union {
+      int32_t i;
+      uint8_t b[1];
+    } b = {.i = 200};
+    union {
+      int16_t i;
+      uint8_t b[1];
+    } o = {.i = 0};
+    uint64_t buf;
+
+    ae2f_err_t e = 0;
+
+    ae2f_MathInt ai, bi, oi;
+    ai.sign = 1;
+    ai.sz = 8;
+    ai.vecbegpoint = 0;
+
+    bi.sign = 1;
+    bi.sz = 32;
+    bi.vecbegpoint = 0;
+
+    oi.sign = 1;
+    oi.vecbegpoint = 0;
+    oi.sz = 16;
+
+    __ae2f_MathIntBitL(&e, 2, &ai, a.b, &oi, o.b);
+
+    if (e) {
+      printf("Test::shiftl Error: %d\n", e);
+      return 1;
+    }
+    if (o.i != 12) {
+      printf("Test::shiftl expected %d but got %d\n", 12, o.i);
+      return 1;
+    }
+  }
+  puts("test::shiftl has succeed.");
+  return 0;
+}
+
+int shiftr() {
+  {
+      union {
+      int8_t i;
+      uint8_t b[1];
+    } a = {.i = 3};
+    union {
+      int32_t i;
+      uint8_t b[1];
+    } b = {.i = 200};
+    union {
+      int16_t i;
+      uint8_t b[1];
+    } o = {.i = 0};
+    uint64_t buf;
+
+    ae2f_err_t e = 0;
+
+    ae2f_MathInt ai, bi, oi;
+    ai.sign = 1;
+    ai.sz = 8;
+    ai.vecbegpoint = 0;
+
+    bi.sign = 1;
+    bi.sz = 32;
+    bi.vecbegpoint = 0;
+
+    oi.sign = 1;
+    oi.vecbegpoint = 0;
+    oi.sz = 16;
+
+    __ae2f_MathIntBitR(&e, 1, &ai, a.b, &oi, o.b);
+
+    if (e) {
+      printf("Test::shiftl Error: %d\n", e);
+      return 1;
+    }
+    if (o.i != 1) {
+      printf("Test::shiftl expected %d but got %d\n", 1, o.i);
+      return 1;
+    }
+  }
+  puts("test::shiftl has succeed.");
+  return 0;
+}
+
 int main() {
   int a =
-      flip() || cast() || add_sub() || cmp() || mul() || div() || select() || 0;
+      flip() || cast() || add_sub() || cmp() || mul() || div() || select() || shiftl() || shiftr() || 0;
 
   printf("Final Output: %d\n", a);
   return a; //!(a == 0 || a == -0);
