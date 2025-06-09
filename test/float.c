@@ -470,8 +470,8 @@ static uint64_t add() {
       return 1;
     }
 
-    if (of.a != 10) {
-      printf(" Expected %f but got %f\n", 10, of.a);
+    if (of.a != 10.) {
+      printf(" Expected %f but got %f\n", 10., of.a);
       return 1;
     }
 

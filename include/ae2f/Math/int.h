@@ -14,7 +14,6 @@
 #include <ae2f/Cmp.h>
 #include <ae2f/errGlob.h>
 #include <stddef.h>
-
 #include <ae2f/Pack/Beg.h>
 
 /** @brief The custom integer type. Following 2-complement standards. */
