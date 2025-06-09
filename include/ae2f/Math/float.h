@@ -30,6 +30,8 @@ typedef struct ae2f_MathFloat {
   unsigned bstart : 3;
 } ae2f_MathFloat;
 
+#define ae2f_pMathFloat ae2f_MathFloat *const
+
 #include <ae2f/Pack/End.h>
 
 #define ae2f_MathFloat32_SIGN 1
@@ -61,31 +63,4 @@ typedef enum ae2f_eMathFloatWhich {
 
 typedef unsigned char ae2f_eMathFloatWhich_t;
 
-/**
- * @brief
- * `ofloat` = `ifloat`;
- * */
-ae2f_extern ae2f_SHAREDEXPORT void
-ae2f_MathFloatCast(ae2f_err_t *err, const ae2f_MathFloat *ifloat_t,
-                   ae2f_iMathMem ifloat, const ae2f_MathFloat *ofloat_t,
-                   ae2f_oMathMem ofloat);
-
-/**
- * @brief
- * `ofloat` = -`ifloat`;
- * */
-ae2f_extern ae2f_SHAREDEXPORT void ae2f_MathFloatFlip(ae2f_err_t *err,
-                                                      const ae2f_MathFloat *_if,
-                                                      ae2f_iMathMem _if_vec,
-                                                      const ae2f_MathFloat *_of,
-                                                      ae2f_oMathMem _of_vec);
-
-ae2f_extern ae2f_SHAREDCALL void
-ae2f_MathFloatCheck(ae2f_err_t *err, ae2f_eMathFloatWhich_t *retwhich,
-                    ae2f_MathFloat *_af, ae2f_iMathMem _af_vec);
-
-/** @brief Normalise `_if`  */
-ae2f_extern ae2f_SHAREDEXPORT void __ae2f_MathFloatNormalise(ae2f_err_t *err,
-                                                             ae2f_MathFloat *_if,
-                                                             ae2f_bMathMem _if_vec);
 #endif

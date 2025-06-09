@@ -20,7 +20,9 @@ if(NOT TARGET ${PROJECT_NAME})
 		include/ae2f/Math/Mem.h
 		include/ae2f/Math/int.h
 		include/ae2f/Math/int.auto.h
-		include/ae2f/Math/int.imp.h
+
+		include/ae2f/Math/float.h
+		include/ae2f/Math/float.auto.h
 	)
 
 	target_link_libraries(${PROJECT_NAME} INTERFACE ${ae2f__Core__FETCHED})
@@ -28,4 +30,5 @@ if(NOT TARGET ${PROJECT_NAME})
 	ae2f_CoreTestTent(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/test)
 
 	ae2f_Macro_autoname(${PROJECT_SOURCE_DIR}/include/ae2f/Math/int.imp.h)
+	ae2f_Macro_autoname(${PROJECT_SOURCE_DIR}/include/ae2f/Math/float.imp.h)
 endif()

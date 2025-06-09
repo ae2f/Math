@@ -1,4 +1,3 @@
-
 #include <ae2f/Math/int.auto.h>
 #include <stdio.h>
 
@@ -534,7 +533,7 @@ int select() {
 
 int shiftl() {
   {
-      union {
+    union {
       int8_t i;
       uint8_t b[1];
     } a = {.i = 3};
@@ -580,7 +579,7 @@ int shiftl() {
 
 int shiftr() {
   {
-      union {
+    union {
       int8_t i;
       uint8_t b[1];
     } a = {.i = 3};
@@ -625,8 +624,8 @@ int shiftr() {
 }
 
 int main() {
-  int a =
-      flip() || cast() || add_sub() || cmp() || mul() || div() || select() || shiftl() || shiftr() || 0;
+  int a = flip() || cast() || add_sub() || cmp() || mul() || div() ||
+          select() || shiftl() || shiftr() || 0;
 
   printf("Final Output: %d\n", a);
   return a; //!(a == 0 || a == -0);

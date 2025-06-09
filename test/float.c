@@ -2,8 +2,7 @@
 
 #include <stdio.h>
 
-#include <ae2f/Math/float.auto.imp.h>
-#include <ae2f/Math/float.imp.h>
+#include <ae2f/Math/float.auto.h>
 
 #define putsprefix ""
 #define puts(s) puts(putsprefix " " s)
