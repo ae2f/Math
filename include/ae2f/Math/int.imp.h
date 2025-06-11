@@ -1,10 +1,12 @@
 #ifndef ae2f_Math_int_imp_h
 #define ae2f_Math_int_imp_h
 
-#include "./Util.h"
+
+#include "./Util.auto.h"
 #include "./int.h"
-#include <ae2f/BitVec.h>
 #include <ae2f/Macro.h>
+
+#include <ae2f/BitVec.h>
 
 /**
  * @brief
@@ -21,14 +23,16 @@
 
 #define __ae2f_MathIntNxt _ae2f_MathIntNxt
 
+#define __ae2f_MathIntTmp ae2f_RecordMk(ae2f_MathInt, 0, )
+
 /**
  * @brief
  * `_out_int` = `_int`[`_idx`];
  * */
 ae2f_MAC() _ae2f_MathIntNxt(ae2f_err_t *_reterr, const ae2f_MathInt *_int,
-                            ae2f_bMathMem _int_vec, intptr_t _idx,
-                            ae2f_MathInt *_out_int, size_t *_out_int_idx) {
-  if (!((_int) && (_out_int) && (_int_vec) && (_out_int_idx))) {
+                            intptr_t _idx, ae2f_MathInt *_out_int,
+                            size_t *_out_int_idx) {
+  if (!((_int) && (_out_int) && (_out_int_idx))) {
     if ((_reterr))
       *ae2f_reinterpret_cast(ae2f_MathMemOutErr, _reterr) |=
           ae2f_errGlob_PTR_IS_NULL;
@@ -61,7 +65,7 @@ ae2f_MAC()
     ;
   else if (!((__in) && (__out) && (__i_vec) && (__o_vec))) {
     if ((reterr))
-      *(reterr) |= ae2f_errGlob_PTR_IS_NULL;
+      (*(reterr)) |= ae2f_errGlob_PTR_IS_NULL;
   } else if ((__i_vec) == (__o_vec) &&
              ((__in) == (__out) ||
               ((__in)->sz == (__out)->sz && (__in)->sign == (__out)->sign &&
@@ -539,9 +543,8 @@ ae2f_MAC() _ae2f_MathIntBitR(ae2f_MathMemOutErr reterr, intptr_t bitcount,
       __ae2f_MathIntBitRVar._o.p = (out)->vecbegpoint + __ae2f_MathIntBitRVar.i;
       __ae2f_MathIntBitRVar._i.p =
           (in)->vecbegpoint + (__ae2f_MathIntBitRVar.i + (bitcount));
-      (out_vec)[__ae2f_MathIntBitRVar._o.b.q] = __ae2f_MathUtilBVSet(
-          (out_vec)[__ae2f_MathIntBitRVar._o.b.q], __ae2f_MathIntBitRVar._o.b.r,
-          __ae2f_MathUtilBVGet((in_vec)[__ae2f_MathIntBitRVar._i.b.q],
+
+      __ae2f_MathUtilBVSetAssign((out_vec)[__ae2f_MathIntBitRVar._o.b.q], __ae2f_MathIntBitRVar._o.b.r, __ae2f_MathUtilBVGet((in_vec)[__ae2f_MathIntBitRVar._i.b.q],
                                __ae2f_MathIntBitRVar._i.b.r));
     } /* Then fill remaining bits with zeros */
     for (; __ae2f_MathIntBitRVar.i < (out)->sz; __ae2f_MathIntBitRVar.i++) {

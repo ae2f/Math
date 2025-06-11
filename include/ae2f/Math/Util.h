@@ -66,4 +66,5 @@ typedef __ae2f_MathUtilFlag2(2) ae2f_MathUtilFlag2;
 #define __ae2f_MathUtilBVSetAssignArr(vecarr, i, val)                          \
   __ae2f_MathUtilBVSetAssign((vecarr)[(i) >> 3], (i) & 7, (val))
 
+#define __ae2f_MathUtilDiff(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
 #endif

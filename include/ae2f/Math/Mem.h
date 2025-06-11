@@ -16,7 +16,7 @@
 #endif
 
 #ifndef ae2f_bMathMem
-/**
+/*
  * @brief
  * Byte vector type: as temporary buffer.
  * */

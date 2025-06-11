@@ -462,15 +462,52 @@ static uint64_t add() {
     bf.a = 7;
     of.a = 0;
 
-    __ae2f_MathFloatAdd(&e, &a, af.b, &b, bf.b, &o, of.b);
+    
+    __ae2f_MathFloatAdd((&e), (&a), af.b, (&b), bf.b, (&o), of.b);
 
     if (e) {
       printf("got error %d\n", e);
       return 1;
     }
 
-    if (of.a != 10.) {
-      printf(" Expected %f but got %f\n", 10., of.a);
+    if (of.a != af.a + bf.a) {
+      printf(" Expected %f but got %.3f\n", af.a + bf.a, of.a);
+      printf("af: %f\n", af.a);
+      printf("bf: %f\n", bf.a);
+
+      fputs("o:\t0b", stdout);
+      for(size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) 
+      {
+        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+      } fputc('\n', stdout);
+
+      of.a = af.a + bf.a;
+      fprintf(stdout, "%.3f:\t0b", of.a);
+      for(size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) 
+      {
+        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+      } fputc('\n', stdout);
+
+      of.a = 0.;
+      fputs("0:\t0b", stdout);
+      for(size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) 
+      {
+        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+      } fputc('\n', stdout);
+
+      of.a = af.a;
+      fprintf(stdout, "%.3f:\t0b", af.a);
+      for(size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) 
+      {
+        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+      } fputc('\n', stdout);
+
+      of.a = bf.a;
+      fprintf(stdout, "%.3f:\t0b", bf.a);
+      for(size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) 
+      {
+        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+      } fputc('\n', stdout);
       return 1;
     }
 
