@@ -208,7 +208,7 @@ function(ae2f_CoreLibFetch_DNS prm_AuthorName prm_namespace prm_TarName prm_TagN
 
     set(
 	    ${prm_AuthorName}__${prm_namespace}__${prm_TarName}__FETCHED 
-	    ${prm_TarName} CACHE STRING ${prm_TarName}
+	    ${prm_namespace}::${prm_TarName} CACHE STRING ${prm_namespace}::${prm_TarName}
     )
 
 endfunction()
