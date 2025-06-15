@@ -517,4 +517,4 @@ static uint64_t add() {
   return 0;
 }
 
-int main() { return castftof() | flip() | normalise() | add(); }
+int main() { return castftof() | flip() | normalise() & add(); }
