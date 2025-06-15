@@ -6,3 +6,7 @@ include(CMakePackageConfigHelpers)
 include("${CMAKE_CURRENT_LIST_DIR}/MathTargets.cmake")
 
 find_package(Core REQUIRED)
+find_package(Macro REQUIRED)
+
+link_libraries(ae2f::Core)
+link_libraries(ae2f::Macro)
