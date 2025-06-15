@@ -1,3 +1,6 @@
+# TODO
+- Use compound literals so 
+
 # Math
 - Rel-v0.0.0
 

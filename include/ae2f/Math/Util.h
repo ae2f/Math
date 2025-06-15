@@ -1,0 +1,70 @@
+#ifndef ae2f_Math_Util_h
+#define ae2f_Math_Util_h
+
+#include <ae2f/BitVec.h>
+
+/**
+ * @brief
+ * `b.r` = `p` % 8;	[remainder] \n
+ * `b.q` = `p` / 8;	[quotient]
+ *
+ * @tparam uint_t is unsigned int type.
+ * */
+#define ae2f_MathUtilDiv8(uint_t)                                              \
+  union __ae2f_MathUtilDiv8__##uint_t {                                        \
+    uint_t p;                                                                  \
+    struct __ae2f_MathUtilDiv8__##uint_t##__packer {                           \
+      unsigned r : 3;                                                          \
+      uint_t q : (sizeof(uint_t) << 3) - 3;                                    \
+    } b;                                                                       \
+  }
+
+/** @brief
+ * `b._0` = `a` & 1;	[1nd bit] \n
+ * `b._1` = `a` >> 1;	[2nd bit]
+ *
+ * `__VA_ARGS__` (aka ...) will be stacked after _1. \n
+ * `c` stands for custom, which could handle other bits.
+ *
+ * @param c_sz bit size of `c`
+ * */
+#define __ae2f_MathUtilFlag2(c_sz, ...)                                        \
+  union __ae2f_MathUtilFlag2__##c_sz {                                         \
+    unsigned a : 2;                                                            \
+    unsigned c : c_sz;                                                         \
+    struct __ae2f_MathUtilFlag2__##c_sz##__packer {                            \
+      unsigned _0 : 1;                                                         \
+      unsigned _1 : 1;                                                         \
+      __VA_ARGS__                                                              \
+    } b;                                                                       \
+  }
+
+/** @brief
+ * `b._0` = `a` & 1;	[1nd bit] \n
+ * `b._1` = `a` >> 1;	[2nd bit]
+ * */
+typedef __ae2f_MathUtilFlag2(2) ae2f_MathUtilFlag2;
+
+#define __ae2f_MathUtilBVGetRanged(vec, istart, iend)                          \
+  _ae2f_BitVecGetRanged((vec), (istart), (iend), unsigned char)
+
+#define __ae2f_MathUtilBVGet(vec, i)                                           \
+  __ae2f_MathUtilBVGetRanged((vec), (i), ((i) + 1))
+
+#define __ae2f_MathUtilBVGetArr(vecarr, i)                                     \
+  __ae2f_MathUtilBVGet((vecarr)[(i) >> 3], (i) & 7)
+
+#define __ae2f_MathUtilBVSetRanged(vec, istart, iend, val)                     \
+  _ae2f_BitVecSetRanged((vec), (istart), (iend), (val), unsigned char)
+
+#define __ae2f_MathUtilBVSet(vec, i, val)                                      \
+  __ae2f_MathUtilBVSetRanged(vec, (i), (i) + 1, (val))
+
+#define __ae2f_MathUtilBVSetAssign(vec, i, val)                                \
+  ((vec) = (__ae2f_MathUtilBVSet(vec, i, val)))
+
+#define __ae2f_MathUtilBVSetAssignArr(vecarr, i, val)                          \
+  __ae2f_MathUtilBVSetAssign((vecarr)[(i) >> 3], (i) & 7, (val))
+
+#define __ae2f_MathUtilDiff(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
+#endif
