@@ -124,6 +124,8 @@ function(ae2f_CoreLibTentConfigCustom prm_TarName prm_TarPreFix prm_includeDir p
         ${CMAKE_CURRENT_BINARY_DIR}/${prm_namespace}-${prm_TarName}Config.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake
     )
+
+    set(${prm_namespace}__${prm_TarName}__TENT ${prm_namespace}-${prm_TarName} CACHE STRING ${prm_namespace}-${prm_TarName})
 endfunction()
 
 # @brief
