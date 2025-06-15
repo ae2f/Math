@@ -8,7 +8,7 @@ project(Math VERSION 0.0.0 LANGUAGES C CXX)
 
 
 if(NOT TARGET ${PROJECT_NAME})
-	ae2f_CoreLibFetch(ae2f Core Rel-v6.23.17)
+	ae2f_CoreLibFetch(ae2f Core main)
 	ae2f_CoreLibFetch(ae2f Macro main)
 
 	ae2f_Macro_init(0, 60, 100)
