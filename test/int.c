@@ -1,4 +1,5 @@
 #include <ae2f/Math/int.auto.h>
+#include <stdint.h>
 #include <stdio.h>
 
 static int flip() {

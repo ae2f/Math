@@ -1,8 +1,6 @@
-
-
-#include <stdio.h>
-
 #include <ae2f/Math/float.auto.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #define putsprefix ""
 #define puts(s) puts(putsprefix " " s)
