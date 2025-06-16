@@ -3,22 +3,6 @@
 
 #include <ae2f/BitVec.h>
 
-/**
- * @brief
- * `b.r` = `p` % 8;	[remainder] \n
- * `b.q` = `p` / 8;	[quotient]
- *
- * @tparam uint_t is unsigned int type.
- * */
-#define ae2f_MathUtilDiv8(uint_t)                                              \
-  union __ae2f_MathUtilDiv8__##uint_t {                                        \
-    uint_t p;                                                                  \
-    struct __ae2f_MathUtilDiv8__##uint_t##__packer {                           \
-      unsigned r : 3;                                                          \
-      uint_t q : (sizeof(uint_t) << 3) - 3;                                    \
-    } b;                                                                       \
-  }
-
 /** @brief
  * `b._0` = `a` & 1;	[1nd bit] \n
  * `b._1` = `a` >> 1;	[2nd bit]

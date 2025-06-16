@@ -1,7 +1,6 @@
 #ifndef ae2f_Math_int_imp_h
 #define ae2f_Math_int_imp_h
 
-
 #include "./Util.auto.h"
 #include "./int.h"
 #include <ae2f/Macro.h>
@@ -25,6 +24,14 @@
 
 #define __ae2f_MathIntTmp ae2f_RecordMk(ae2f_MathInt, 0, )
 
+#define __ae2f_MathIntNxtHead(_int, _idx)                                      \
+  ((_int) ? ae2f_RecordMk(ae2f_MathInt, (_int)->sz, (_int)->sign,              \
+                          ((_int)->sz * (_idx)) + (_int)->vecbegpoint)         \
+          : ae2f_RecordMk(ae2f_MathInt, 0, 0, 0))
+
+#define __ae2f_MathIntNxtIdx(_int, _idx)                                       \
+  ((_int) ? ((_int)->vecbegpoint + ((_int)->sz * (_idx))) >> 3 : 0)
+
 /**
  * @brief
  * `_out_int` = `_int`[`_idx`];
@@ -32,18 +39,21 @@
 ae2f_MAC() _ae2f_MathIntNxt(ae2f_err_t *_reterr, const ae2f_MathInt *_int,
                             intptr_t _idx, ae2f_MathInt *_out_int,
                             size_t *_out_int_idx) {
-  if (!((_int) && (_out_int) && (_out_int_idx))) {
-    if ((_reterr))
-      *ae2f_reinterpret_cast(ae2f_MathMemOutErr, _reterr) |=
-          ae2f_errGlob_PTR_IS_NULL;
+  if ((_reterr) && *(_reterr))
+    ;
+  else if (!_int) {
+    if (_reterr) {
+      *(_reterr) |= ae2f_errGlob_PTR_IS_NULL;
+    }
   } else {
-    struct __ae2f_MathIntNxtVar_t {
-      size_t __len;
-    } __ae2f_MathIntNxtVar;
-    __ae2f_MathIntNxtVar.__len = (_int)->vecbegpoint + (_int)->sz * (_idx);
-    *(_out_int) = *(_int);
-    (_out_int)->vecbegpoint = __ae2f_MathIntNxtVar.__len;
-    *(_out_int_idx) = (__ae2f_MathIntNxtVar.__len >> 3);
+
+    if (_out_int) {
+      *(_out_int) = __ae2f_MathIntNxtHead(_int, _idx);
+    }
+
+    if (_out_int_idx) {
+      *(_out_int_idx) = __ae2f_MathIntNxtIdx(_int, _idx);
+    }
   }
 }
 
@@ -73,7 +83,7 @@ ae2f_MAC()
   } else {
     struct __ae2f_MathIntCastVar_t {
       size_t j;
-      ae2f_MathUtilDiv8(size_t) ovec, ivec;
+      size_t ovec, ivec;
     } __ae2f_MathIntCastVar; /** Fill them all without noticing if it's signed
                               */
     for (__ae2f_MathIntCastVar.j = 0;
@@ -81,18 +91,15 @@ ae2f_MAC()
              (__in)->sz - ae2f_static_cast(size_t, (__in)->sign) &&
          __ae2f_MathIntCastVar.j < (__out)->sz;
          __ae2f_MathIntCastVar.j++) {
-      __ae2f_MathIntCastVar.ovec.p =
+      __ae2f_MathIntCastVar.ovec =
           (__out)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
-      __ae2f_MathIntCastVar.ivec.p =
+      __ae2f_MathIntCastVar.ivec =
           (__in)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
-      (__o_vec)[__ae2f_MathIntCastVar.ovec.b.q] = __ae2f_MathUtilBVSet(
-          (__o_vec)[__ae2f_MathIntCastVar.ovec.b.q],
-          __ae2f_MathIntCastVar.ovec.b.r /*idx*/
-          ,
-          __ae2f_MathUtilBVGet((__i_vec)[__ae2f_MathIntCastVar.ivec.b.q],
-                               __ae2f_MathIntCastVar.ivec.b.r));
+      __ae2f_MathUtilBVSetAssignArr(
+          __o_vec, __ae2f_MathIntCastVar.ovec,
+          __ae2f_MathUtilBVGetArr(__i_vec, __ae2f_MathIntCastVar.ivec));
     }
 
     /*                                                                       \
@@ -100,15 +107,15 @@ ae2f_MAC()
      * When signed, rest will be filled with sign bit.                       \
      * */
     for (; __ae2f_MathIntCastVar.j < (__out)->sz; __ae2f_MathIntCastVar.j++) {
-      __ae2f_MathIntCastVar.ovec.p =
+      __ae2f_MathIntCastVar.ovec =
           (__out)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
-      __ae2f_MathIntCastVar.ivec.p =
+      __ae2f_MathIntCastVar.ivec =
           (__in)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
-      __ae2f_MathIntCastVar.ovec.b.q[__o_vec] =
-          __ae2f_MathUtilBVSet(__ae2f_MathIntCastVar.ovec.b.q[__o_vec],
-                               __ae2f_MathIntCastVar.ovec.b.r,
+      (__ae2f_MathIntCastVar.ovec >> 3)[__o_vec] =
+          __ae2f_MathUtilBVSet((__ae2f_MathIntCastVar.ovec >> 3)[__o_vec],
+                               (__ae2f_MathIntCastVar.ovec & 7),
                                __ae2f_MathIntIsNegative(__in, (__i_vec)));
     }
   }
@@ -143,37 +150,35 @@ ae2f_MAC()
   } else {
     struct __ae2f_MathIntFlipVar_t {
       size_t j;
-      ae2f_MathUtilDiv8(size_t) ovec, ivec;
+      size_t ovec, ivec;
       __ae2f_MathUtilFlag2(3, unsigned sbit : 1;) buf;
     } __ae2f_MathIntFlipVar;
     /** +1 for second compliment */
     __ae2f_MathIntFlipVar.buf.a = 0b10;
-    __ae2f_MathIntFlipVar.ivec.p = (__i)->vecbegpoint + (__i)->sz - 1;
+    __ae2f_MathIntFlipVar.ivec = (__i)->vecbegpoint + (__i)->sz - 1;
 
     __ae2f_MathIntFlipVar.buf.b.sbit =
         (__o)->sign &&
-        __ae2f_MathUtilBVGet((__i_vec)[__ae2f_MathIntFlipVar.ivec.b.q],
-                             __ae2f_MathIntFlipVar.ivec.b.r);
+        __ae2f_MathUtilBVGet((__i_vec)[__ae2f_MathIntFlipVar.ivec >> 3],
+                             __ae2f_MathIntFlipVar.ivec & 7);
 
     for (__ae2f_MathIntFlipVar.j = 0; __ae2f_MathIntFlipVar.j < (__o)->sz;
          __ae2f_MathIntFlipVar.j++) {
-      __ae2f_MathIntFlipVar.ovec.p =
-          (__o)->vecbegpoint + __ae2f_MathIntFlipVar.j;
+      __ae2f_MathIntFlipVar.ovec = (__o)->vecbegpoint + __ae2f_MathIntFlipVar.j;
 
-      __ae2f_MathIntFlipVar.ivec.p =
-          (__i)->vecbegpoint + __ae2f_MathIntFlipVar.j;
+      __ae2f_MathIntFlipVar.ivec = (__i)->vecbegpoint + __ae2f_MathIntFlipVar.j;
 
       __ae2f_MathIntFlipVar.buf.a =
           !(__ae2f_MathIntFlipVar.j < (__i)->sz
                 ? __ae2f_MathUtilBVGet(
-                      (__i_vec)[__ae2f_MathIntFlipVar.ivec.b.q],
-                      __ae2f_MathIntFlipVar.ivec.b.r)
+                      (__i_vec)[__ae2f_MathIntFlipVar.ivec >> 3],
+                      __ae2f_MathIntFlipVar.ivec & 7)
                 : __ae2f_MathIntFlipVar.buf.b.sbit) /** Compliment 1 */
           + (__ae2f_MathIntFlipVar.buf.b._1);
 
-      (__o_vec)[__ae2f_MathIntFlipVar.ovec.b.q] = __ae2f_MathUtilBVSet(
-          (__o_vec)[__ae2f_MathIntFlipVar.ovec.b.q],
-          __ae2f_MathIntFlipVar.ovec.b.r, __ae2f_MathIntFlipVar.buf.b._0);
+      (__o_vec)[__ae2f_MathIntFlipVar.ovec >> 3] = __ae2f_MathUtilBVSet(
+          (__o_vec)[__ae2f_MathIntFlipVar.ovec >> 3],
+          __ae2f_MathIntFlipVar.ovec & 7, __ae2f_MathIntFlipVar.buf.b._0);
     }
   }
 }
@@ -195,7 +200,7 @@ ae2f_MAC()
   } else {
     struct __ae2f_MathIntAddVar_t {
       size_t j;
-      ae2f_MathUtilDiv8(size_t) ovec, avec, bvec;
+      size_t ovec, avec, bvec;
       __ae2f_MathUtilFlag2(4, unsigned sb_0 : 1; unsigned sb_1 : 1;) buf;
     } __ae2f_MathIntAddVar;
     __ae2f_MathIntAddVar.buf.a = 0b00; /**
@@ -215,25 +220,23 @@ ae2f_MAC()
 
     for (__ae2f_MathIntAddVar.j = 0; __ae2f_MathIntAddVar.j < (_o)->sz;
          __ae2f_MathIntAddVar.j++) {
-      __ae2f_MathIntAddVar.avec.p = (_a)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      __ae2f_MathIntAddVar.avec = (_a)->vecbegpoint + __ae2f_MathIntAddVar.j;
 
-      __ae2f_MathIntAddVar.bvec.p = (_b)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      __ae2f_MathIntAddVar.bvec = (_b)->vecbegpoint + __ae2f_MathIntAddVar.j;
 
-      __ae2f_MathIntAddVar.ovec.p = (_o)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      __ae2f_MathIntAddVar.ovec = (_o)->vecbegpoint + __ae2f_MathIntAddVar.j;
 
       __ae2f_MathIntAddVar.buf.a =
           (__ae2f_MathIntAddVar.j < (_a)->sz
-               ? __ae2f_MathUtilBVGet(__ae2f_MathIntAddVar.avec.b.q[_a_vec],
-                                      __ae2f_MathIntAddVar.avec.b.r)
+               ? __ae2f_MathUtilBVGetArr(_a_vec, __ae2f_MathIntAddVar.avec)
                : __ae2f_MathIntAddVar.buf.b.sb_0) +
           (__ae2f_MathIntAddVar.j < (_b)->sz
-               ? __ae2f_MathUtilBVGet(__ae2f_MathIntAddVar.bvec.b.q[_b_vec],
-                                      __ae2f_MathIntAddVar.bvec.b.r)
+               ? __ae2f_MathUtilBVGetArr(_b_vec, __ae2f_MathIntAddVar.bvec)
                : __ae2f_MathIntAddVar.buf.b.sb_1) +
           (__ae2f_MathIntAddVar.buf.b._1);
-      __ae2f_MathIntAddVar.ovec.b.q[_o_vec] = __ae2f_MathUtilBVSet(
-          __ae2f_MathIntAddVar.ovec.b.q[_o_vec], __ae2f_MathIntAddVar.ovec.b.r,
-          __ae2f_MathIntAddVar.buf.b._0);
+
+      __ae2f_MathUtilBVSetAssignArr(_o_vec, __ae2f_MathIntAddVar.ovec,
+                                    __ae2f_MathIntAddVar.buf.b._0);
     }
   }
 }
@@ -256,7 +259,7 @@ ae2f_MAC()
   } else {
     struct __ae2f_MathIntSubVar_t {
       size_t j;
-      ae2f_MathUtilDiv8(size_t) ovec, avec, bvec;
+      size_t ovec, avec, bvec;
       __ae2f_MathUtilFlag2(4, unsigned sb_0 : 1; unsigned sb_1 : 1;) buf;
     } __ae2f_MathIntAddVar;
     __ae2f_MathIntAddVar.buf.a = 0b10; /**
@@ -276,25 +279,23 @@ ae2f_MAC()
 
     for (__ae2f_MathIntAddVar.j = 0; __ae2f_MathIntAddVar.j < (_o)->sz;
          __ae2f_MathIntAddVar.j++) {
-      __ae2f_MathIntAddVar.avec.p = (_a)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      __ae2f_MathIntAddVar.avec = (_a)->vecbegpoint + __ae2f_MathIntAddVar.j;
 
-      __ae2f_MathIntAddVar.bvec.p = (_b)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      __ae2f_MathIntAddVar.bvec = (_b)->vecbegpoint + __ae2f_MathIntAddVar.j;
 
-      __ae2f_MathIntAddVar.ovec.p = (_o)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      __ae2f_MathIntAddVar.ovec = (_o)->vecbegpoint + __ae2f_MathIntAddVar.j;
 
       __ae2f_MathIntAddVar.buf.a =
           (__ae2f_MathIntAddVar.j < (_a)->sz
-               ? __ae2f_MathUtilBVGet(__ae2f_MathIntAddVar.avec.b.q[_a_vec],
-                                      __ae2f_MathIntAddVar.avec.b.r)
+               ? __ae2f_MathUtilBVGetArr(_a_vec, __ae2f_MathIntAddVar.avec)
                : __ae2f_MathIntAddVar.buf.b.sb_0) +
           !(__ae2f_MathIntAddVar.j < (_b)->sz
-                ? __ae2f_MathUtilBVGet(__ae2f_MathIntAddVar.bvec.b.q[_b_vec],
-                                       __ae2f_MathIntAddVar.bvec.b.r)
+                ? __ae2f_MathUtilBVGetArr(_b_vec, __ae2f_MathIntAddVar.bvec)
                 : __ae2f_MathIntAddVar.buf.b.sb_1) +
           (__ae2f_MathIntAddVar.buf.b._1);
-      __ae2f_MathIntAddVar.ovec.b.q[_o_vec] = __ae2f_MathUtilBVSet(
-          __ae2f_MathIntAddVar.ovec.b.q[_o_vec], __ae2f_MathIntAddVar.ovec.b.r,
-          __ae2f_MathIntAddVar.buf.b._0);
+
+      __ae2f_MathUtilBVSetAssignArr(_o_vec, __ae2f_MathIntAddVar.ovec,
+                                    __ae2f_MathIntAddVar.buf.b._0);
     }
   }
 }
@@ -317,17 +318,16 @@ ae2f_MAC() _ae2f_MathIntFill(ae2f_MathMemOutErr reterr,
   else {
     struct __ae2f_MathIntFillVar_t {
       size_t j;
-      ae2f_MathUtilDiv8(size_t) abeg;
+      size_t abeg;
     } __ae2f_MathIntFillVar;
 
     for (__ae2f_MathIntFillVar.j = 0; __ae2f_MathIntFillVar.j < (_a)->sz;
          __ae2f_MathIntFillVar.j++) {
-      __ae2f_MathIntFillVar.abeg.p =
+      __ae2f_MathIntFillVar.abeg =
           ((_a)->vecbegpoint + __ae2f_MathIntFillVar.j);
 
-      (a_vec)[__ae2f_MathIntFillVar.abeg.b.q] = __ae2f_MathUtilBVSet(
-          (a_vec)[__ae2f_MathIntFillVar.abeg.b.q],
-          __ae2f_MathIntFillVar.abeg.b.r,
+      __ae2f_MathUtilBVSetAssignArr(
+          a_vec, __ae2f_MathIntFillVar.abeg,
           __ae2f_MathUtilBVGet(mask, __ae2f_MathIntFillVar.j % (masklen)));
     }
   }
@@ -358,7 +358,7 @@ ae2f_MAC()
   } else {
     struct __ae2f_MathIntCmpZeroVar_t {
       size_t i;
-      ae2f_MathUtilDiv8(size_t) ivec;
+      size_t ivec;
     } __ae2f_MathIntCmpZeroVar;
 
     if ((in)->sign &&
@@ -371,11 +371,10 @@ ae2f_MAC()
       for (__ae2f_MathIntCmpZeroVar.i = 0;
            __ae2f_MathIntCmpZeroVar.i < (in)->sz;
            __ae2f_MathIntCmpZeroVar.i++) {
-        __ae2f_MathIntCmpZeroVar.ivec.p =
+        __ae2f_MathIntCmpZeroVar.ivec =
             ((in)->vecbegpoint + __ae2f_MathIntCmpZeroVar.i);
 
-        if ((__ae2f_MathUtilBVGet((in_vec)[__ae2f_MathIntCmpZeroVar.ivec.b.q],
-                                  __ae2f_MathIntCmpZeroVar.ivec.b.r))) {
+        if (__ae2f_MathUtilBVGetArr(in_vec, __ae2f_MathIntCmpZeroVar.ivec)) {
           *(out) = ae2f_CmpFunRet_RISLESSER;
           break;
         }
@@ -409,7 +408,7 @@ ae2f_MAC()
   else {
     struct __ae2f_MathIntCmpVar_t {
       size_t sz_gt, i;
-      ae2f_MathUtilDiv8(size_t) av, bv;
+      size_t av, bv;
       unsigned sign : 1;
       int cmp : 2;
     } __ae2f_MathIntCmpVar;
@@ -419,35 +418,30 @@ ae2f_MAC()
     *(out) = 0;
     if ((__ae2f_MathIntCmpVar.sign =
              ((_a)->sign &&
-              __ae2f_MathUtilBVGet(
-                  (a_vec)[((_a)->vecbegpoint + (_a)->sz - 1) >> 3],
-                  (((_a)->vecbegpoint + (_a)->sz - 1) & 7)))) !=
-        ((_b)->sign &&
-         __ae2f_MathUtilBVGet((b_vec)[((_b)->vecbegpoint + (_b)->sz - 1) >> 3],
-                              (((_b)->vecbegpoint + (_b)->sz - 1) &
-                               7)))) {   /** Two signs are different */
-      *(out) = __ae2f_MathIntCmpVar.sign /* is sign of a negative */
+              __ae2f_MathUtilBVGetArr((a_vec),
+                                      ((_a)->vecbegpoint + (_a)->sz - 1)))) !=
+        ((_b)->sign && __ae2f_MathUtilBVGetArr(
+                           (b_vec), ((_b)->vecbegpoint + (_b)->sz -
+                                     1)))) { /** Two signs are different */
+      *(out) = __ae2f_MathIntCmpVar.sign     /* is sign of a negative */
                    ? ae2f_CmpFunRet_LISLESSER
                    : ae2f_CmpFunRet_RISLESSER;
     } else
       for (__ae2f_MathIntCmpVar.i = __ae2f_MathIntCmpVar.sz_gt - 1;
            __ae2f_MathIntCmpVar.i != ae2f_static_cast(size_t, -1);
            __ae2f_MathIntCmpVar.i--) {
-        __ae2f_MathIntCmpVar.av.p = (_a)->vecbegpoint + __ae2f_MathIntCmpVar.i;
+        __ae2f_MathIntCmpVar.av = (_a)->vecbegpoint + __ae2f_MathIntCmpVar.i;
 
-        __ae2f_MathIntCmpVar.bv.p = (_b)->vecbegpoint + __ae2f_MathIntCmpVar.i;
+        __ae2f_MathIntCmpVar.bv = (_b)->vecbegpoint + __ae2f_MathIntCmpVar.i;
         __ae2f_MathIntCmpVar.cmp =
-            ae2f_static_cast(
-                int8_t,
-                __ae2f_MathIntCmpVar.i < (_a)->sz
-                    ? __ae2f_MathUtilBVGet((a_vec)[__ae2f_MathIntCmpVar.av.b.q],
-                                           __ae2f_MathIntCmpVar.av.b.r)
-                    : __ae2f_MathIntCmpVar.sign) -
+            ae2f_static_cast(int8_t, __ae2f_MathIntCmpVar.i < (_a)->sz
+                                         ? __ae2f_MathUtilBVGetArr(
+                                               (a_vec), __ae2f_MathIntCmpVar.av)
+                                         : __ae2f_MathIntCmpVar.sign) -
             ae2f_static_cast(
                 int8_t,
                 __ae2f_MathIntCmpVar.i < (_b)->sz
-                    ? __ae2f_MathUtilBVGet((b_vec)[__ae2f_MathIntCmpVar.bv.b.q],
-                                           __ae2f_MathIntCmpVar.bv.b.r)
+                    ? __ae2f_MathUtilBVGetArr((b_vec), __ae2f_MathIntCmpVar.bv)
                     : __ae2f_MathIntCmpVar.sign); /* is abs(_a) greater */
         if (__ae2f_MathIntCmpVar.cmp) {
           *(out) = __ae2f_MathIntCmpVar.cmp;
@@ -477,34 +471,29 @@ ae2f_MAC()
   else {
     struct __ae2f_MathIntBitLVar_t {
       size_t c, i;
-      ae2f_MathUtilDiv8(size_t) _o, _i;
+      size_t _o, _i;
     } __ae2f_MathIntBitLVar; /* First fill the lower bits with zeros */
     for (__ae2f_MathIntBitLVar.i = 0; __ae2f_MathIntBitLVar.i < (bitcount) &&
                                       __ae2f_MathIntBitLVar.i < (out)->sz;
          __ae2f_MathIntBitLVar.i++) {
-      __ae2f_MathIntBitLVar._o.p =
-          ((out)->vecbegpoint + __ae2f_MathIntBitLVar.i);
-      (out_vec)[__ae2f_MathIntBitLVar._o.b.q] =
-          __ae2f_MathUtilBVSet((out_vec)[__ae2f_MathIntBitLVar._o.b.q],
-                               __ae2f_MathIntBitLVar._o.b.r, 0);
+      __ae2f_MathIntBitLVar._o = ((out)->vecbegpoint + __ae2f_MathIntBitLVar.i);
+      __ae2f_MathUtilBVSetAssignArr((out_vec), __ae2f_MathIntBitLVar._o, 0);
     } /* Then copy the input bits shifted left */
     for (; __ae2f_MathIntBitLVar.i < (out)->sz &&
            __ae2f_MathIntBitLVar.i - (bitcount) < (in)->sz;
          __ae2f_MathIntBitLVar.i++) {
-      __ae2f_MathIntBitLVar._o.p = (out)->vecbegpoint + __ae2f_MathIntBitLVar.i;
-      __ae2f_MathIntBitLVar._i.p =
+      __ae2f_MathIntBitLVar._o = (out)->vecbegpoint + __ae2f_MathIntBitLVar.i;
+      __ae2f_MathIntBitLVar._i =
           (in)->vecbegpoint + (__ae2f_MathIntBitLVar.i - (bitcount));
-      (out_vec)[__ae2f_MathIntBitLVar._o.b.q] = __ae2f_MathUtilBVSet(
-          (out_vec)[__ae2f_MathIntBitLVar._o.b.q], __ae2f_MathIntBitLVar._o.b.r,
-          __ae2f_MathUtilBVGet((in_vec)[__ae2f_MathIntBitLVar._i.b.q],
-                               __ae2f_MathIntBitLVar._i.b.r));
+
+      __ae2f_MathUtilBVSetAssignArr(
+          (out_vec), __ae2f_MathIntBitLVar._o,
+          __ae2f_MathUtilBVGetArr((in_vec), __ae2f_MathIntBitLVar._i));
+
     } /* Finally fill remaining bits with zeros */
     for (; __ae2f_MathIntBitLVar.i < (out)->sz; __ae2f_MathIntBitLVar.i++) {
-      __ae2f_MathIntBitLVar._o.p =
-          ((out)->vecbegpoint + __ae2f_MathIntBitLVar.i);
-      (out_vec)[__ae2f_MathIntBitLVar._o.b.q] =
-          __ae2f_MathUtilBVSet((out_vec)[__ae2f_MathIntBitLVar._o.b.q],
-                               __ae2f_MathIntBitLVar._o.b.r, 0);
+      __ae2f_MathIntBitLVar._o = ((out)->vecbegpoint + __ae2f_MathIntBitLVar.i);
+      __ae2f_MathUtilBVSetAssignArr((out_vec), __ae2f_MathIntBitLVar._o, 0);
     }
   }
 }
@@ -534,25 +523,23 @@ ae2f_MAC() _ae2f_MathIntBitR(ae2f_MathMemOutErr reterr, intptr_t bitcount,
   else {
     struct __ae2f_MathIntBitRVar_t {
       size_t c, i;
-      ae2f_MathUtilDiv8(size_t) _o, _i;
+      size_t _o, _i;
     } __ae2f_MathIntBitRVar; /* First copy the input bits shifted right */
     for (__ae2f_MathIntBitRVar.i = 0;
          __ae2f_MathIntBitRVar.i < (out)->sz &&
          __ae2f_MathIntBitRVar.i + (bitcount) < (in)->sz;
          __ae2f_MathIntBitRVar.i++) {
-      __ae2f_MathIntBitRVar._o.p = (out)->vecbegpoint + __ae2f_MathIntBitRVar.i;
-      __ae2f_MathIntBitRVar._i.p =
+      __ae2f_MathIntBitRVar._o = (out)->vecbegpoint + __ae2f_MathIntBitRVar.i;
+      __ae2f_MathIntBitRVar._i =
           (in)->vecbegpoint + (__ae2f_MathIntBitRVar.i + (bitcount));
 
-      __ae2f_MathUtilBVSetAssign((out_vec)[__ae2f_MathIntBitRVar._o.b.q], __ae2f_MathIntBitRVar._o.b.r, __ae2f_MathUtilBVGet((in_vec)[__ae2f_MathIntBitRVar._i.b.q],
-                               __ae2f_MathIntBitRVar._i.b.r));
+      __ae2f_MathUtilBVSetAssignArr(
+          (out_vec), __ae2f_MathIntBitRVar._o,
+          __ae2f_MathUtilBVGetArr((in_vec), __ae2f_MathIntBitRVar._i));
     } /* Then fill remaining bits with zeros */
     for (; __ae2f_MathIntBitRVar.i < (out)->sz; __ae2f_MathIntBitRVar.i++) {
-      __ae2f_MathIntBitRVar._o.p =
-          ((out)->vecbegpoint + __ae2f_MathIntBitRVar.i);
-      (out_vec)[__ae2f_MathIntBitRVar._o.b.q] =
-          __ae2f_MathUtilBVSet((out_vec)[__ae2f_MathIntBitRVar._o.b.q],
-                               __ae2f_MathIntBitRVar._o.b.r, 0);
+      __ae2f_MathIntBitRVar._o = ((out)->vecbegpoint + __ae2f_MathIntBitRVar.i);
+      __ae2f_MathUtilBVSetAssignArr((out_vec), __ae2f_MathIntBitRVar._o, 0);
     }
   }
 }
