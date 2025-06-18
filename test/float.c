@@ -17,6 +17,10 @@ const ae2f_MathFloat float32header = {.bstart = 0,
                      float16header = {
                          .man = 10, .exp = 5, .sign = 1, .bstart = 6};
 
+const float TESTA[] = {3, 1, 2, 5, 6, 1, 1, 6},
+            TESTB[sizeof(TESTA) / sizeof(TESTA[0])] = {2, 6,  1,   2,
+                                                       4, 12, 666, 123213};
+
 typedef union float16buf {
   uint8_t b[4];
 } float16buf;
@@ -33,186 +37,188 @@ typedef union float64buf {
 #define DIFFSQR(a, b) (((((a) - (b)) * ((a) - (b)))) > (EPSILON))
 
 static uint64_t castftof() {
-  {
-    ae2f_MathFloat a, b, c;
-    float32buf af;
-    float32buf bf;
-    float16buf cf;
+  for (size_t i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
+    {
+      ae2f_MathFloat a, b, c;
+      float32buf af;
+      float32buf bf;
+      float16buf cf;
 
-    puts("[castf32tof32] start");
+      puts("[castf32tof32] start");
 
-    af.a = 134;
+      af.a = TESTA[i];
 
-    a = float32header;
-    b = float32header;
-    c = float16header;
+      a = float32header;
+      b = float32header;
+      c = float16header;
 
-    ae2f_err_t e = 0;
-    __ae2f_MathFloatCast(&e, &a, af.b, &c, cf.b);
-    __ae2f_MathFloatCast(&e, &c, cf.b, &b, bf.b);
+      ae2f_err_t e = 0;
+      __ae2f_MathFloatCast(&e, &a, af.b, &c, cf.b);
+      __ae2f_MathFloatCast(&e, &c, cf.b, &b, bf.b);
 
-    if (e) {
-      printf("[castf32tof32] got error %d\n", e);
-      return 1;
+      if (e) {
+        printf("[castf32tof32] got error %d\n", e);
+        return 1;
+      }
+      if (DIFFSQR(bf.a, af.a)) {
+        printf("[castf32tof32] Expected %f but got %f\n", af.a, bf.a);
+        printf("%u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3]);
+        printf("%u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3]);
+        return 1;
+      }
+
+      puts("[castf32tof32] went successful.");
     }
-    if (DIFFSQR(bf.a, af.a)) {
-      printf("[castf32tof32] Expected %f but got %f\n", af.a, bf.a);
+
+    {
+      ae2f_MathFloat a, b;
+      float64buf af;
+      float64buf bf;
+
+      puts("[castf64tof64] start");
+
+      a = float64header;
+      b = float64header;
+
+      ae2f_err_t e = 0;
+
+      af.a = 3;
+      __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
+
+      printf("[castf64tof64] Expected %f and got %f\n", af.a, bf.a);
+
+      if (e) {
+        printf("[castf64tof64] got error %d\n", e);
+        return 1;
+      }
+      if (DIFFSQR(bf.a, af.a)) {
+        printf("[castf64tof64] Expected %f but got %f\n", af.a, bf.a);
+        printf("%u %u %u %u %u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3],
+               af.b[4], af.b[5], af.b[6], af.b[7]);
+        printf("%u %u %u %u %u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3],
+               bf.b[4], bf.b[5], bf.b[6], bf.b[7]);
+        return 1;
+      }
+
+      af.a = 0.06;
+      __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
+
+      if (e) {
+        printf("[castf64tof64] got error %d\n", e);
+        return 1;
+      }
+      if (DIFFSQR(bf.a, af.a)) {
+        printf("[castf64tof64] Expected %f but got %f\n", af.a, bf.a);
+        printf("%u %u %u %u %u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3],
+               af.b[4], af.b[5], af.b[6], af.b[7]);
+        printf("%u %u %u %u %u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3],
+               bf.b[4], bf.b[5], bf.b[6], bf.b[7]);
+        return 1;
+      }
+
+      puts("[castf64tof64] went successful.");
+    }
+
+    {
+      ae2f_MathFloat a, b;
+      float64buf af;
+      float32buf bf;
+
+      puts("[castf64tof32] start");
+
+      a = float64header;
+      b = float32header;
+
+      ae2f_err_t e = 0;
+
+      af.a = 134;
+
+      __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
+      printf("[castf64tof32] Expected %f and got %f\n", af.a, bf.a);
+
+      if (e) {
+        printf("[castf64tof32] got error %d\n", e);
+        return 1;
+      }
+      if (DIFFSQR(bf.a, af.a)) {
+        printf("[castf64tof32] Expected %f but got %f\n", af.a, bf.a);
+        return 1;
+      }
+
+      af.a = 0.0023;
+
+      __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
+      printf("[castf64tof32] Expected %f and got %f\n", af.a, bf.a);
+      if (e) {
+        printf("[castf64tof32] got error %d\n", e);
+        return 1;
+      }
+      if (DIFFSQR(bf.a, af.a)) {
+        printf("[castf64tof32] Expected %f but got %f\n", af.a, bf.a);
+        return 1;
+      }
+
+      af.a = -0.0023;
+
+      __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
+      printf("[castf64tof32] Expected %f and got %f\n", af.a, bf.a);
+      if (e) {
+        printf("[castf64tof32] got error %d\n", e);
+        return 1;
+      }
+      if (DIFFSQR(bf.a, af.a)) {
+        printf("[castf64tof32] Expected %f but got %f\n", af.a, bf.a);
+        return 1;
+      }
+
+      puts("[castf64tof32] went successful.");
+    }
+
+    {
+      ae2f_MathFloat a, b;
+      float32buf af;
+      float64buf bf;
+
+      puts("[castf32tof64] start");
+
+      a = float32header;
+      b = float64header;
+
+      ae2f_err_t e = 0;
+
+      af.a = 134;
+
+      __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
+      printf("[castf32tof64] Expected %f and got %f\n", af.a, bf.a);
+      if (e) {
+        printf("[castf32tof64] got error %d\n", e);
+        return 1;
+      }
+      if (DIFFSQR(bf.a, af.a)) {
+        printf("[castf32tof64] Expected %f but got %f\n", af.a, bf.a);
+        return 1;
+      }
+
+      af.a = 0.001;
+      bf.a = 0;
+      __ae2f_MathFloatCast(&e, &a, (const unsigned char *)af.b, &b, bf.b);
       printf("%u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3]);
-      printf("%u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3]);
-      return 1;
-    }
-
-    puts("[castf32tof32] went successful.");
-  }
-
-  {
-    ae2f_MathFloat a, b;
-    float64buf af;
-    float64buf bf;
-
-    puts("[castf64tof64] start");
-
-    a = float64header;
-    b = float64header;
-
-    ae2f_err_t e = 0;
-
-    af.a = 3;
-    __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
-
-    printf("[castf64tof64] Expected %f and got %f\n", af.a, bf.a);
-
-    if (e) {
-      printf("[castf64tof64] got error %d\n", e);
-      return 1;
-    }
-    if (DIFFSQR(bf.a, af.a)) {
-      printf("[castf64tof64] Expected %f but got %f\n", af.a, bf.a);
-      printf("%u %u %u %u %u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3],
-             af.b[4], af.b[5], af.b[6], af.b[7]);
       printf("%u %u %u %u %u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3],
              bf.b[4], bf.b[5], bf.b[6], bf.b[7]);
-      return 1;
+
+      printf("[castf32tof64] Expected %f and got %f\n", af.a, bf.a);
+
+      if (e) {
+        printf("[castf32tof64] got error %d\n", e);
+        return 1;
+      }
+      if (DIFFSQR(bf.a, af.a)) {
+        printf("[castf32tof64] Expected %f but got %f\n", af.a, bf.a);
+        return 1;
+      }
+
+      puts("[castf32tof64] went successful.");
     }
-
-    af.a = 0.06;
-    __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
-
-    if (e) {
-      printf("[castf64tof64] got error %d\n", e);
-      return 1;
-    }
-    if (DIFFSQR(bf.a, af.a)) {
-      printf("[castf64tof64] Expected %f but got %f\n", af.a, bf.a);
-      printf("%u %u %u %u %u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3],
-             af.b[4], af.b[5], af.b[6], af.b[7]);
-      printf("%u %u %u %u %u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3],
-             bf.b[4], bf.b[5], bf.b[6], bf.b[7]);
-      return 1;
-    }
-
-    puts("[castf64tof64] went successful.");
-  }
-
-  {
-    ae2f_MathFloat a, b;
-    float64buf af;
-    float32buf bf;
-
-    puts("[castf64tof32] start");
-
-    a = float64header;
-    b = float32header;
-
-    ae2f_err_t e = 0;
-
-    af.a = 134;
-
-    __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
-    printf("[castf64tof32] Expected %f and got %f\n", af.a, bf.a);
-
-    if (e) {
-      printf("[castf64tof32] got error %d\n", e);
-      return 1;
-    }
-    if (DIFFSQR(bf.a, af.a)) {
-      printf("[castf64tof32] Expected %f but got %f\n", af.a, bf.a);
-      return 1;
-    }
-
-    af.a = 0.0023;
-
-    __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
-    printf("[castf64tof32] Expected %f and got %f\n", af.a, bf.a);
-    if (e) {
-      printf("[castf64tof32] got error %d\n", e);
-      return 1;
-    }
-    if (DIFFSQR(bf.a, af.a)) {
-      printf("[castf64tof32] Expected %f but got %f\n", af.a, bf.a);
-      return 1;
-    }
-
-    af.a = -0.0023;
-
-    __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
-    printf("[castf64tof32] Expected %f and got %f\n", af.a, bf.a);
-    if (e) {
-      printf("[castf64tof32] got error %d\n", e);
-      return 1;
-    }
-    if (DIFFSQR(bf.a, af.a)) {
-      printf("[castf64tof32] Expected %f but got %f\n", af.a, bf.a);
-      return 1;
-    }
-
-    puts("[castf64tof32] went successful.");
-  }
-
-  {
-    ae2f_MathFloat a, b;
-    float32buf af;
-    float64buf bf;
-
-    puts("[castf32tof64] start");
-
-    a = float32header;
-    b = float64header;
-
-    ae2f_err_t e = 0;
-
-    af.a = 134;
-
-    __ae2f_MathFloatCast(&e, &a, af.b, &b, bf.b);
-    printf("[castf32tof64] Expected %f and got %f\n", af.a, bf.a);
-    if (e) {
-      printf("[castf32tof64] got error %d\n", e);
-      return 1;
-    }
-    if (DIFFSQR(bf.a, af.a)) {
-      printf("[castf32tof64] Expected %f but got %f\n", af.a, bf.a);
-      return 1;
-    }
-
-    af.a = 0.001;
-    bf.a = 0;
-    __ae2f_MathFloatCast(&e, &a, (const unsigned char *)af.b, &b, bf.b);
-    printf("%u %u %u %u\n", af.b[0], af.b[1], af.b[2], af.b[3]);
-    printf("%u %u %u %u %u %u %u %u\n", bf.b[0], bf.b[1], bf.b[2], bf.b[3],
-           bf.b[4], bf.b[5], bf.b[6], bf.b[7]);
-
-    printf("[castf32tof64] Expected %f and got %f\n", af.a, bf.a);
-
-    if (e) {
-      printf("[castf32tof64] got error %d\n", e);
-      return 1;
-    }
-    if (DIFFSQR(bf.a, af.a)) {
-      printf("[castf32tof64] Expected %f but got %f\n", af.a, bf.a);
-      return 1;
-    }
-
-    puts("[castf32tof64] went successful.");
   }
 
   return 0;
@@ -446,72 +452,82 @@ static uint64_t normalise() {
 }
 
 static uint64_t add() {
-  {
+  char A = 0;
+  for (size_t i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
+    {
 #define putsprefix "[f32addf32f32]"
-    puts("start");
-    ae2f_MathFloat a = float32header;
-    ae2f_MathFloat b = float32header;
-    ae2f_MathFloat o = float32header;
+      puts("start");
+      ae2f_MathFloat a = float32header;
+      ae2f_MathFloat b = float32header;
+      ae2f_MathFloat o = float32header;
 
-    float32buf af, bf, of;
-    ae2f_err_t e = 0;
+      float32buf af, bf, of;
+      ae2f_err_t e = 0;
 
-    af.a = 3;
-    bf.a = 7;
-    of.a = 0;
+      af.a = TESTA[i];
+      bf.a = TESTB[i];
+      of.a = 0;
 
-    __ae2f_MathFloatAdd((&e), (&a), af.b, (&b), bf.b, (&o), of.b);
+      __ae2f_MathFloatAdd((&e), (&a), af.b, (&b), bf.b, (&o), of.b);
 
-    if (e) {
-      printf("got error %d\n", e);
-      return 1;
+      if (e) {
+        printf("got error %d\n", e);
+        A |= 1;
+        continue;
+      }
+
+      if (of.a != af.a + bf.a) {
+        printf(" Expected %f but got %.3f\n", af.a + bf.a, of.a);
+        printf("af: %f\n", af.a);
+        printf("bf: %f\n", bf.a);
+
+        fputs("o:\t0b", stdout);
+        for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+        }
+        fputc('\n', stdout);
+
+        of.a = af.a + bf.a;
+        fprintf(stdout, "%.3f:\t0b", of.a);
+        for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+        }
+        fputc('\n', stdout);
+
+        of.a = TESTA[i];
+        fputs("A:\t0b", stdout);
+        for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+        }
+        fputc('\n', stdout);
+
+        of.a = TESTB[i];
+        fputs("B:\t0b", stdout);
+        for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
+        }
+        fputc('\n', stdout);
+
+        fprintf(stdout, "%.3f:\t0b", af.a);
+        for (size_t i = __ae2f_MathFloatElSz(&a) - 1; i != -1; i--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(af.b, i));
+        }
+        fputc('\n', stdout);
+
+        fprintf(stdout, "%.3f:\t0b", bf.a);
+        for (size_t i = __ae2f_MathFloatElSz(&b) - 1; i != -1; i--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(bf.b, i));
+        }
+        fputc('\n', stdout);
+        A |= 1;
+        continue;
+      }
+
+      puts("went successful");
     }
-
-    if (of.a != af.a + bf.a) {
-      printf(" Expected %f but got %.3f\n", af.a + bf.a, of.a);
-      printf("af: %f\n", af.a);
-      printf("bf: %f\n", bf.a);
-
-      fputs("o:\t0b", stdout);
-      for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-      }
-      fputc('\n', stdout);
-
-      of.a = af.a + bf.a;
-      fprintf(stdout, "%.3f:\t0b", of.a);
-      for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-      }
-      fputc('\n', stdout);
-
-      of.a = 0.;
-      fputs("0:\t0b", stdout);
-      for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-      }
-      fputc('\n', stdout);
-
-      of.a = af.a;
-      fprintf(stdout, "%.3f:\t0b", af.a);
-      for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-      }
-      fputc('\n', stdout);
-
-      of.a = bf.a;
-      fprintf(stdout, "%.3f:\t0b", bf.a);
-      for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-      }
-      fputc('\n', stdout);
-      return 1;
-    }
-
-    puts("went successful");
   }
 
-  return 0;
+  return A;
 }
 
-int main() { return castftof() | flip() | normalise() & add(); }
+int main() { return castftof() | flip() | normalise() | add(); }
