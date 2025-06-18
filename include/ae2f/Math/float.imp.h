@@ -139,6 +139,9 @@ ae2f_MAC()
       size_t odiv, idiv, idx;
       unsigned sign : 1;
     } __ae2f_MathFloatCastVar;
+
+
+    
     __ae2f_MathFloatCastVar.sign =
         __ae2f_MathFloatGetSign(ifloat_t, ifloat); /* sign */
     __ae2f_MathFloatSetSign(ofloat_t, ofloat, __ae2f_MathFloatCastVar.sign);

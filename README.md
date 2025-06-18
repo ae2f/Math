@@ -10,7 +10,8 @@
 > It is not thread-safe, especially when the memory goes bit-wised.
 
 # Dependency
-- gcc
-- make
-- cmake
-- ae2f::Core
+- git
+- C     >= 90
+- C++   >= 14
+- ae2f::Core    [Optional]
+- ae2f::Macro   [Optional]

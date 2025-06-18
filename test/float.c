@@ -15,7 +15,7 @@ const ae2f_MathFloat float32header = {.bstart = 0,
                                       .sign = ae2f_MathFloat64_SIGN,
                                       .bstart = 0},
                      float16header = {
-                         .man = 10, .exp = 5, .sign = 1, .bstart = 6};
+                         .man = 10, .exp = 5, .sign = 1, .bstart = 0};
 
 const float TESTA[] = {3, 1, 2, 5, 6, 1, 1, 6},
             TESTB[sizeof(TESTA) / sizeof(TESTA[0])] = {2, 6,  1,   2,
@@ -48,6 +48,11 @@ static uint64_t castftof() {
       puts("[castf32tof32] start");
 
       af.a = TESTA[i];
+      bf.a = 0;
+      cf.b[0] = 0;
+      cf.b[1] = 0;
+      cf.b[2] = 0;
+      cf.b[3] = 0;
 
       a = float32header;
       b = float32header;
