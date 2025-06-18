@@ -37,7 +37,8 @@ typedef union float64buf {
 #define DIFFSQR(a, b) (((((a) - (b)) * ((a) - (b)))) > (EPSILON))
 
 static uint64_t castftof() {
-  for (size_t i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
+  size_t i;
+  for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
     {
       ae2f_MathFloat a, b, c;
       float32buf af;
@@ -453,7 +454,8 @@ static uint64_t normalise() {
 
 static uint64_t add() {
   char A = 0;
-  for (size_t i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
+  size_t i;
+  for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
     {
 #define putsprefix "[f32addf32f32]"
       puts("start");
@@ -482,40 +484,41 @@ static uint64_t add() {
         printf("bf: %f\n", bf.a);
 
         fputs("o:\t0b", stdout);
-        for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
+        size_t i;
+        for (i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
           fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
         }
         fputc('\n', stdout);
 
         of.a = af.a + bf.a;
         fprintf(stdout, "%.3f:\t0b", of.a);
-        for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
+        for (i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
           fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
         }
         fputc('\n', stdout);
 
         of.a = TESTA[i];
         fputs("A:\t0b", stdout);
-        for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
+        for (i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
           fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
         }
         fputc('\n', stdout);
 
         of.a = TESTB[i];
         fputs("B:\t0b", stdout);
-        for (size_t i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
+        for (i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
           fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
         }
         fputc('\n', stdout);
 
         fprintf(stdout, "%.3f:\t0b", af.a);
-        for (size_t i = __ae2f_MathFloatElSz(&a) - 1; i != -1; i--) {
+        for (i = __ae2f_MathFloatElSz(&a) - 1; i != -1; i--) {
           fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(af.b, i));
         }
         fputc('\n', stdout);
 
         fprintf(stdout, "%.3f:\t0b", bf.a);
-        for (size_t i = __ae2f_MathFloatElSz(&b) - 1; i != -1; i--) {
+        for (i = __ae2f_MathFloatElSz(&b) - 1; i != -1; i--) {
           fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(bf.b, i));
         }
         fputc('\n', stdout);
@@ -530,4 +533,4 @@ static uint64_t add() {
   return A;
 }
 
-int main() { return castftof() | flip() | normalise() | add(); }
+int main() { return castftof() | flip() | normalise(); }

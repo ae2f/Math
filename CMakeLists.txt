@@ -5,8 +5,6 @@ include(cmake/Core.cmake)
 
 project(Math VERSION 0.0.0 LANGUAGES C CXX)
 
-
-
 if(NOT TARGET ae2f::${PROJECT_NAME})
 	ae2f_CoreLibFetch(ae2f Core main)
 	ae2f_CoreLibFetch(ae2f Macro main)
