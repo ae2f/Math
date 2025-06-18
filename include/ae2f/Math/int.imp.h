@@ -25,9 +25,9 @@
 #define __ae2f_MathIntTmp ae2f_RecordMk(ae2f_MathInt, 0, )
 
 #define __ae2f_MathIntNxtHead(_int, _idx)                                      \
-  ((_int) ? ae2f_RecordMk(ae2f_MathInt, (_int)->sz, (_int)->sign,              \
-                          ((_int)->sz * (_idx)) + (_int)->vecbegpoint)         \
-          : ae2f_RecordMk(ae2f_MathInt, 0, 0, 0))
+  ((_int) ? ae2f_RecordMk(ae2f_MathInt, ae2f_static_cast(size_t, (_int)->sz), (_int)->sign,              \
+                          ae2f_static_cast(size_t, ((_int)->sz * (_idx)) + ae2f_static_cast(size_t, (_int)->vecbegpoint)))         \
+          : ae2f_RecordMk(ae2f_MathInt, 0ull, 0ull, 0ull))
 
 #define __ae2f_MathIntNxtIdx(_int, _idx)                                       \
   ((_int) ? ((_int)->vecbegpoint + ((_int)->sz * (_idx))) >> 3 : 0)
@@ -52,7 +52,7 @@ ae2f_MAC() _ae2f_MathIntNxt(ae2f_err_t *_reterr, const ae2f_MathInt *_int,
     }
 
     if (_out_int_idx) {
-      *(_out_int_idx) = __ae2f_MathIntNxtIdx(_int, _idx);
+      *(_out_int_idx) = ae2f_static_cast(size_t, __ae2f_MathIntNxtIdx(_int, _idx));
     }
   }
 }
@@ -190,7 +190,7 @@ ae2f_MAC()
  * @brief `_out` = `_a` + `_b`;
  * */
 ae2f_MAC()
-    _ae2f_MathIntAdd(ae2f_err_t *reterr, ae2f_MathInt *_a, ae2f_iMathMem _a_vec,
+    _ae2f_MathIntAdd(ae2f_err_t *reterr, const ae2f_MathInt * const _a, ae2f_iMathMem _a_vec,
                      const ae2f_MathInt *const _b, ae2f_iMathMem _b_vec,
                      const ae2f_MathInt *const _o, ae2f_oMathMem _o_vec) {
   if (!(_o) || ((reterr) && *(reterr)))
