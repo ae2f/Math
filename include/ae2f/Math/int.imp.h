@@ -64,22 +64,22 @@ ae2f_MAC() _ae2f_MathIntNxt(ae2f_err_t *_reterr, const ae2f_MathInt *_int,
  * __ae2f_MathIntCast
  *
  * @brief
- * `__out` = `__in`
+ * `__prm_out` = `__prm_in`
  *
  * */
 ae2f_MAC()
-    _ae2f_MathIntCast(ae2f_err_t *const reterr, const ae2f_MathInt *const __in,
-                      ae2f_iMathMem __i_vec, const ae2f_MathInt *const __out,
+    _ae2f_MathIntCast(ae2f_err_t *const reterr, const ae2f_MathInt *const __prm_in,
+                      ae2f_iMathMem __i_vec, const ae2f_MathInt *const __prm_out,
                       ae2f_oMathMem __o_vec) {
   if ((reterr) && *(reterr))
     ;
-  else if (!((__in) && (__out) && (__i_vec) && (__o_vec))) {
+  else if (!((__prm_in) && (__prm_out) && (__i_vec) && (__o_vec))) {
     if ((reterr))
       (*(reterr)) |= ae2f_errGlob_PTR_IS_NULL;
   } else if ((__i_vec) == (__o_vec) &&
-             ((__in) == (__out) ||
-              ((__in)->sz == (__out)->sz && (__in)->sign == (__out)->sign &&
-               (__in)->vecbegpoint == (__out)->vecbegpoint))) {
+             ((__prm_in) == (__prm_out) ||
+              ((__prm_in)->sz == (__prm_out)->sz && (__prm_in)->sign == (__prm_out)->sign &&
+               (__prm_in)->vecbegpoint == (__prm_out)->vecbegpoint))) {
   } else {
     struct __ae2f_MathIntCastVar_t {
       size_t j;
@@ -88,14 +88,14 @@ ae2f_MAC()
                               */
     for (__ae2f_MathIntCastVar.j = 0;
          __ae2f_MathIntCastVar.j <
-             (__in)->sz - ae2f_static_cast(size_t, (__in)->sign) &&
-         __ae2f_MathIntCastVar.j < (__out)->sz;
+             (__prm_in)->sz - ae2f_static_cast(size_t, (__prm_in)->sign) &&
+         __ae2f_MathIntCastVar.j < (__prm_out)->sz;
          __ae2f_MathIntCastVar.j++) {
       __ae2f_MathIntCastVar.ovec =
-          (__out)->vecbegpoint + __ae2f_MathIntCastVar.j;
+          (__prm_out)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
       __ae2f_MathIntCastVar.ivec =
-          (__in)->vecbegpoint + __ae2f_MathIntCastVar.j;
+          (__prm_in)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
       __ae2f_MathUtilBVSetAssignArr(
           __o_vec, __ae2f_MathIntCastVar.ovec,
@@ -106,17 +106,17 @@ ae2f_MAC()
      * Rest of them will be zero.                                            \
      * When signed, rest will be filled with sign bit.                       \
      * */
-    for (; __ae2f_MathIntCastVar.j < (__out)->sz; __ae2f_MathIntCastVar.j++) {
+    for (; __ae2f_MathIntCastVar.j < (__prm_out)->sz; __ae2f_MathIntCastVar.j++) {
       __ae2f_MathIntCastVar.ovec =
-          (__out)->vecbegpoint + __ae2f_MathIntCastVar.j;
+          (__prm_out)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
       __ae2f_MathIntCastVar.ivec =
-          (__in)->vecbegpoint + __ae2f_MathIntCastVar.j;
+          (__prm_in)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
       (__ae2f_MathIntCastVar.ovec >> 3)[__o_vec] =
           __ae2f_MathUtilBVSet((__ae2f_MathIntCastVar.ovec >> 3)[__o_vec],
                                (__ae2f_MathIntCastVar.ovec & 7),
-                               __ae2f_MathIntIsNegative(__in, (__i_vec)));
+                               __ae2f_MathIntIsNegative(__prm_in, (__i_vec)));
     }
   }
 }
@@ -193,9 +193,9 @@ ae2f_MAC()
     _ae2f_MathIntAdd(ae2f_err_t *reterr, const ae2f_MathInt * const _a, ae2f_iMathMem _a_vec,
                      const ae2f_MathInt *const _b, ae2f_iMathMem _b_vec,
                      const ae2f_MathInt *const _o, ae2f_oMathMem _o_vec) {
-  if (!(_o) || ((reterr) && *(reterr)))
+  if (((reterr) && *(reterr)))
     ;
-  else if (!((_a) && (_b) && (_o) && (_a_vec) && (_b_vec))) {
+  else if (!((_a) && (_b) && (_o) && (_a_vec) && (_b_vec) && (_o_vec))) {
     ((reterr) && (*(reterr) |= ae2f_errGlob_PTR_IS_NULL));
   } else {
     struct __ae2f_MathIntAddVar_t {
@@ -226,7 +226,7 @@ ae2f_MAC()
 
       __ae2f_MathIntAddVar.ovec = (_o)->vecbegpoint + __ae2f_MathIntAddVar.j;
 
-      __ae2f_MathIntAddVar.buf.a =
+      __ae2f_MathIntAddVar.buf.c.a =
           (__ae2f_MathIntAddVar.j < (_a)->sz
                ? __ae2f_MathUtilBVGetArr(_a_vec, __ae2f_MathIntAddVar.avec)
                : __ae2f_MathIntAddVar.buf.b.sb_0) +
@@ -252,9 +252,9 @@ ae2f_MAC()
                      ae2f_iMathMem _a_vec, const ae2f_MathInt *const _b,
                      ae2f_iMathMem _b_vec, const ae2f_MathInt *const _o,
                      ae2f_oMathMem _o_vec) {
-  if (!(_o) || ((reterr) && *(reterr)))
+  if (((reterr) && *(reterr)))
     ;
-  else if (!((_a) && (_b) && (_o) && (_a_vec) && (_b_vec))) {
+  else if (!((_a) && (_b) && (_o) && (_a_vec) && (_b_vec) && (_o_vec))) {
     ((reterr) && (*(reterr) |= ae2f_errGlob_PTR_IS_NULL));
   } else {
     struct __ae2f_MathIntSubVar_t {

@@ -1,4 +1,4 @@
-#include <ae2f/Math/int.imp.h>
+#include <ae2f/Math/int.auto.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -91,15 +91,18 @@ static int add_sub() {
     union __1 {
       int8_t i;
       uint8_t v[1];
-    } a = ae2f_RecordMk(ae2f_WhenC(union) __1, -1);
+    } a = ae2f_RecordMk(ae2f_WhenC(union) __1, .i = -1);
 
     union __2 {
       int32_t i;
       uint8_t v[1];
-    } b = ae2f_RecordMk(ae2f_WhenC(union) __2, 3);
+    } b = ae2f_RecordMk(ae2f_WhenC(union) __2, .i = 3);
     ae2f_err_t e = 0;
 
-    ae2f_MathInt ai, bi;
+    ae2f_WhenC(union) __2 o;
+    o.i = 4123;
+
+    ae2f_MathInt ai, bi, oi;
     ai.sign = 1;
     ai.sz = 8;
     ai.vecbegpoint = 0;
@@ -108,17 +111,15 @@ static int add_sub() {
     bi.sz = 32;
     bi.vecbegpoint = 0;
 
-    uint8_t *_buf[3];
-
-    __ae2f_MathIntAdd(&e, &ai, a.v, &bi, b.v, &bi, b.v);
+    __ae2f_MathIntAdd(&e, &ai, a.v, &bi, b.v, &bi, o.v);
 
     if (e) {
       printf("Test::add Error occurred: %d\n", e);
       return 1;
     }
 
-    if (b.i != 2) {
-      printf("Test::add Expected 2 but got %d\n", b);
+    if (o.i != 2) {
+      printf("Test::add Expected 2 but got %d\n", o.i);
       return 1;
     }
   }
@@ -134,7 +135,7 @@ static int add_sub() {
       int32_t i;
       uint8_t v[1];
     } b = ae2f_RecordMk(ae2f_WhenC(union) __2, 3);
-    ae2f_err_t e;
+    ae2f_err_t e = 0;
 
     ae2f_MathInt ai, bi;
     ai.sign = 1;

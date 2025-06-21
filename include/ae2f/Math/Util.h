@@ -15,7 +15,10 @@
 #define __ae2f_MathUtilFlag2(c_sz, ...)                                        \
   union __ae2f_MathUtilFlag2__##c_sz {                                         \
     unsigned a : 2;                                                            \
-    unsigned c : c_sz;                                                         \
+    struct __ae2f_MathUtilFlag2__##c_sz##__C {                                 \
+      unsigned a : 2;                                                          \
+      unsigned c : c_sz;                                                       \
+    } c;                                                                       \
     struct __ae2f_MathUtilFlag2__##c_sz##__packer {                            \
       unsigned _0 : 1;                                                         \
       unsigned _1 : 1;                                                         \
@@ -45,10 +48,10 @@ typedef __ae2f_MathUtilFlag2(2) ae2f_MathUtilFlag2;
   __ae2f_MathUtilBVSetRanged(vec, (i), (i) + 1, (val))
 
 #define __ae2f_MathUtilBVSetAssign(vec, i, val)                                \
-  ((vec) = (__ae2f_MathUtilBVSet(vec, i, val)))
+  ((vec) = (__ae2f_MathUtilBVSet((vec), (i), (val))))
 
 #define __ae2f_MathUtilBVSetAssignArr(vecarr, i, val)                          \
-  __ae2f_MathUtilBVSetAssign((vecarr)[(i) >> 3], (i) & 7, (val))
+  __ae2f_MathUtilBVSetAssign((vecarr)[(i) >> 3], ((i) & 7), (val))
 
 #define __ae2f_MathUtilDiff(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
 #endif
