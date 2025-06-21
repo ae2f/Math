@@ -50,12 +50,12 @@ jobs:
       shell: bash
       run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
       
-    - name: setupninja-win-11-arm
+    - name: setupninja-windows
       if: matrix.os == 'windows-11-arm'
       uses: ashutoshvarma/setup-ninja@master
 
-    - name: setupclang-win-11-arm
-      if: matrix.os == 'windows-11-arm'
+    - name: setupclang-windows
+      if: matrix.c == "-DCMAKE_C_COMPILER=clang" && matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
       uses: egor-tensin/setup-clang@v1
 
     - name: setup-ubuntu
