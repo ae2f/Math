@@ -1,6 +1,3 @@
-# TODO
-- Use compound literals so 
-
 # Math
 - Rel-v0.0.0
 
@@ -10,6 +7,8 @@
 > It is not thread-safe, especially when the memory goes bit-wised.
 
 # Dependency
+[![ae2f-workflow](https://github.com/ae2f/Math/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/ae2f/Math/actions/workflows/cmake-multi-platform.yml)
+
 - git
 - C     >= 90
 - C++   >= 14
