@@ -1,24 +1,19 @@
-#include <ae2f/Math/float.auto.h>
-#include <stdint.h>
-#include <stdio.h>
+#include "../__float.auto.h"
 
 #define putsprefix ""
 #define puts(s) puts(putsprefix " " s)
 #define printf(f, ...) printf(putsprefix f, __VA_ARGS__)
 
-const ae2f_MathFloat float32header = ae2f_RecordMk(
-                         ae2f_MathFloat, .exp = ae2f_MathFloat32_EXP,
-                         .man = ae2f_MathFloat32_MAN,
-                         .sign = ae2f_MathFloat32_SIGN, .bstart = 0),
-
-                     float64header = ae2f_RecordMk(
-                         ae2f_MathFloat, .exp = ae2f_MathFloat64_EXP,
-                         .man = ae2f_MathFloat64_MAN,
-                         .sign = ae2f_MathFloat64_SIGN, .bstart = 0),
-
-                     float16header =
-                         ae2f_RecordMk(ae2f_MathFloat, .exp = 5, .man = 10,
-                                       .sign = 1, .bstart = 0);
+const ae2f_MathFloat float32header = {.bstart = 0,
+                                      .exp = ae2f_MathFloat32_EXP,
+                                      .man = ae2f_MathFloat32_MAN,
+                                      .sign = ae2f_MathFloat32_SIGN},
+                     float64header = {.man = ae2f_MathFloat64_MAN,
+                                      .exp = ae2f_MathFloat64_EXP,
+                                      .sign = ae2f_MathFloat64_SIGN,
+                                      .bstart = 0},
+                     float16header = {
+                         .man = 10, .exp = 5, .sign = 1, .bstart = 0};
 
 const float TESTA[] = {3, 1, 2, 5, 6, 1, 1, 6},
             TESTB[sizeof(TESTA) / sizeof(TESTA[0])] = {2, 6,  1,   2,
@@ -451,7 +446,7 @@ static uint64_t normalise() {
     }
 
     if (af.a != 134) {
-      printf("[normalise64] Expected %f but got %f\n", 134, af.a);
+      printf("[normalise64] Expected %f but got %f\n", 134., af.a);
       return 1;
     }
 
@@ -463,82 +458,55 @@ static uint64_t normalise() {
 static uint64_t add() {
   char A = 0;
   size_t i;
+
   for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
-    {
-#define putsprefix "[f32addf32f32]"
-      puts("start");
-      ae2f_MathFloat a = float32header;
-      ae2f_MathFloat b = float32header;
-      ae2f_MathFloat o = float32header;
+  #define putsprefix "[f32addf32f32]"
+    ___TEST_FLOAT_ADD(
+      float32buf
+      , float32buf
+      , float32buf
+      , TESTA, TESTB, i
+      , float32header, float32header, float32header
+      , (&A));
 
-      float32buf af, bf, of;
-      ae2f_err_t e = 0;
-
-      af.a = TESTA[i];
-      bf.a = TESTB[i];
-      of.a = 0;
-
-      __ae2f_MathFloatAdd((&e), (&a), af.b, (&b), bf.b, (&o), of.b);
-
-      if (e) {
-        printf("got error %d\n", e);
-        A |= 1;
-        continue;
-      }
-
-      if (of.a != af.a + bf.a) {
-        printf(" Expected %f but got %.3f\n", af.a + bf.a, of.a);
-        printf("af: %f\n", af.a);
-        printf("bf: %f\n", bf.a);
-
-        fputs("o:\t0b", stdout);
-        size_t i;
-        for (i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-        }
-        fputc('\n', stdout);
-
-        of.a = af.a + bf.a;
-        fprintf(stdout, "%.3f:\t0b", of.a);
-        for (i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-        }
-        fputc('\n', stdout);
-
-        of.a = TESTA[i];
-        fputs("A:\t0b", stdout);
-        for (i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-        }
-        fputc('\n', stdout);
-
-        of.a = TESTB[i];
-        fputs("B:\t0b", stdout);
-        for (i = __ae2f_MathFloatElSz(&o) - 1; i != -1; i--) {
-          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, i));
-        }
-        fputc('\n', stdout);
-
-        fprintf(stdout, "%.3f:\t0b", af.a);
-        for (i = __ae2f_MathFloatElSz(&a) - 1; i != -1; i--) {
-          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(af.b, i));
-        }
-        fputc('\n', stdout);
-
-        fprintf(stdout, "%.3f:\t0b", bf.a);
-        for (i = __ae2f_MathFloatElSz(&b) - 1; i != -1; i--) {
-          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(bf.b, i));
-        }
-        fputc('\n', stdout);
-        A |= 1;
-        continue;
-      }
-
-      puts("went successful");
-    }
+  #define putsprefix "[f64addf64f64]"
+    ___TEST_FLOAT_ADD(
+      float64buf
+      , float64buf
+      , float64buf
+      , TESTA, TESTB, i
+      , float64header, float64header, float64header
+      , (&A));
+    /** 
+     * @todo 
+     * Get those tests to work: 
+     * @brief
+     *  whenever the element's size matches not,  
+     *  on large number it crashes.
+     * */
+#if 0 
+  #define putsprefix "[f32addf64f64]"
+    ___TEST_FLOAT_ADD(
+      float64buf
+      , float64buf
+      , float32buf
+      , TESTA, TESTB, i
+      , float64header, float64header, float32header
+      , (&A));
+#endif
+#if 0
+  #define putsprefix "[f32addf64f32]"
+    ___TEST_FLOAT_ADD(
+      float32buf
+      , float64buf
+      , float32buf
+      , TESTA, TESTB, i
+      , float32header, float64header, float32header
+      , (&A));
+#endif
   }
 
   return A;
 }
 
-int main() { return castftof() | flip() | normalise(); }
+int main() { return castftof() | flip() | normalise() | add(); }

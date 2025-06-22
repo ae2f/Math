@@ -28,9 +28,10 @@ if(NOT TARGET ae2f::${PROJECT_NAME})
 
 	target_link_libraries(ae2f-${PROJECT_NAME} INTERFACE ae2f::Core)
 	target_link_libraries(ae2f-${PROJECT_NAME} INTERFACE ae2f::Macro)
-	ae2f_CoreTestTent(ae2f-${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/test)
+	ae2f_CoreTestTent(ae2f-${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/test/src)
 
 	ae2f_Macro_autoname(${PROJECT_SOURCE_DIR}/include/ae2f/Math/Util.h)
 	ae2f_Macro_autoname(${PROJECT_SOURCE_DIR}/include/ae2f/Math/int.imp.h)
 	ae2f_Macro_autoname(${PROJECT_SOURCE_DIR}/include/ae2f/Math/float.imp.h)
+	ae2f_Macro_autoname(${PROJECT_SOURCE_DIR}/test/__float.h)
 endif()

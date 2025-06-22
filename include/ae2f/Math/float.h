@@ -11,12 +11,14 @@
 
 #include <ae2f/Pack/Beg.h>
 
+typedef struct ae2f_MathFloat ae2f_MathFloat;
+
 /**
  * @class ae2f_MathFloat
  * @brief
  * This follows IEEE standard.
  */
-typedef struct ae2f_MathFloat {
+struct ae2f_MathFloat {
   /** @brief the size of exponent as bits */
   size_t exp;
 
@@ -28,7 +30,7 @@ typedef struct ae2f_MathFloat {
 
   /** @brief aka stride */
   unsigned bstart : 3;
-} ae2f_MathFloat;
+};
 
 #define ae2f_pMathFloat ae2f_MathFloat *const
 

@@ -60,10 +60,12 @@ ae2f_MAC() _ae2f_MathFloatMan(ae2f_MathMemOutErr reterr,
     ;
   else if (!((af) && (oi)))
     ((reterr)) && (*(reterr) |= ae2f_errGlob_PTR_IS_NULL);
+  else if (!(af->exp))
+    ((reterr)) && (*(reterr) |= ae2f_errGlob_IMP_NOT_FOUND);
   else {
     (oi)->sign = 0;
     (oi)->vecbegpoint = (af)->bstart;
-    (oi)->sz = (af)->man;
+    (oi)->sz = (af)->man + 1;
   }
 }
 
@@ -140,8 +142,6 @@ ae2f_MAC()
       unsigned sign : 1;
     } __ae2f_MathFloatCastVar;
 
-
-    
     __ae2f_MathFloatCastVar.sign =
         __ae2f_MathFloatGetSign(ifloat_t, ifloat); /* sign */
     __ae2f_MathFloatSetSign(ofloat_t, ofloat, __ae2f_MathFloatCastVar.sign);
@@ -215,6 +215,10 @@ ae2f_MAC()
 
 #define __ae2f_MathFloatMkWhich _ae2f_MathFloatMkWhich
 
+/**
+ * @def __ae2f_MathFloatMkWhich
+ * @brief
+ * */
 ae2f_MAC()
     _ae2f_MathFloatMkWhich(ae2f_MathMemOutErr err, const ae2f_pMathFloat _of,
                            ae2f_oMathMem _of_vec,
@@ -504,12 +508,10 @@ ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
   } else if (!(*(err))) {
     struct FREF {
       size_t m_midx;
-
       ae2f_MathInt m_man[1];
       ae2f_MathInt m_exp[1];
     } v_af, v_bf, v_of;
 
-    typedef struct VAR VAR;
     struct VAR {
       const ae2f_MathInt m_size[1];
       union IB {
@@ -518,7 +520,8 @@ ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
         unsigned char b[1];
       } m_bexp, m_aexp, m_oexp;
     } var = ae2f_RecordMk(
-        VAR, ae2f_RecordMk(ae2f_MathInt, sizeof(size_t) << 3, 0, 0), 0, );
+        ae2f_WhenC(struct) VAR,
+        ae2f_RecordMk(ae2f_MathInt, sizeof(size_t) << 3, 0, 0), 0, );
 
     __ae2f_MathFloatMan(err, _af, v_af.m_man);
     __ae2f_MathFloatMan(err, _bf, v_bf.m_man);
@@ -554,13 +557,12 @@ ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
         __ae2f_MathIntSub(err, v_bf.m_man, (_bf_vec), v_of.m_man, (_of_vec),
                           v_of.m_man, _of_vec);
       } else {
-        puts("skldfjklsdfjklsdf");
         __ae2f_MathIntAdd(err, v_bf.m_man, (_bf_vec), v_of.m_man, (_of_vec),
                           v_of.m_man, _of_vec);
       }
 
       if (__ae2f_MathUtilBVGetArr(_of_vec, (v_of.m_man->sz - 1))) {
-        __ae2f_MathIntBitR(err, 1 /**why the fuck */, v_of.m_man, _of_vec,
+        __ae2f_MathIntBitR(err, 1, v_of.m_man, _of_vec,
                            v_of.m_man, _of_vec);
         var.m_oexp.a = 1;
       } else {
@@ -578,7 +580,6 @@ ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
         __ae2f_MathIntSub(err, v_of.m_man, (_of_vec), v_bf.m_man, (_bf_vec),
                           v_of.m_man, _of_vec);
       } else {
-        puts("skldfjklsdfjklsdf");
         __ae2f_MathIntAdd(err, v_of.m_man, (_of_vec), v_bf.m_man, (_bf_vec),
                           v_of.m_man, _of_vec);
       }
