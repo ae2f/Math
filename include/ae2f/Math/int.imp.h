@@ -20,17 +20,25 @@
    __ae2f_MathUtilBVGet((__v)[((__i)->vecbegpoint + (__i)->sz - 1) >> 3],      \
                         ((__i)->vecbegpoint + (__i)->sz - 1) & 7))
 
-#define __ae2f_MathIntNxt _ae2f_MathIntNxt
-
 #define __ae2f_MathIntTmp ae2f_RecordMk(ae2f_MathInt, 0, )
 
 #define __ae2f_MathIntNxtHead(_int, _idx)                                      \
-  ((_int) ? ae2f_RecordMk(ae2f_MathInt, ae2f_static_cast(size_t, (_int)->sz), (_int)->sign,              \
-                          ae2f_static_cast(size_t, ((_int)->sz * (_idx)) + ae2f_static_cast(size_t, (_int)->vecbegpoint)))         \
-          : ae2f_RecordMk(ae2f_MathInt, 0ull, 0ull, 0ull))
+  ((_int)                                                                      \
+       ? ae2f_RecordMk(                                                        \
+             ae2f_MathInt, ae2f_static_cast(size_t, (_int)->sz), (_int)->sign, \
+             ae2f_static_cast(                                                 \
+                 size_t, ((_int)->sz * (_idx)) +                               \
+                             ae2f_static_cast(size_t, (_int)->vecbegpoint)))   \
+       : ae2f_RecordMk(ae2f_MathInt, 0ull, 0ull, 0ull))
 
 #define __ae2f_MathIntNxtIdx(_int, _idx)                                       \
   ((_int) ? ((_int)->vecbegpoint + ((_int)->sz * (_idx))) >> 3 : 0)
+
+#if !__ae2f_MACRO_GENERATED
+#define __ae2f_MathIntNxt _ae2f_MathIntNxt
+#else
+#undef __ae2f_MathIntNxt
+#endif
 
 /**
  * @brief
@@ -52,12 +60,17 @@ ae2f_MAC() _ae2f_MathIntNxt(ae2f_err_t *_reterr, const ae2f_MathInt *_int,
     }
 
     if (_out_int_idx) {
-      *(_out_int_idx) = ae2f_static_cast(size_t, __ae2f_MathIntNxtIdx(_int, _idx));
+      *(_out_int_idx) =
+          ae2f_static_cast(size_t, __ae2f_MathIntNxtIdx(_int, _idx));
     }
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntCast _ae2f_MathIntCast
+#else
+#undef __ae2f_MathIntCast
+#endif
 
 /**
  * @macro
@@ -68,8 +81,9 @@ ae2f_MAC() _ae2f_MathIntNxt(ae2f_err_t *_reterr, const ae2f_MathInt *_int,
  *
  * */
 ae2f_MAC()
-    _ae2f_MathIntCast(ae2f_err_t *const reterr, const ae2f_MathInt *const __prm_in,
-                      ae2f_iMathMem __i_vec, const ae2f_MathInt *const __prm_out,
+    _ae2f_MathIntCast(ae2f_err_t *const reterr,
+                      const ae2f_MathInt *const __prm_in, ae2f_iMathMem __i_vec,
+                      const ae2f_MathInt *const __prm_out,
                       ae2f_oMathMem __o_vec) {
   if ((reterr) && *(reterr))
     ;
@@ -78,7 +92,8 @@ ae2f_MAC()
       (*(reterr)) |= ae2f_errGlob_PTR_IS_NULL;
   } else if ((__i_vec) == (__o_vec) &&
              ((__prm_in) == (__prm_out) ||
-              ((__prm_in)->sz == (__prm_out)->sz && (__prm_in)->sign == (__prm_out)->sign &&
+              ((__prm_in)->sz == (__prm_out)->sz &&
+               (__prm_in)->sign == (__prm_out)->sign &&
                (__prm_in)->vecbegpoint == (__prm_out)->vecbegpoint))) {
   } else {
     struct __ae2f_MathIntCastVar_t {
@@ -106,7 +121,8 @@ ae2f_MAC()
      * Rest of them will be zero.                                            \
      * When signed, rest will be filled with sign bit.                       \
      * */
-    for (; __ae2f_MathIntCastVar.j < (__prm_out)->sz; __ae2f_MathIntCastVar.j++) {
+    for (; __ae2f_MathIntCastVar.j < (__prm_out)->sz;
+         __ae2f_MathIntCastVar.j++) {
       __ae2f_MathIntCastVar.ovec =
           (__prm_out)->vecbegpoint + __ae2f_MathIntCastVar.j;
 
@@ -121,7 +137,11 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntFlip _ae2f_MathIntFlip
+#else
+#undef __ae2f_MathIntFlip
+#endif
 
 /**
  * @macro __ae2f_MathIntFlip
@@ -183,16 +203,20 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntAdd _ae2f_MathIntAdd
+#else
+#undef __ae2f_MathIntAdd
+#endif
 
 /**
  * @macro __ae2f_MathIntAdd
  * @brief `_out` = `_a` + `_b`;
  * */
-ae2f_MAC()
-    _ae2f_MathIntAdd(ae2f_err_t *reterr, const ae2f_MathInt * const _a, ae2f_iMathMem _a_vec,
-                     const ae2f_MathInt *const _b, ae2f_iMathMem _b_vec,
-                     const ae2f_MathInt *const _o, ae2f_oMathMem _o_vec) {
+ae2f_MAC() _ae2f_MathIntAdd(ae2f_err_t *reterr, const ae2f_MathInt *const _a,
+                            ae2f_iMathMem _a_vec, const ae2f_MathInt *const _b,
+                            ae2f_iMathMem _b_vec, const ae2f_MathInt *const _o,
+                            ae2f_oMathMem _o_vec) {
   if (((reterr) && *(reterr)))
     ;
   else if (!((_a) && (_b) && (_o) && (_a_vec) && (_b_vec) && (_o_vec))) {
@@ -241,7 +265,11 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntSub _ae2f_MathIntSub
+#else
+#undef __ae2f_MathIntSub
+#endif
 
 /**
  * @macro __ae2f_MathIntSub
@@ -300,7 +328,11 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntFill _ae2f_MathIntFill
+#else
+#undef __ae2f_MathIntFill
+#endif
 
 /**
  * @macro __ae2f_MathIntFill
@@ -333,7 +365,11 @@ ae2f_MAC() _ae2f_MathIntFill(ae2f_MathMemOutErr reterr,
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntCmpZero _ae2f_MathIntCmpZero
+#else
+#undef __ae2f_MathIntCmpZero
+#endif
 
 /**
  * @macro __ae2f_MathIntCmpZero
@@ -383,7 +419,11 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntCmp _ae2f_MathIntCmp
+#else
+#undef __ae2f_MathIntCmp
+#endif
 
 /**
  * @macro __ae2f_MathIntCmp
@@ -451,7 +491,11 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntBitL _ae2f_MathIntBitL
+#else
+#undef __ae2f_MathIntBitL
+#endif
 
 /**
  * @macro __ae2f_MathIntBitL
@@ -470,33 +514,25 @@ ae2f_MAC()
     (reterr) && (*(reterr) |= ae2f_errGlob_PTR_IS_NULL);
   else {
     struct __ae2f_MathIntBitLVar_t {
-      size_t c, i;
-      size_t _o, _i;
-    } __ae2f_MathIntBitLVar; /* First fill the lower bits with zeros */
-    for (__ae2f_MathIntBitLVar.i = 0; __ae2f_MathIntBitLVar.i < (bitcount) &&
-                                      __ae2f_MathIntBitLVar.i < (out)->sz;
-         __ae2f_MathIntBitLVar.i++) {
-      __ae2f_MathIntBitLVar._o = ((out)->vecbegpoint + __ae2f_MathIntBitLVar.i);
-      __ae2f_MathUtilBVSetAssignArr((out_vec), __ae2f_MathIntBitLVar._o, 0);
-    } /* Then copy the input bits shifted left */
-    for (; __ae2f_MathIntBitLVar.i < (out)->sz &&
-           __ae2f_MathIntBitLVar.i - (bitcount) < (in)->sz;
-         __ae2f_MathIntBitLVar.i++) {
-      __ae2f_MathIntBitLVar._o = (out)->vecbegpoint + __ae2f_MathIntBitLVar.i;
-      __ae2f_MathIntBitLVar._i =
-          (in)->vecbegpoint + (__ae2f_MathIntBitLVar.i - (bitcount));
-
-      __ae2f_MathUtilBVSetAssignArr(
-          (out_vec), __ae2f_MathIntBitLVar._o,
-          __ae2f_MathUtilBVGetArr((in_vec), __ae2f_MathIntBitLVar._i));
-
-    } /* Finally fill remaining bits with zeros */
-    for (; __ae2f_MathIntBitLVar.i < (out)->sz; __ae2f_MathIntBitLVar.i++) {
-      __ae2f_MathIntBitLVar._o = ((out)->vecbegpoint + __ae2f_MathIntBitLVar.i);
-      __ae2f_MathUtilBVSetAssignArr((out_vec), __ae2f_MathIntBitLVar._o, 0);
+      size_t i;
+    } __VAR; 
+    for(__VAR.i = (out)->sz; __VAR.i != -1; __VAR.i--) {
+      if((in)->sz + (bitcount) <= __VAR.i || __VAR.i < (bitcount)) { 
+        __ae2f_MathUtilBVSetAssignArr(out_vec, __VAR.i, 0); 
+      } else {
+        __ae2f_MathUtilBVSetAssignArr(
+          out_vec, __VAR.i, __ae2f_MathUtilBVGetArr(in_vec, __VAR.i - (bitcount))
+        );
+      }
     }
   }
 }
+
+#if __ae2f_MACRO_GENERATED
+#undef __ae2f_MathIntBitR
+#else
+#define __ae2f_MathIntBitR _ae2f_MathIntBitR
+#endif
 
 /**
  * @macro __ae2f_MathIntBitR
@@ -509,8 +545,6 @@ ae2f_MAC()
  * @param out		{const ae2f_MathInt*}
  * @param out_vec	{ae2f_oMathMem}
  * */
-#define __ae2f_MathIntBitR _ae2f_MathIntBitR
-
 ae2f_MAC() _ae2f_MathIntBitR(ae2f_MathMemOutErr reterr, intptr_t bitcount,
                              const ae2f_MathInt *const in, ae2f_iMathMem in_vec,
                              const ae2f_MathInt *out, ae2f_oMathMem out_vec) {
@@ -544,7 +578,11 @@ ae2f_MAC() _ae2f_MathIntBitR(ae2f_MathMemOutErr reterr, intptr_t bitcount,
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntMul _ae2f_MathIntMul
+#else
+#undef __ae2f_MathIntMul
+#endif
 
 /**
  * @macro __ae2f_MathIntMul
@@ -609,6 +647,12 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
+#define __ae2f_MathIntSz _ae2f_MathIntSz
+#else
+#undef __ae2f_MathIntSz
+#endif
+
 /**
  * @macro __ae2f_MathIntSz
  * @brief retsz = sizeof(`a`);
@@ -616,8 +660,6 @@ ae2f_MAC()
  * @param a	{const ae2f_MathInt}
  * @param a_vec	{ae2f_iMathMem}
  * */
-#define __ae2f_MathIntSz _ae2f_MathIntSz
-
 ae2f_MAC() _ae2f_MathIntSz(size_t *const retsz, const ae2f_MathInt *const _a,
                            ae2f_iMathMem a_vec) {
   if (!(retsz))
@@ -640,7 +682,11 @@ ae2f_MAC() _ae2f_MathIntSz(size_t *const retsz, const ae2f_MathInt *const _a,
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntNullSz _ae2f_MathIntNullSz
+#else
+#undef __ae2f_MathIntNullSz
+#endif
 
 /**
  * @macro __ae2f_MathIntNullSz
@@ -663,7 +709,11 @@ ae2f_MAC()
 #define ae2f_MathIntBump_POSITIVE 0
 #define ae2f_MathIntBump_NEGATIVE 1
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntBump _ae2f_MathIntBump
+#else
+#undef __ae2f_MathIntBump
+#endif
 
 /**
  * @macro	__ae2f_MathIntBump
@@ -702,6 +752,12 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
+#define __ae2f_MathIntDivU _ae2f_MathIntDivU
+#else
+#undef __ae2f_MathIntDivU
+#endif
+
 /**
  * @warning
  * It does not handle negative values.
@@ -712,8 +768,6 @@ ae2f_MAC()
  * `r` = `a`; `q` = `r` / `b`; `r` %=
  * `b`;
  * */
-#define __ae2f_MathIntDivU _ae2f_MathIntDivU
-
 ae2f_MAC()
     _ae2f_MathIntDivU(ae2f_MathMemOutErr reterr, const ae2f_MathInt *const _a,
                       ae2f_iMathMem a_vec, const ae2f_MathInt *const prm_b,
@@ -781,7 +835,11 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntSel _ae2f_MathIntSel
+#else
+#undef __ae2f_MathIntSel
+#endif
 
 ae2f_MAC()
     _ae2f_MathIntSel(ae2f_MathMemOutErr err, const ae2f_MathInt *const _ai,
@@ -797,6 +855,41 @@ ae2f_MAC()
     __ae2f_MathIntCast(err, _ai, _ai_vec, _oi, _oi_vec);
   } else {
     __ae2f_MathIntCast(err, _bi, _bi_vec, _oi, _oi_vec);
+  }
+}
+
+ae2f_MAC()
+    _ae2f_MathIntAbs(ae2f_MathMemOutErr err, const ae2f_MathInt *const prm_in,
+                     ae2f_iMathMem prm_in_vec,
+                     const ae2f_MathInt *const prm_out,
+                     ae2f_oMathMem prm_out_vec) {
+  if ((err) && *(err))
+    ;
+  else if (__ae2f_MathIntIsNegative(prm_in, prm_in_vec)) {
+    __ae2f_MathIntFlip(err, prm_in, prm_in_vec, prm_out, prm_out_vec);
+  } else {
+    __ae2f_MathIntCast(err, prm_in, prm_in_vec, prm_out, prm_out_vec);
+  }
+}
+
+ae2f_MAC()
+    _ae2f_MathIntDiff(ae2f_MathMemOutErr err, const ae2f_MathInt *const prm_a,
+                      ae2f_iMathMem prm_a_vec, const ae2f_MathInt *const prm_b,
+                      ae2f_iMathMem prm_b_vec, const ae2f_MathInt *const prm_o,
+                      ae2f_oMathMem prm_o_vec) {
+  if ((err) && *(err))
+    ;
+  else {
+    ae2f_CmpFunRet_t v_fret[1];
+    __ae2f_MathIntCmp(err, prm_a, prm_a_vec, prm_b, prm_b_vec, v_fret);
+
+    if (v_fret[0] < 0) {
+      __ae2f_MathIntSub(err, prm_b, prm_b_vec, prm_a, prm_a_vec, prm_o,
+                        prm_o_vec);
+    } else {
+      __ae2f_MathIntSub(err, prm_a, prm_a_vec, prm_b, prm_b_vec, prm_o,
+                        prm_o_vec);
+    }
   }
 }
 

@@ -1,10 +1,9 @@
 #ifndef ae2f_Math_float_imp_h
 #define ae2f_Math_float_imp_h
 
-#include "./int.auto.h"
-
 #include "./float.h"
 #include "./int.auto.h"
+#include <ae2f/Macro.h>
 
 /**
  * @def __ae2f_MathFloatGetSign
@@ -42,6 +41,8 @@
   __ae2f_MathFloatSetSign(afloat_t, afloat,                                    \
                           !__ae2f_MathFloatGetSign(afloat_t, afloat))
 
+#define __ae2f_MathFloatBias(_f) ((_f) ? (1ull << ((_f)->exp - 1)) - 1 : 0)
+
 /**
  * @def __ae2f_MathFloatElSz
  * @brief sizeof(`afloat_t`)
@@ -52,7 +53,11 @@
 #define __ae2f_MathFloatElSz(afloat_t)                                         \
   ((afloat_t)->sign + (afloat_t)->exp + (afloat_t)->man)
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathFloatMan _ae2f_MathFloatMan
+#else
+#undef __ae2f_MathFloatMan
+#endif
 
 ae2f_MAC() _ae2f_MathFloatMan(ae2f_MathMemOutErr reterr,
                               const ae2f_pMathFloat af, ae2f_pMathInt oi) {
@@ -65,11 +70,15 @@ ae2f_MAC() _ae2f_MathFloatMan(ae2f_MathMemOutErr reterr,
   else {
     (oi)->sign = 0;
     (oi)->vecbegpoint = (af)->bstart;
-    (oi)->sz = (af)->man + 1;
+    (oi)->sz = (af)->man;
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathFloatExp _ae2f_MathFloatExp
+#else
+#undef __ae2f_MathFloatExp
+#endif
 
 ae2f_MAC()
     _ae2f_MathFloatExp(ae2f_MathMemOutErr reterr, const ae2f_pMathFloat af,
@@ -99,7 +108,11 @@ ae2f_MAC()
                           (af_vec), (__ae2f_MathFloatExpEndIdx(af)), !!(mask)) \
                     : 0)
 
+#if __ae2f_MACRO_GENERATED
+#undef __ae2f_MathFloatNxt
+#else
 #define __ae2f_MathFloatNxt _ae2f_MathFloatNxt
+#endif
 
 /**
  * @def __ae2f_MathFloatNxt
@@ -121,7 +134,11 @@ ae2f_MAC()
   }
 }
 
+#if __ae2f_MACRO_GENERATED
+#undef __ae2f_MathFloatCast
+#else
 #define __ae2f_MathFloatCast _ae2f_MathFloatCast
+#endif
 
 /**
  * @def __ae2f_MathFloatCast
@@ -199,7 +216,11 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathFloatFlip _ae2f_MathFloatFlip
+#else
+#undef __ae2f_MathFloatFlip
+#endif
 
 /**
  * @def __ae2f_MathFloatCast
@@ -213,7 +234,11 @@ ae2f_MAC()
   __ae2f_MathFloatFlipSign(_of, _of_vec);
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathFloatMkWhich _ae2f_MathFloatMkWhich
+#else
+#undef __ae2f_MathFloatMkWhich
+#endif
 
 /**
  * @def __ae2f_MathFloatMkWhich
@@ -313,11 +338,15 @@ ae2f_MAC()
 #define __ae2f_MathFloatNaN(err, _of, _of_vec)                                 \
   __ae2f_MathFloatMkWhich(err, _of, _of_vec, ae2f_eMathFloatWhich_NAN)
 
+#if !__ae2f_MACRO_GENERATED
+#define __ae2f_MathFloatGetWhich _ae2f_MathFloatGetWhich
+#else
+#undef __ae2f_MathFloatGetWhich
+#endif
+
 /**
  * @def __ae2f_MathFloatGetWhich
  * */
-#define __ae2f_MathFloatGetWhich _ae2f_MathFloatGetWhich
-
 ae2f_MAC()
     _ae2f_MathFloatGetWhich(ae2f_MathMemOutErr err, const ae2f_pMathFloat _af,
                             ae2f_iMathMem _af_vec,
@@ -384,7 +413,11 @@ ae2f_MAC()
   }
 }
 
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathFloatNormalise _ae2f_MathFloatNormalise
+#else
+#undef __ae2f_MathFloatNormalise
+#endif
 
 /**
  * @def __ae2f_MathFloatNormalise
@@ -491,16 +524,140 @@ ae2f_MAC()
 
 #include <stdio.h>
 
+#if __ae2f_MACRO_GENERATED
+#undef __ae2f_MathFloatCmp
+#else
+#define __ae2f_MathFloatCmp _ae2f_MathFloatCmp
+#endif
+
+/**
+ * @macro __ae2f_MathFloatCmp
+ * @warning
+ * If two are not normalised, it will not work properly.
+ *
+ * @brief
+ * `out` = `a` cmp `b`
+ *
+ * @return
+ * `ae2f_cmpfunret_lislesser`	means `a` < `b` \n
+ * `ae2f_cmpfunret_rislesser`	means `a` > `b` \n
+ * `ae2f_cmpfunret_equal`	means `a` == `b`
+ * */
+ae2f_MAC()
+    _ae2f_MathFloatCmp(ae2f_MathMemOutErr err, const ae2f_MathFloat *const _af,
+                       ae2f_iMathMem _af_vec, const ae2f_pMathFloat _bf,
+                       ae2f_iMathMem _bf_vec, ae2f_CmpFunRet_t *const ret) {
+  if ((err) && *(err))
+    ;
+  else if (!((_af) && (_af_vec) && (_bf) && (_bf_vec) && (ret)))
+    (err) && (*(err) |= ae2f_errGlob_PTR_IS_NULL);
+  else {
+
+    struct vt_cmp {
+      unsigned m_sign : 1;
+      unsigned m_av : 1;
+      unsigned m_bv : 1;
+      ae2f_CmpFunRet_t m_ret : 8;
+
+      union vt_cmpexp {
+        size_t m_sz;
+        intptr_t m_ubias; /** @brief unbiased */
+        unsigned char m_a[1];
+      } m_exp[2];
+      size_t m_expidx[2];
+      size_t m_i, m_c;
+
+      ae2f_MathInt m_inth[3];
+
+    } v_cmp;
+
+    if ((v_cmp.m_sign = __ae2f_MathFloatGetSign(_af, _af_vec)) !=
+        __ae2f_MathFloatGetSign(_bf, _bf_vec)) {
+      *(ret) =
+          v_cmp.m_sign ? ae2f_CmpFunRet_LISLESSER : ae2f_CmpFunRet_RISLESSER;
+    } else {
+      {
+        v_cmp.m_inth[2].sign = 0;
+        v_cmp.m_inth[2].sz = (sizeof(size_t)) << 3;
+        v_cmp.m_inth[2].vecbegpoint = 0;
+
+        __ae2f_MathFloatExp(err, _af, &v_cmp.m_inth[0], &v_cmp.m_expidx[0]);
+        __ae2f_MathFloatExp(err, _bf, &v_cmp.m_inth[1], &v_cmp.m_expidx[1]);
+
+        __ae2f_MathIntCast(err, &v_cmp.m_inth[0], (_af_vec) + v_cmp.m_expidx[0],
+                           &v_cmp.m_inth[2], v_cmp.m_exp[0].m_a);
+        __ae2f_MathIntCast(err, &v_cmp.m_inth[1], (_bf_vec) + v_cmp.m_expidx[1],
+                           &v_cmp.m_inth[2], v_cmp.m_exp[1].m_a);
+
+        /** unbias */
+        v_cmp.m_exp[0].m_ubias -= __ae2f_MathFloatBias(_af);
+        v_cmp.m_exp[1].m_ubias -= __ae2f_MathFloatBias(_bf);
+      } /** getting exponents */
+
+      do {
+        if (v_cmp.m_exp[0].m_ubias != v_cmp.m_exp[1].m_ubias) {
+          v_cmp.m_ret = v_cmp.m_exp[0].m_ubias < v_cmp.m_exp[1].m_ubias
+                            ? ae2f_CmpFunRet_LISLESSER
+                            : ae2f_CmpFunRet_RISLESSER;
+          break;
+        }
+
+        /**
+         * hope exponents are same but bitsize of mantissa could be various.
+         * From very left side to 0.
+         * */
+
+        v_cmp.m_exp[0].m_sz = (_af)->man;
+        v_cmp.m_exp[1].m_sz = (_bf)->man;
+
+        v_cmp.m_i = 0;
+        v_cmp.m_c = ae2f_CmpGetGt(v_cmp.m_exp[0].m_sz, v_cmp.m_exp[1].m_sz);
+
+        v_cmp.m_ret = ae2f_CmpFunRet_EQUAL;
+
+        /** Reversly iterating. */
+        for (; v_cmp.m_i < v_cmp.m_c; v_cmp.m_i++) {
+          v_cmp.m_av = v_cmp.m_i < v_cmp.m_exp[0].m_sz
+                           ? __ae2f_MathUtilBVGetArr(
+                                 _af_vec, (_af)->bstart + v_cmp.m_exp[0].m_sz -
+                                              1 - v_cmp.m_i)
+                           : 0;
+
+          v_cmp.m_bv = v_cmp.m_i < v_cmp.m_exp[1].m_sz
+                           ? __ae2f_MathUtilBVGetArr(
+                                 _bf_vec, (_bf)->bstart + v_cmp.m_exp[1].m_sz -
+                                              1 - v_cmp.m_i)
+                           : 0;
+
+          if (v_cmp.m_av != v_cmp.m_bv) {
+            v_cmp.m_ret = v_cmp.m_bv ? ae2f_CmpFunRet_LISLESSER
+                                     : ae2f_CmpFunRet_RISLESSER;
+            break;
+          }
+        }
+      } while (0); /** for jump */
+
+      /** Post process */
+      *(ret) = *(err) ? 0 : v_cmp.m_sign ? -v_cmp.m_ret : v_cmp.m_ret;
+    }
+  }
+}
+
+#if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathFloatAdd _ae2f_MathFloatAdd
+#else
+#undef __ae2f_MathFloatAdd
+#endif
 
 /**
  * @brief
  * `_of` = `_af` + `_bf`;
  * */
-ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
-                              ae2f_iMathMem _af_vec, const ae2f_MathFloat *_bf,
-                              ae2f_iMathMem _bf_vec, ae2f_MathFloat *_of,
-                              ae2f_oMathMem _of_vec) {
+ae2f_MAC()
+    _ae2f_MathFloatAdd(ae2f_err_t *const err, const ae2f_MathFloat *const _af,
+                       ae2f_iMathMem _af_vec, const ae2f_MathFloat *const _bf,
+                       ae2f_iMathMem _bf_vec, ae2f_MathFloat *const _of,
+                       ae2f_oMathMem _of_vec) {
   if (!(err)) {
   } else if (!((_af) && (_af_vec) && (_bf) && (_bf_vec) && (_of) &&
                (_of_vec))) {
@@ -508,6 +665,7 @@ ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
   } else if (!(*(err))) {
     struct FREF {
       size_t m_midx;
+      size_t m_eidx;
       ae2f_MathInt m_man[1];
       ae2f_MathInt m_exp[1];
     } v_af, v_bf, v_of;
@@ -519,6 +677,7 @@ ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
         intptr_t i;
         unsigned char b[1];
       } m_bexp, m_aexp, m_oexp;
+      size_t m_rbcglob;
     } var = ae2f_RecordMk(
         ae2f_WhenC(struct) VAR,
         ae2f_RecordMk(ae2f_MathInt, sizeof(size_t) << 3, 0, 0), 0, );
@@ -527,9 +686,9 @@ ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
     __ae2f_MathFloatMan(err, _bf, v_bf.m_man);
     __ae2f_MathFloatMan(err, _of, v_of.m_man);
 
-    __ae2f_MathFloatExp(err, _af, v_af.m_exp, &v_af.m_midx);
-    __ae2f_MathFloatExp(err, _bf, v_bf.m_exp, &v_bf.m_midx);
-    __ae2f_MathFloatExp(err, _of, v_of.m_exp, &v_of.m_midx);
+    __ae2f_MathFloatExp(err, _af, v_af.m_exp, &v_af.m_eidx);
+    __ae2f_MathFloatExp(err, _bf, v_bf.m_exp, &v_bf.m_eidx);
+    __ae2f_MathFloatExp(err, _of, v_of.m_exp, &v_of.m_eidx);
 
     if (v_af.m_exp[0].sz > sizeof(void *) << 3) {
       *(err) |= ae2f_errGlob_IMP_NOT_FOUND;
@@ -539,66 +698,23 @@ ae2f_MAC() _ae2f_MathFloatAdd(ae2f_err_t *err, const ae2f_MathFloat *_af,
       *(err) |= ae2f_errGlob_IMP_NOT_FOUND;
     }
 
-    __ae2f_MathIntCast(err, v_af.m_exp, (_af_vec) + v_af.m_midx, var.m_size,
+    __ae2f_MathIntCast(err, v_af.m_exp, (_af_vec) + v_af.m_eidx, var.m_size,
                        var.m_aexp.b);
-    __ae2f_MathIntCast(err, v_bf.m_exp, (_bf_vec) + v_bf.m_midx, var.m_size,
+    __ae2f_MathIntCast(err, v_bf.m_exp, (_bf_vec) + v_bf.m_eidx, var.m_size,
                        var.m_bexp.b);
 
     var.m_aexp.a -= (1 << ((_af)->exp - 1)) - 1;
     var.m_bexp.a -= (1 << ((_bf)->exp - 1)) - 1;
 
-    if (var.m_aexp.a > var.m_bexp.a) {
-      __ae2f_MathIntBitR(err, (var.m_aexp.a - var.m_bexp.a), v_bf.m_man,
-                         (_bf_vec), v_of.m_man, (_of_vec));
-      v_of.m_man->sz += 1;
-
-      if (__ae2f_MathFloatGetSign(_bf, _bf_vec) !=
-          __ae2f_MathFloatGetSign(_af, _af_vec)) {
-        __ae2f_MathIntSub(err, v_bf.m_man, (_bf_vec), v_of.m_man, (_of_vec),
-                          v_of.m_man, _of_vec);
-      } else {
-        __ae2f_MathIntAdd(err, v_bf.m_man, (_bf_vec), v_of.m_man, (_of_vec),
-                          v_of.m_man, _of_vec);
-      }
-
-      if (__ae2f_MathUtilBVGetArr(_of_vec, (v_of.m_man->sz - 1))) {
-        __ae2f_MathIntBitR(err, 1, v_of.m_man, _of_vec,
-                           v_of.m_man, _of_vec);
-        var.m_oexp.a = 1;
-      } else {
-        var.m_oexp.a = 0;
-      }
-
-      var.m_oexp.a += var.m_bexp.a + (1 << ((_of)->exp - 1)) - 1;
-    } else {
-      __ae2f_MathIntBitR(err, (var.m_bexp.a - var.m_aexp.a), v_af.m_man,
-                         (_af_vec), v_of.m_man, (_of_vec));
-      v_of.m_man->sz += 1;
-
-      if (__ae2f_MathFloatGetSign(_bf, _bf_vec) !=
-          __ae2f_MathFloatGetSign(_af, _af_vec)) {
-        __ae2f_MathIntSub(err, v_of.m_man, (_of_vec), v_bf.m_man, (_bf_vec),
-                          v_of.m_man, _of_vec);
-      } else {
-        __ae2f_MathIntAdd(err, v_of.m_man, (_of_vec), v_bf.m_man, (_bf_vec),
-                          v_of.m_man, _of_vec);
-      }
-
-      if (__ae2f_MathUtilBVGetArr(_of_vec, (v_of.m_man->sz - 1))) {
-        __ae2f_MathIntBitR(err, 1 /**why the fuck */, v_of.m_man, _of_vec,
-                           v_of.m_man, _of_vec);
-        var.m_oexp.a = 1;
-      } else {
-        var.m_oexp.a = 0;
-      }
-
-      var.m_oexp.a += var.m_bexp.a + ((1 << ((_of)->exp - 1)) - 1);
-    }
-
-    __ae2f_MathIntCast(err, var.m_size, var.m_oexp.b, v_of.m_exp,
-                       (_of_vec) + v_of.m_midx);
-
-    /* __ae2f_MathFloatNormalise(err, _of, _of_vec); */
+    /**
+     * Count the zeroes... but problem starts when two size of fractions are
+     * different. As always, we will align the bit count for output.
+     *
+     * if (a > b)
+     *
+     * 1. Cast a to o.
+     * 2.
+     * */
   }
 }
 

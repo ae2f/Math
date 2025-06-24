@@ -54,4 +54,23 @@ typedef __ae2f_MathUtilFlag2(2) ae2f_MathUtilFlag2;
   __ae2f_MathUtilBVSetAssign((vecarr)[(i) >> 3], ((i) & 7), (val))
 
 #define __ae2f_MathUtilDiff(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
+
+#include <ae2f/Macro.h>
+
+#if __ae2f_MACRO_GENERATED
+#undef __ae2f_MathUtilBVSetAssignArrRanged
+#else
+#define __ae2f_MathUtilBVSetAssignArrRanged _ae2f_MathUtilBVSetAssignArrRanged
+#endif
+
+ae2f_MAC() _ae2f_MathUtilBVSetAssignArrRanged(unsigned char *const vecarr,
+                                              const size_t b, const size_t e,
+                                              const unsigned val) {
+  size_t v = 0;
+  if ((b) < (e))
+    for (v = (b); v < (e); v++) {
+      __ae2f_MathUtilBVSetAssignArr(vecarr, v, val);
+    }
+}
+
 #endif

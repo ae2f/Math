@@ -1,36 +1,5 @@
 #include "../__float.auto.h"
 
-#define putsprefix ""
-#define puts(s) puts(putsprefix " " s)
-#define printf(f, ...) printf(putsprefix f, __VA_ARGS__)
-
-const ae2f_MathFloat float32header = {.bstart = 0,
-                                      .exp = ae2f_MathFloat32_EXP,
-                                      .man = ae2f_MathFloat32_MAN,
-                                      .sign = ae2f_MathFloat32_SIGN},
-                     float64header = {.man = ae2f_MathFloat64_MAN,
-                                      .exp = ae2f_MathFloat64_EXP,
-                                      .sign = ae2f_MathFloat64_SIGN,
-                                      .bstart = 0},
-                     float16header = {
-                         .man = 10, .exp = 5, .sign = 1, .bstart = 0};
-
-const float TESTA[] = {3, 1, 2, 5, 6, 1, 1, 6},
-            TESTB[sizeof(TESTA) / sizeof(TESTA[0])] = {2, 6,  1,   2,
-                                                       4, 12, 666, 123213};
-
-typedef union float16buf {
-  uint8_t b[4];
-} float16buf;
-typedef union float32buf {
-  float a;
-  uint8_t b[1];
-} float32buf;
-typedef union float64buf {
-  double a;
-  uint8_t b[1];
-} float64buf;
-
 #define EPSILON 0.0001
 #define DIFFSQR(a, b) (((((a) - (b)) * ((a) - (b)))) > (EPSILON))
 
@@ -455,37 +424,60 @@ static uint64_t normalise() {
   return 0;
 }
 
+static uint64_t compare() {
+  char A = 0;
+  size_t i;
+
+  for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
+#undef putsprefix
+#define putsprefix "[f32cmpf32]"
+    ___TEST_FLOAT_CMP(float32buf, float32buf, TESTA, TESTB, i, float32header,
+                      float32header, (&A));
+
+#undef putsprefix
+#define putsprefix "[f32cmpf64]"
+    ___TEST_FLOAT_CMP(float32buf, float64buf, TESTA, TESTB, i, float32header,
+                      float64header, (&A));
+
+#undef putsprefix
+#define putsprefix "[f64cmpf32]"
+    ___TEST_FLOAT_CMP(float64buf, float32buf, TESTA, TESTB, i, float64header,
+                      float32header, (&A));
+
+#undef putsprefix
+#define putsprefix "[f64cmpf64]"
+    ___TEST_FLOAT_CMP(float64buf, float64buf, TESTA, TESTB, i, float64header,
+                      float64header, (&A));
+  }
+
+  return A;
+}
+
 static uint64_t add() {
   char A = 0;
   size_t i;
 
   for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
-  #define putsprefix "[f32addf32f32]"
-    ___TEST_FLOAT_ADD(
-      float32buf
-      , float32buf
-      , float32buf
-      , TESTA, TESTB, i
-      , float32header, float32header, float32header
-      , (&A));
+#define putsprefix "[f32addf32f32]"
 
-  #define putsprefix "[f64addf64f64]"
-    ___TEST_FLOAT_ADD(
-      float64buf
-      , float64buf
-      , float64buf
-      , TESTA, TESTB, i
-      , float64header, float64header, float64header
-      , (&A));
-    /** 
-     * @todo 
-     * Get those tests to work: 
+    ___TEST_FLOAT_ADD(float32buf, float32buf, float32buf, TESTA, TESTB, i,
+                      float32header, float32header, float32header, (&A));
+
+#if 0
+#define putsprefix "[f64addf64f64]"
+    ___TEST_FLOAT_ADD(float64buf, float64buf, float64buf, TESTA, TESTB, i,
+                      float64header, float64header, float64header, (&A));
+
+#endif
+    /**
+     * @todo
+     * Get those tests to work:
      * @brief
-     *  whenever the element's size matches not,  
+     *  whenever the element's size matches not,
      *  on large number it crashes.
      * */
-#if 0 
-  #define putsprefix "[f32addf64f64]"
+#if 0
+#define putsprefix "[f32addf64f64]"
     ___TEST_FLOAT_ADD(
       float64buf
       , float64buf
@@ -495,7 +487,7 @@ static uint64_t add() {
       , (&A));
 #endif
 #if 0
-  #define putsprefix "[f32addf64f32]"
+#define putsprefix "[f32addf64f32]"
     ___TEST_FLOAT_ADD(
       float32buf
       , float64buf
@@ -509,4 +501,4 @@ static uint64_t add() {
   return A;
 }
 
-int main() { return castftof() | flip() | normalise() | add(); }
+int main() { return castftof() | flip() | normalise() | compare(); }

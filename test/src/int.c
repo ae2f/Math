@@ -576,6 +576,17 @@ int shiftl() {
       printf("Test::shiftl expected %d but got %d\n", 12, o.i);
       return 1;
     }
+
+    __ae2f_MathIntBitL(&e, 2, &ai, a.b, &ai, a.b);
+
+    if (e) {
+      printf("Test::shiftl Error: %d\n", e);
+      return 1;
+    }
+    if (a.i != 12) {
+      printf("Test::shiftl expected %d but got %d\n", 12, a.i);
+      return 1;
+    }
   }
   puts("test::shiftl has succeed.");
   return 0;

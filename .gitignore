@@ -5,3 +5,5 @@ build/*
 .*/
 submod/
 *.auto.*
+
+Testing/
