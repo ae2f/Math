@@ -35,7 +35,7 @@ for stdc in ${lstdc[@]}; do
             echo "Build failed"
             exit 1
           }
-          ctest --test-dir $builddir -C $buildtype || {
+          ctest --test-dir $builddir -C $buildtype --output-on-failure || {
             echo "Test failed"
             exit 1
           }
