@@ -50,7 +50,7 @@ ae2f_MAC(floatbuf_A, floatbuf_B, )
     af.a = TESTA[i];
     bf.a = TESTB[i];
 
-    ae2f_err_t e;
+    ae2f_err_t e = 0;
     ae2f_CmpFunRet_t ret;
 
     __ae2f_MathFloatCmp(&e, &headA, af.b, &headB, bf.b, &ret);
