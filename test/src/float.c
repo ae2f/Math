@@ -501,4 +501,4 @@ static uint64_t add() {
   return A;
 }
 
-int main() { return castftof() | flip() | normalise() | compare(); }
+int main() { return castftof() || flip() || normalise() || compare(); }

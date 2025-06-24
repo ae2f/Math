@@ -551,6 +551,8 @@ ae2f_MAC()
     ;
   else if (!((_af) && (_af_vec) && (_bf) && (_bf_vec) && (ret)))
     (err) && (*(err) |= ae2f_errGlob_PTR_IS_NULL);
+  else if ((_af)->exp > sizeof(size_t) << 3 || (_bf)->exp > sizeof(size_t) << 3)
+    (err) && (*(err) |= ae2f_errGlob_IMP_NOT_FOUND);
   else {
 
     struct vt_cmp {
@@ -560,8 +562,10 @@ ae2f_MAC()
       ae2f_CmpFunRet_t m_ret : 8;
 
       union vt_cmpexp {
-        size_t m_sz;
-        intptr_t m_ubias; /** @brief unbiased */
+        uintptr_t m_sz;
+
+        /** @brief unbiased */
+        intptr_t m_ubias;
         unsigned char m_a[1];
       } m_exp[2];
       size_t m_expidx[2];
@@ -644,78 +648,184 @@ ae2f_MAC()
 }
 
 #if !__ae2f_MACRO_GENERATED
-#define __ae2f_MathFloatAdd _ae2f_MathFloatAdd
+#define __ae2f_MathFloatAddU _ae2f_MathFloatAddU
+#define __ae2f_MathFloatAdd _ae2f_MathFloatAddU
+#define __ae2f_MathFloatSubU _ae2f_MathFloatSubU
+#define __ae2f_MathFloatSub _ae2f_MathFloatSub
 #else
+#undef __ae2f_MathFloatAddU
 #undef __ae2f_MathFloatAdd
+#undef __ae2f_MathFloatSubU
+#undef __ae2f_MathFloatSub
+
+#define __ae2f_MathFloatAdd __ae2f_MathFloatAddU
 #endif
 
 /**
+ * @warning
+ * This is for unsigned-normal-only. \n
+ * Special values are not handled here.
+ *
  * @brief
  * `_of` = `_af` + `_bf`;
  * */
 ae2f_MAC()
-    _ae2f_MathFloatAdd(ae2f_err_t *const err, const ae2f_MathFloat *const _af,
-                       ae2f_iMathMem _af_vec, const ae2f_MathFloat *const _bf,
-                       ae2f_iMathMem _bf_vec, ae2f_MathFloat *const _of,
-                       ae2f_oMathMem _of_vec) {
-  if (!(err)) {
-  } else if (!((_af) && (_af_vec) && (_bf) && (_bf_vec) && (_of) &&
-               (_of_vec))) {
-    *(err) |= ae2f_errGlob_PTR_IS_NULL;
-  } else if (!(*(err))) {
-    struct FREF {
-      size_t m_midx;
-      size_t m_eidx;
-      ae2f_MathInt m_man[1];
-      ae2f_MathInt m_exp[1];
-    } v_af, v_bf, v_of;
+    _ae2f_MathFloatAddU(ae2f_err_t *const err, const ae2f_MathFloat *const _af,
+                        ae2f_iMathMem _af_vec, const ae2f_MathFloat *const _bf,
+                        ae2f_iMathMem _bf_vec, ae2f_MathFloat *const _of,
+                        ae2f_oMathMem _of_vec) {
+  if ((err) && *(err))
+    ;
+  else if (!((_af) && (_af_vec) && (_bf) && (_bf_vec) && (_of) && (_of_vec)))
+    (err) && (*(err) |= ae2f_errGlob_PTR_IS_NULL);
+  else if ((_af)->exp > sizeof(size_t) << 3 || (_bf)->exp > sizeof(size_t) << 3)
+    (err) && (*(err) |= ae2f_errGlob_IMP_NOT_FOUND);
+  else
+    do {
+      struct vt_add {
+        union vt_addexp {
+          uintptr_t m_u;
+          intptr_t m_i;
+          unsigned char m_b[1];
+        }
 
-    struct VAR {
-      const ae2f_MathInt m_size[1];
-      union IB {
-        uintptr_t a;
-        intptr_t i;
-        unsigned char b[1];
-      } m_bexp, m_aexp, m_oexp;
-      size_t m_rbcglob;
-    } var = ae2f_RecordMk(
-        ae2f_WhenC(struct) VAR,
-        ae2f_RecordMk(ae2f_MathInt, sizeof(size_t) << 3, 0, 0), 0, );
+        /**
+         * @brief
+         * Exponent index and after that: just exponent
+         *
+         * @details
+         * after index 3 could be temporary
+         * */
+        m_expint[5];
 
-    __ae2f_MathFloatMan(err, _af, v_af.m_man);
-    __ae2f_MathFloatMan(err, _bf, v_bf.m_man);
-    __ae2f_MathFloatMan(err, _of, v_of.m_man);
+        /**
+         * @brief
+         * a, b, o
+         *
+         * @details
+         * 0  3:	m_exp \n
+         * 3  6:	m_man
+         *
+         * For 6th index must be a constant.
+         * */
+        ae2f_MathInt m_exp_man[7];
+      } v_addu;
 
-    __ae2f_MathFloatExp(err, _af, v_af.m_exp, &v_af.m_eidx);
-    __ae2f_MathFloatExp(err, _bf, v_bf.m_exp, &v_bf.m_eidx);
-    __ae2f_MathFloatExp(err, _of, v_of.m_exp, &v_of.m_eidx);
+      {
+        v_addu.m_exp_man[6].sign = 0;
+        v_addu.m_exp_man[6].sz = sizeof(size_t) << 3;
+        v_addu.m_exp_man[6].vecbegpoint = 0; /** constant */
+      }
 
-    if (v_af.m_exp[0].sz > sizeof(void *) << 3) {
-      *(err) |= ae2f_errGlob_IMP_NOT_FOUND;
-    }
+      {
+        __ae2f_MathFloatExp(err, _af, &v_addu.m_exp_man[0],
+                            &v_addu.m_expint[0].m_u);
+        __ae2f_MathFloatExp(err, _bf, &v_addu.m_exp_man[1],
+                            &v_addu.m_expint[1].m_u);
+        __ae2f_MathFloatExp(err, _of, &v_addu.m_exp_man[2],
+                            &v_addu.m_expint[2].m_u);
 
-    if (v_bf.m_exp[0].sz > sizeof(void *) << 3) {
-      *(err) |= ae2f_errGlob_IMP_NOT_FOUND;
-    }
+        __ae2f_MathFloatMan(err, _af, &v_addu.m_exp_man[3]);
+        __ae2f_MathFloatMan(err, _bf, &v_addu.m_exp_man[4]);
+        __ae2f_MathFloatMan(err, _of, &v_addu.m_exp_man[5]);
+      } /** Get mantissas and exponents */
 
-    __ae2f_MathIntCast(err, v_af.m_exp, (_af_vec) + v_af.m_eidx, var.m_size,
-                       var.m_aexp.b);
-    __ae2f_MathIntCast(err, v_bf.m_exp, (_bf_vec) + v_bf.m_eidx, var.m_size,
-                       var.m_bexp.b);
+      {
+        v_addu.m_expint[3].m_u = v_addu.m_expint[0].m_u;
+        __ae2f_MathIntCast(err, &v_addu.m_exp_man[0],
+                           _af_vec + v_addu.m_expint[3].m_u,
+                           &v_addu.m_exp_man[6], v_addu.m_expint[0].m_b);
 
-    var.m_aexp.a -= (1 << ((_af)->exp - 1)) - 1;
-    var.m_bexp.a -= (1 << ((_bf)->exp - 1)) - 1;
+        v_addu.m_expint[3].m_u = v_addu.m_expint[1].m_u;
+        __ae2f_MathIntCast(err, &v_addu.m_exp_man[1],
+                           _bf_vec + v_addu.m_expint[3].m_u,
+                           &v_addu.m_exp_man[6], v_addu.m_expint[1].m_b);
 
-    /**
-     * Count the zeroes... but problem starts when two size of fractions are
-     * different. As always, we will align the bit count for output.
-     *
-     * if (a > b)
-     *
-     * 1. Cast a to o.
-     * 2.
-     * */
-  }
+        v_addu.m_expint[0].m_i -= __ae2f_MathFloatBias(_af);
+        v_addu.m_expint[1].m_i -= __ae2f_MathFloatBias(_bf);
+
+        /**
+         * greater one and will be first exponent. \n
+         * leading one would increment the final when two exponent meets \n
+         * 		> (which means no bitshift is needed)
+         * */
+        v_addu.m_expint[3].m_i =
+            ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i) +
+            __ae2f_MathFloatBias(_of) +
+            (v_addu.m_expint[0].m_i == v_addu.m_expint[1].m_i);
+
+        __ae2f_MathIntCast(err, &v_addu.m_exp_man[6], v_addu.m_expint[3].m_b,
+                           &v_addu.m_exp_man[2],
+                           (_of_vec) + v_addu.m_expint[2].m_u);
+
+        v_addu.m_expint[3].m_i =
+            ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i);
+
+        /**
+         * Now two of them represents the bitcount to be shifted. \n
+         * They are guaranteed to be positive value.
+         * */
+        v_addu.m_expint[0].m_i =
+            v_addu.m_expint[3].m_i - v_addu.m_expint[0].m_i;
+        v_addu.m_expint[1].m_i =
+            v_addu.m_expint[3].m_i - v_addu.m_expint[1].m_i;
+      } /** Unbias exponent */
+
+      /**
+       * It needs to be done with right-shifting.
+       * Lower one's exponent shall be higher, leaving its fraction
+       * right-shifted.
+       *
+       * Right shifting does not require additional bits copying.
+       * It would be granted by simple adjustment of bitstride or something.
+       *
+       * Challenging is leading one: \n
+       * 	> Its value must have been shifted by `m_i` \n
+       * 	> from the outside of mantissa bits.
+       *
+       * When overflown: \n
+       * 	>
+       * */
+      {
+        /** Fill with zero */
+        __ae2f_MathIntFill(err, &v_addu.m_exp_man[5], (_of_vec), 0, 1);
+
+        /**
+         * Leading one.
+         * From here, m_expint[3:4] stands for mantissa's index point.
+         * */
+
+        if (v_addu.m_expint[0].m_i) {
+          __ae2f_MathUtilBVSetAssignArr(
+              _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i, 1);
+
+          v_addu.m_exp_man[3].sz -= v_addu.m_expint[0].m_i;
+          v_addu.m_exp_man[3].vecbegpoint = v_addu.m_expint[3].m_u =
+              (v_addu.m_exp_man[3].vecbegpoint) + v_addu.m_expint[0].m_i;
+
+          v_addu.m_expint[3].m_u >>= 3;
+        }
+        if (v_addu.m_expint[1].m_i) {
+          __ae2f_MathUtilBVSetAssignArr(
+              _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i, 1);
+
+          v_addu.m_exp_man[4].sz -= v_addu.m_expint[1].m_i;
+          v_addu.m_exp_man[4].vecbegpoint = v_addu.m_expint[4].m_u =
+              (v_addu.m_exp_man[4].vecbegpoint) + v_addu.m_expint[1].m_i;
+
+          v_addu.m_expint[4].m_u >>= 3;
+        }
+      }
+      /** Fraction configuration */
+
+      /**
+       * @TODO:
+       * - Make count zeros from right side(whatever) and trim by index
+       * - perform add
+       * - if the value is not greater than any three of original value, means
+       * it has been overflown. bump and bitshift it. (critical?)
+       * */
+    } while (0);
 }
 
 #endif
