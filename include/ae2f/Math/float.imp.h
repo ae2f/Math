@@ -662,6 +662,15 @@ ae2f_MAC()
 #endif
 
 /**
+ * @TODO
+ * I don't think this function is complete. \n
+ * It will definately stuck on overload.
+ *
+ * Now, somehow for different structure is being mess.
+ *
+ * - Additional test case is needed.
+ * - When header goes
+ *
  * @warning
  * This is for unsigned-normal-only. \n
  * Special values are not handled here.
@@ -696,7 +705,9 @@ ae2f_MAC()
          * @details
          * after index 3 could be temporary
          * */
-        m_expint[5];
+        m_expint[6],
+            /** to store each size of mantissas */
+            m_mansz[3];
 
         /**
          * @brief
@@ -729,6 +740,24 @@ ae2f_MAC()
         __ae2f_MathFloatMan(err, _bf, &v_addu.m_exp_man[4]);
         __ae2f_MathFloatMan(err, _of, &v_addu.m_exp_man[5]);
       } /** Get mantissas and exponents */
+
+      /**
+       * Getting the difference of size as unsigned positive value.
+       * Will be used for bit-shifting
+       * */
+      {
+        v_addu.m_mansz[0].m_u = v_addu.m_exp_man[3].sz;
+        v_addu.m_mansz[1].m_u = v_addu.m_exp_man[4].sz;
+        v_addu.m_mansz[2].m_u = v_addu.m_exp_man[5].sz;
+
+        v_addu.m_expint[3].m_u = ae2f_CmpGetLs(
+            ae2f_CmpGetLs(v_addu.m_mansz[0].m_u, v_addu.m_mansz[1].m_u),
+            v_addu.m_mansz[2].m_u);
+
+        v_addu.m_mansz[0].m_u -= v_addu.m_expint[3].m_u;
+        v_addu.m_mansz[1].m_u -= v_addu.m_expint[3].m_u;
+        v_addu.m_mansz[2].m_u -= v_addu.m_expint[3].m_u;
+      }
 
       {
         v_addu.m_expint[3].m_u = v_addu.m_expint[0].m_u;
@@ -791,13 +820,24 @@ ae2f_MAC()
         __ae2f_MathIntFill(err, &v_addu.m_exp_man[5], (_of_vec), 0, 1);
 
         /**
+         * @brief
+         * Output fraction configuration
+         * Bitshift
+         *
          * Leading one.
          * From here, m_expint[3:4] stands for mantissa's index point.
+         * m_expint[5] will be temporary.
          * */
-
-        if (v_addu.m_expint[0].m_i) {
-          __ae2f_MathUtilBVSetAssignArr(
-              _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i, 1);
+        {
+          if (v_addu.m_expint[0].m_i) {
+            __ae2f_MathUtilBVSetAssignArr(
+                _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i,
+                1);
+          } else if (!v_addu.m_expint[1].m_i) {
+            /** two are zero : means leading ones are being ascended */
+            v_addu.m_expint[0].m_i++;
+            v_addu.m_expint[1].m_i++;
+          }
 
           v_addu.m_exp_man[3].sz -= v_addu.m_expint[0].m_i;
           v_addu.m_exp_man[3].vecbegpoint = v_addu.m_expint[3].m_u =
@@ -805,9 +845,13 @@ ae2f_MAC()
 
           v_addu.m_expint[3].m_u >>= 3;
         }
-        if (v_addu.m_expint[1].m_i) {
-          __ae2f_MathUtilBVSetAssignArr(
-              _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i, 1);
+
+        {
+          if (v_addu.m_expint[1].m_i && !v_addu.m_expint[0].m_i) {
+            __ae2f_MathUtilBVSetAssignArr(
+                _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i,
+                1);
+          }
 
           v_addu.m_exp_man[4].sz -= v_addu.m_expint[1].m_i;
           v_addu.m_exp_man[4].vecbegpoint = v_addu.m_expint[4].m_u =
@@ -816,14 +860,87 @@ ae2f_MAC()
           v_addu.m_expint[4].m_u >>= 3;
         }
       }
-      /** Fraction configuration */
 
       /**
-       * @TODO:
+       * @brief
        * - Make count zeros from right side(whatever) and trim by index
        * - perform add
        * - if the value is not greater than any three of original value, means
        * it has been overflown. bump and bitshift it. (critical?)
+       *
+       * m_expint[3:4]	: mantissa index point
+       * m_expint[5]	: rbitzero size
+       * */
+      if (1)
+        for (v_addu.m_expint[5].m_u = 0;; v_addu.m_expint[5].m_u++) {
+          if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[3].sz)
+            break;
+          if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[4].sz)
+            break;
+          if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[5].sz)
+            break;
+
+          if ((__ae2f_MathUtilBVGetArr((_of_vec),
+                                       v_addu.m_exp_man[5].vecbegpoint +
+                                           v_addu.m_expint[5].m_u) ||
+
+               __ae2f_MathUtilBVGetArr((_af_vec) + v_addu.m_expint[3].m_u,
+                                       v_addu.m_expint[5].m_u +
+                                           v_addu.m_exp_man[3].vecbegpoint) ||
+
+               __ae2f_MathUtilBVGetArr((_bf_vec) + v_addu.m_expint[4].m_u,
+                                       v_addu.m_expint[5].m_u +
+                                           v_addu.m_exp_man[4].vecbegpoint))) {
+            break;
+          }
+        }
+
+      {
+        v_addu.m_exp_man[3].sz -= v_addu.m_expint[5].m_u;
+        v_addu.m_exp_man[3].vecbegpoint = v_addu.m_expint[3].m_u =
+            (v_addu.m_exp_man[3].vecbegpoint) + (v_addu.m_expint[3].m_u << 3) +
+            v_addu.m_expint[5].m_u;
+        v_addu.m_expint[3].m_u >>= 3;
+
+        v_addu.m_exp_man[4].sz -= v_addu.m_expint[5].m_u;
+        v_addu.m_exp_man[4].vecbegpoint = v_addu.m_expint[4].m_u =
+            (v_addu.m_exp_man[4].vecbegpoint) + (v_addu.m_expint[4].m_u << 3) +
+            v_addu.m_expint[5].m_u;
+        v_addu.m_expint[4].m_u >>= 3;
+
+        v_addu.m_exp_man[5].sz -= v_addu.m_expint[5].m_u;
+
+        v_addu.m_exp_man[5].vecbegpoint = v_addu.m_expint[5].m_u =
+            (v_addu.m_exp_man[5].vecbegpoint) + v_addu.m_expint[5].m_u;
+        v_addu.m_expint[5].m_u >>= 3;
+      }
+
+      /**
+       * - Make count zeros from right side(whatever) and trim by index
+       * - perform add
+       * - if the value is not greater than any three of original value, means
+       * it has been overflown. bump and bitshift it. (critical?)
+       *
+       * m_expint[3:4:5]	: mantissa index point
+       *
+       * */
+      if (1) {
+        /** O = A + O */
+        __ae2f_MathIntAdd(
+            err, &v_addu.m_exp_man[3], (_af_vec) + v_addu.m_expint[3].m_u,
+            &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec),
+            &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec));
+
+        /** O = O + B */
+        __ae2f_MathIntAdd(
+            err, &v_addu.m_exp_man[4], (_bf_vec) + v_addu.m_expint[4].m_u,
+            &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec),
+            &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec));
+      }
+
+      /**
+       * Exception: both have same bit shifted.
+       * Leading one must have been moved.
        * */
     } while (0);
 }

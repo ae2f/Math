@@ -458,47 +458,57 @@ static uint64_t add() {
   size_t i;
 
   for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
+#undef putsprefix
 #define putsprefix "[f32addf32f32]"
 
     ___TEST_FLOAT_ADD(float32buf, float32buf, float32buf, TESTA, TESTB, i,
                       float32header, float32header, float32header, (&A));
 
-#if 0
+#if 1
+#undef putsprefix
 #define putsprefix "[f64addf64f64]"
     ___TEST_FLOAT_ADD(float64buf, float64buf, float64buf, TESTA, TESTB, i,
                       float64header, float64header, float64header, (&A));
 
 #endif
     /**
-     * @todo
+     * @TODO
      * Get those tests to work:
      * @brief
      *  whenever the element's size matches not,
      *  on large number it crashes.
      * */
-#if 0
+
+#if 01
+#undef putsprefix
 #define putsprefix "[f32addf64f64]"
-    ___TEST_FLOAT_ADD(
-      float64buf
-      , float64buf
-      , float32buf
-      , TESTA, TESTB, i
-      , float64header, float64header, float32header
-      , (&A));
+    ___TEST_FLOAT_ADD(float64buf, float64buf, float32buf, TESTA, TESTB, i,
+                      float64header, float64header, float32header, (&A));
 #endif
-#if 0
+
+#if 01
+#undef putsprefix
 #define putsprefix "[f32addf64f32]"
-    ___TEST_FLOAT_ADD(
-      float32buf
-      , float64buf
-      , float32buf
-      , TESTA, TESTB, i
-      , float32header, float64header, float32header
-      , (&A));
+    ___TEST_FLOAT_ADD(float32buf, float64buf, float32buf, TESTA, TESTB, i,
+                      float32header, float64header, float32header, (&A));
+#endif
+
+#if 01
+#undef putsprefix
+#define putsprefix "[f64addf64f64]"
+    ___TEST_FLOAT_ADD(float64buf, float64buf, float32buf, TESTA, TESTB, i,
+                      float64header, float64header, float64header, (&A));
+#endif
+
+#if 01
+#undef putsprefix
+#define putsprefix "[f64addf64f32]"
+    ___TEST_FLOAT_ADD(float32buf, float64buf, float32buf, TESTA, TESTB, i,
+                      float32header, float64header, float64header, (&A));
 #endif
   }
 
   return A;
 }
 
-int main() { return castftof() || flip() || normalise() || compare(); }
+int main() { return castftof() || flip() || normalise() || compare() || add(); }
