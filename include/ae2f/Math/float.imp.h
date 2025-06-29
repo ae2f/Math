@@ -707,7 +707,7 @@ ae2f_MAC()
          * */
         m_expint[6],
             /** to store each size of mantissas */
-            m_mansz[3];
+            m_mansz[2];
 
         /**
          * @brief
@@ -744,19 +744,22 @@ ae2f_MAC()
       /**
        * Getting the difference of size as unsigned positive value.
        * Will be used for bit-shifting
+       *
+       * Perhaps the shift for it is needed for output buffer.
        * */
       {
         v_addu.m_mansz[0].m_u = v_addu.m_exp_man[3].sz;
         v_addu.m_mansz[1].m_u = v_addu.m_exp_man[4].sz;
-        v_addu.m_mansz[2].m_u = v_addu.m_exp_man[5].sz;
 
-        v_addu.m_expint[3].m_u = ae2f_CmpGetLs(
-            ae2f_CmpGetLs(v_addu.m_mansz[0].m_u, v_addu.m_mansz[1].m_u),
-            v_addu.m_mansz[2].m_u);
+        if (v_addu.m_mansz[0].m_u > v_addu.m_exp_man[5].sz)
+          v_addu.m_mansz[0].m_u -= v_addu.m_exp_man[5].sz;
+        else
+          v_addu.m_mansz[0].m_u = 0;
 
-        v_addu.m_mansz[0].m_u -= v_addu.m_expint[3].m_u;
-        v_addu.m_mansz[1].m_u -= v_addu.m_expint[3].m_u;
-        v_addu.m_mansz[2].m_u -= v_addu.m_expint[3].m_u;
+        if (v_addu.m_mansz[1].m_u > v_addu.m_exp_man[5].sz)
+          v_addu.m_mansz[1].m_u -= v_addu.m_exp_man[5].sz;
+        else
+          v_addu.m_mansz[1].m_u = 0;
       }
 
       {
@@ -839,6 +842,9 @@ ae2f_MAC()
             v_addu.m_expint[1].m_i++;
           }
 
+          v_addu.m_expint[0].m_i += v_addu.m_mansz[0].m_u;
+          printf("expint 0 %lu\n", v_addu.m_mansz[0].m_u);
+
           v_addu.m_exp_man[3].sz -= v_addu.m_expint[0].m_i;
           v_addu.m_exp_man[3].vecbegpoint = v_addu.m_expint[3].m_u =
               (v_addu.m_exp_man[3].vecbegpoint) + v_addu.m_expint[0].m_i;
@@ -852,6 +858,9 @@ ae2f_MAC()
                 _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i,
                 1);
           }
+
+          v_addu.m_expint[1].m_i += v_addu.m_mansz[1].m_u;
+          printf("expint 1 %lu\n", v_addu.m_mansz[1].m_u);
 
           v_addu.m_exp_man[4].sz -= v_addu.m_expint[1].m_i;
           v_addu.m_exp_man[4].vecbegpoint = v_addu.m_expint[4].m_u =
@@ -871,29 +880,29 @@ ae2f_MAC()
        * m_expint[3:4]	: mantissa index point
        * m_expint[5]	: rbitzero size
        * */
-      if (1)
-        for (v_addu.m_expint[5].m_u = 0;; v_addu.m_expint[5].m_u++) {
-          if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[3].sz)
-            break;
-          if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[4].sz)
-            break;
-          if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[5].sz)
-            break;
+      for (v_addu.m_expint[5].m_u = 0;; v_addu.m_expint[5].m_u++) {
+        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[3].sz)
+          break;
+        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[4].sz)
+          break;
+        if (v_addu.m_expint[5].m_u ==
+            v_addu.m_exp_man[5].sz - v_addu.m_mansz[2].m_u)
+          break;
 
-          if ((__ae2f_MathUtilBVGetArr((_of_vec),
-                                       v_addu.m_exp_man[5].vecbegpoint +
-                                           v_addu.m_expint[5].m_u) ||
+        if ((__ae2f_MathUtilBVGetArr((_of_vec),
+                                     v_addu.m_exp_man[5].vecbegpoint +
+                                         v_addu.m_expint[5].m_u) ||
 
-               __ae2f_MathUtilBVGetArr((_af_vec) + v_addu.m_expint[3].m_u,
-                                       v_addu.m_expint[5].m_u +
-                                           v_addu.m_exp_man[3].vecbegpoint) ||
+             __ae2f_MathUtilBVGetArr((_af_vec) + v_addu.m_expint[3].m_u,
+                                     v_addu.m_expint[5].m_u +
+                                         v_addu.m_exp_man[3].vecbegpoint) ||
 
-               __ae2f_MathUtilBVGetArr((_bf_vec) + v_addu.m_expint[4].m_u,
-                                       v_addu.m_expint[5].m_u +
-                                           v_addu.m_exp_man[4].vecbegpoint))) {
-            break;
-          }
+             __ae2f_MathUtilBVGetArr((_bf_vec) + v_addu.m_expint[4].m_u,
+                                     v_addu.m_expint[5].m_u +
+                                         v_addu.m_exp_man[4].vecbegpoint))) {
+          break;
         }
+      }
 
       {
         v_addu.m_exp_man[3].sz -= v_addu.m_expint[5].m_u;
@@ -924,7 +933,7 @@ ae2f_MAC()
        * m_expint[3:4:5]	: mantissa index point
        *
        * */
-      if (1) {
+      {
         /** O = A + O */
         __ae2f_MathIntAdd(
             err, &v_addu.m_exp_man[3], (_af_vec) + v_addu.m_expint[3].m_u,
