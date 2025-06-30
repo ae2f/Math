@@ -650,12 +650,12 @@ ae2f_MAC()
 #define __ae2f_MathFloatAdd _ae2f_MathFloatAddU
 #define __ae2f_MathFloatSubU _ae2f_MathFloatSubU
 #define __ae2f_MathFloatSub _ae2f_MathFloatSub
+
 #else
 #undef __ae2f_MathFloatAddU
 #undef __ae2f_MathFloatAdd
 #undef __ae2f_MathFloatSubU
 #undef __ae2f_MathFloatSub
-
 #define __ae2f_MathFloatAdd __ae2f_MathFloatAddU
 #endif
 
