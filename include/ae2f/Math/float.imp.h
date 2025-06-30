@@ -707,7 +707,7 @@ ae2f_MAC()
          * */
         m_expint[6],
             /** to store each size of mantissas */
-            m_mansz[2];
+            m_mansz[3];
 
         /**
          * @brief
@@ -746,20 +746,20 @@ ae2f_MAC()
        * Will be used for bit-shifting
        *
        * Perhaps the shift for it is needed for output buffer.
+       *
+       * Provided it goes positive, value should be traunacted.
+       * Provided it goes negative, value should be left-shifted.
        * */
       {
         v_addu.m_mansz[0].m_u = v_addu.m_exp_man[3].sz;
         v_addu.m_mansz[1].m_u = v_addu.m_exp_man[4].sz;
 
-        if (v_addu.m_mansz[0].m_u > v_addu.m_exp_man[5].sz)
-          v_addu.m_mansz[0].m_u -= v_addu.m_exp_man[5].sz;
-        else
-          v_addu.m_mansz[0].m_u = 0;
+        v_addu.m_mansz[0].m_u -= v_addu.m_exp_man[5].sz;
+        v_addu.m_mansz[1].m_u -= v_addu.m_exp_man[5].sz;
 
-        if (v_addu.m_mansz[1].m_u > v_addu.m_exp_man[5].sz)
-          v_addu.m_mansz[1].m_u -= v_addu.m_exp_man[5].sz;
-        else
-          v_addu.m_mansz[1].m_u = 0;
+        /**
+         * For output is not necessary.
+         * */
       }
 
       {
@@ -822,6 +822,17 @@ ae2f_MAC()
         /** Fill with zero */
         __ae2f_MathIntFill(err, &v_addu.m_exp_man[5], (_of_vec), 0, 1);
 
+        if (!(v_addu.m_expint[1].m_i || v_addu.m_expint[0].m_i)) {
+          printf("asdf: %ld %ld\n", v_addu.m_expint[0].m_i,
+                 v_addu.m_expint[1].m_i);
+          /** two are zero : means leading ones are being ascended */
+          v_addu.m_expint[0].m_i++;
+          v_addu.m_expint[1].m_i++;
+
+          printf("asdf: %ld %ld\n", v_addu.m_expint[0].m_i,
+                 v_addu.m_expint[1].m_i);
+        }
+
         /**
          * @brief
          * Output fraction configuration
@@ -833,17 +844,18 @@ ae2f_MAC()
          * */
         {
           if (v_addu.m_expint[0].m_i) {
+            printf("leadr0: %ld\n",
+                   (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i);
+
+            /** when two mantissa goes different,
+             * leading one shifted could be somewhere unexpected.
+             * */
             __ae2f_MathUtilBVSetAssignArr(
                 _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i,
-                1);
-          } else if (!v_addu.m_expint[1].m_i) {
-            /** two are zero : means leading ones are being ascended */
-            v_addu.m_expint[0].m_i++;
-            v_addu.m_expint[1].m_i++;
+                (v_addu.m_expint[0].m_u != v_addu.m_expint[1].m_u));
           }
-
-          v_addu.m_expint[0].m_i += v_addu.m_mansz[0].m_u;
-          printf("expint 0 %lu\n", v_addu.m_mansz[0].m_u);
+          if (v_addu.m_mansz[0].m_i > 0)
+            v_addu.m_expint[0].m_i += v_addu.m_mansz[0].m_u;
 
           v_addu.m_exp_man[3].sz -= v_addu.m_expint[0].m_i;
           v_addu.m_exp_man[3].vecbegpoint = v_addu.m_expint[3].m_u =
@@ -852,15 +864,19 @@ ae2f_MAC()
           v_addu.m_expint[3].m_u >>= 3;
         }
 
+        if (v_addu.m_mansz[0].m_i > 0)
+          v_addu.m_expint[0].m_i -= v_addu.m_mansz[0].m_u;
+
         {
-          if (v_addu.m_expint[1].m_i && !v_addu.m_expint[0].m_i) {
+          if (v_addu.m_expint[1].m_i) {
+
             __ae2f_MathUtilBVSetAssignArr(
                 _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i,
-                1);
+                (v_addu.m_expint[0].m_u != v_addu.m_expint[1].m_u));
           }
 
-          v_addu.m_expint[1].m_i += v_addu.m_mansz[1].m_u;
-          printf("expint 1 %lu\n", v_addu.m_mansz[1].m_u);
+          if (v_addu.m_mansz[1].m_i > 0)
+            v_addu.m_expint[1].m_i += v_addu.m_mansz[1].m_u;
 
           v_addu.m_exp_man[4].sz -= v_addu.m_expint[1].m_i;
           v_addu.m_exp_man[4].vecbegpoint = v_addu.m_expint[4].m_u =
@@ -885,8 +901,7 @@ ae2f_MAC()
           break;
         if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[4].sz)
           break;
-        if (v_addu.m_expint[5].m_u ==
-            v_addu.m_exp_man[5].sz - v_addu.m_mansz[2].m_u)
+        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[5].sz)
           break;
 
         if ((__ae2f_MathUtilBVGetArr((_of_vec),
@@ -932,13 +947,49 @@ ae2f_MAC()
        *
        * m_expint[3:4:5]	: mantissa index point
        *
+       * Maybe making a temprary integer header would help
        * */
       {
+        if (v_addu.m_mansz[0].m_i < 0 || v_addu.m_mansz[1].m_i < 0) {
+          /**
+           * need to store the mantissa index somewhere
+           * expint[0] will store it.
+           * */
+          v_addu.m_exp_man[6] = v_addu.m_exp_man[5];
+          v_addu.m_mansz[2].m_u = v_addu.m_expint[5].m_u;
+        }
+
+        if (v_addu.m_mansz[0].m_i < 0) {
+          v_addu.m_exp_man[5].sz =
+              v_addu.m_exp_man[6].sz + v_addu.m_mansz[0].m_i;
+
+          v_addu.m_exp_man[5].vecbegpoint = v_addu.m_expint[5].m_u =
+              v_addu.m_exp_man[6].vecbegpoint + (v_addu.m_mansz[2].m_u << 3) -
+              v_addu.m_mansz[0].m_i;
+
+          v_addu.m_expint[5].m_u >>= 3;
+        }
+
         /** O = A + O */
         __ae2f_MathIntAdd(
             err, &v_addu.m_exp_man[3], (_af_vec) + v_addu.m_expint[3].m_u,
             &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec),
             &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec));
+
+        if (v_addu.m_mansz[1].m_i < 0) {
+          v_addu.m_exp_man[5].sz =
+              v_addu.m_exp_man[6].sz + v_addu.m_mansz[1].m_i;
+
+          v_addu.m_exp_man[5].vecbegpoint = v_addu.m_expint[5].m_u =
+              v_addu.m_exp_man[6].vecbegpoint + (v_addu.m_mansz[2].m_u << 3) -
+              v_addu.m_mansz[1].m_i;
+
+          v_addu.m_expint[5].m_u >>= 3;
+        } else if (v_addu.m_mansz[0].m_i < 0) {
+          /** Original */
+          v_addu.m_exp_man[5] = v_addu.m_exp_man[6];
+          v_addu.m_expint[5].m_u = v_addu.m_mansz[2].m_u;
+        }
 
         /** O = O + B */
         __ae2f_MathIntAdd(

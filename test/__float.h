@@ -1,5 +1,5 @@
 #include <ae2f/Macro.h>
-#include <ae2f/Math/float.imp.h>
+#include <ae2f/Math/float.auto.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -40,7 +40,7 @@ typedef union float64buf {
 
 ae2f_MAC(floatbuf_A, floatbuf_B, )
     __TEST_FLOAT_CMP(const float *const TESTA, const float *const TESTB,
-                     const int i, const ae2f_MathFloat headA,
+                     const int i, const int j, const ae2f_MathFloat headA,
                      const ae2f_MathFloat headB, uint32_t *const A) {
   do {
     printf("start: %f %f\n", TESTA[i], TESTB[i]);
@@ -48,7 +48,7 @@ ae2f_MAC(floatbuf_A, floatbuf_B, )
     floatbuf_B bf;
 
     af.a = TESTA[i];
-    bf.a = TESTB[i];
+    bf.a = TESTB[j];
 
     ae2f_err_t e = 0;
     ae2f_CmpFunRet_t ret;
@@ -62,9 +62,9 @@ ae2f_MAC(floatbuf_A, floatbuf_B, )
       break;
     }
 
-    if ((ret < 0) != (TESTA[i] < TESTB[i])) {
+    if ((ret < 0) != (TESTA[i] < TESTB[j])) {
       /** unexpected value */
-      printf("Expected %d but got %d\n", TESTA[i] < TESTB[i], ret < 0);
+      printf("Expected %d but got %d\n", TESTA[i] < TESTB[j], ret < 0);
       *A = 1;
       break;
     }

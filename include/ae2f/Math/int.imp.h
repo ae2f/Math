@@ -515,14 +515,14 @@ ae2f_MAC()
   else {
     struct __ae2f_MathIntBitLVar_t {
       size_t i;
-    } __VAR; 
-    for(__VAR.i = (out)->sz; __VAR.i != -1; __VAR.i--) {
-      if((in)->sz + (bitcount) <= __VAR.i || __VAR.i < (bitcount)) { 
-        __ae2f_MathUtilBVSetAssignArr(out_vec, __VAR.i, 0); 
+    } __VAR;
+    for (__VAR.i = (out)->sz; __VAR.i != -1; __VAR.i--) {
+      if ((in)->sz + (bitcount) <= __VAR.i || __VAR.i < (bitcount)) {
+        __ae2f_MathUtilBVSetAssignArr(out_vec, __VAR.i, 0);
       } else {
         __ae2f_MathUtilBVSetAssignArr(
-          out_vec, __VAR.i, __ae2f_MathUtilBVGetArr(in_vec, __VAR.i - (bitcount))
-        );
+            out_vec, __VAR.i,
+            __ae2f_MathUtilBVGetArr(in_vec, __VAR.i - (bitcount)));
       }
     }
   }

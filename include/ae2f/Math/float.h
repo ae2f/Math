@@ -7,9 +7,8 @@
 #ifndef ae2f_Math_float_h
 #define ae2f_Math_float_h
 
-#include "./int.h"
-
 #include <ae2f/Pack/Beg.h>
+#include <stddef.h>
 
 typedef struct ae2f_MathFloat ae2f_MathFloat;
 

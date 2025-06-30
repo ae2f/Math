@@ -393,7 +393,7 @@ static uint64_t normalise() {
     }
 
     if (af.a != 134) {
-      printf("[normalise32] Expected %f but got %f\n", 134, af.a);
+      printf("[normalise32] Expected %f but got %f\n", 134., af.a);
       return 1;
     }
 
@@ -426,27 +426,28 @@ static uint64_t normalise() {
 
 static uint64_t compare() {
   char A = 0;
-  size_t i;
+  size_t i, j;
 
   for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
+    for (j = 0; j < sizeof(TESTB) / sizeof(TESTB[0]); j++)
 #undef putsprefix
 #define putsprefix "[f32cmpf32]"
-    ___TEST_FLOAT_CMP(float32buf, float32buf, TESTA, TESTB, i, float32header,
-                      float32header, (&A));
+      ___TEST_FLOAT_CMP(float32buf, float32buf, TESTA, TESTB, i, j,
+                        float32header, float32header, (&A));
 
 #undef putsprefix
 #define putsprefix "[f32cmpf64]"
-    ___TEST_FLOAT_CMP(float32buf, float64buf, TESTA, TESTB, i, float32header,
+    ___TEST_FLOAT_CMP(float32buf, float64buf, TESTA, TESTB, i, j, float32header,
                       float64header, (&A));
 
 #undef putsprefix
 #define putsprefix "[f64cmpf32]"
-    ___TEST_FLOAT_CMP(float64buf, float32buf, TESTA, TESTB, i, float64header,
+    ___TEST_FLOAT_CMP(float64buf, float32buf, TESTA, TESTB, i, j, float64header,
                       float32header, (&A));
 
 #undef putsprefix
 #define putsprefix "[f64cmpf64]"
-    ___TEST_FLOAT_CMP(float64buf, float64buf, TESTA, TESTB, i, float64header,
+    ___TEST_FLOAT_CMP(float64buf, float64buf, TESTA, TESTB, i, j, float64header,
                       float64header, (&A));
   }
 
@@ -479,32 +480,39 @@ static uint64_t add() {
      *  on large number it crashes.
      * */
 
-#if 0
+#if 01
 #undef putsprefix
 #define putsprefix "[f32addf64f64]"
     ___TEST_FLOAT_ADD(float64buf, float64buf, float32buf, TESTA, TESTB, i,
                       float64header, float64header, float32header, (&A));
 #endif
 
-#if 0
+#if 01
+#undef putsprefix
+#define putsprefix "[f32addf64f32]"
+    ___TEST_FLOAT_ADD(float64buf, float32buf, float32buf, TESTA, TESTB, i,
+                      float64header, float32header, float32header, (&A));
+#endif
+
+#if 01
 #undef putsprefix
 #define putsprefix "[f32addf32f64]"
     ___TEST_FLOAT_ADD(float32buf, float64buf, float32buf, TESTA, TESTB, i,
                       float32header, float64header, float32header, (&A));
 #endif
 
-#if 0
+#if 01
 #undef putsprefix
 #define putsprefix "[f64addf32f32]"
     ___TEST_FLOAT_ADD(float32buf, float32buf, float64buf, TESTA, TESTB, i,
                       float32header, float32header, float64header, (&A));
 #endif
 
-#if 0
+#if 01
 #undef putsprefix
 #define putsprefix "[f64addf64f32]"
-    ___TEST_FLOAT_ADD(float32buf, float64buf, float32buf, TESTA, TESTB, i,
-                      float32header, float64header, float64header, (&A));
+    ___TEST_FLOAT_ADD(float64buf, float32buf, float64buf, TESTA, TESTB, i,
+                      float64header, float32header, float64header, (&A));
 #endif
   }
 
