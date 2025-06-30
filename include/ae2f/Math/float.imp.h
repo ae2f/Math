@@ -522,8 +522,6 @@ ae2f_MAC()
   }
 }
 
-#include <stdio.h>
-
 #if __ae2f_MACRO_GENERATED
 #undef __ae2f_MathFloatCmp
 #else
@@ -823,14 +821,9 @@ ae2f_MAC()
         __ae2f_MathIntFill(err, &v_addu.m_exp_man[5], (_of_vec), 0, 1);
 
         if (!(v_addu.m_expint[1].m_i || v_addu.m_expint[0].m_i)) {
-          printf("asdf: %ld %ld\n", v_addu.m_expint[0].m_i,
-                 v_addu.m_expint[1].m_i);
           /** two are zero : means leading ones are being ascended */
           v_addu.m_expint[0].m_i++;
           v_addu.m_expint[1].m_i++;
-
-          printf("asdf: %ld %ld\n", v_addu.m_expint[0].m_i,
-                 v_addu.m_expint[1].m_i);
         }
 
         /**
@@ -844,8 +837,6 @@ ae2f_MAC()
          * */
         {
           if (v_addu.m_expint[0].m_i) {
-            printf("leadr0: %ld\n",
-                   (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i);
 
             /** when two mantissa goes different,
              * leading one shifted could be somewhere unexpected.
