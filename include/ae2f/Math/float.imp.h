@@ -1,6 +1,7 @@
 #ifndef ae2f_Math_float_imp_h
 #define ae2f_Math_float_imp_h
 
+#include "./Util.auto.h"
 #include "./float.h"
 #include "./int.auto.h"
 #include <ae2f/Macro.h>
@@ -94,6 +95,43 @@ ae2f_MAC()
     *(retoivecidx) = ((af)->bstart + (af)->man) >>
                      3; /* Convert bit position to byte index */
   }
+}
+
+#if __ae2f_MACRO_GENERATED
+#undef __ae2f_MathFloatGetExp
+#undef __ae2f_MathFloatSetExp
+#undef __ae2f_MathFloatSetExpPtr
+#else
+#define __ae2f_MathFloatGetExp _ae2f_MathFloatGetExp
+#define __ae2f_MathFloatSetExp _ae2f_MathFloatSetExp
+#define __ae2f_MathFloatSetExpPtr _ae2f_MathFloatSetExpPtr
+#endif
+
+ae2f_MAC() _ae2f_MathFloatGetExp(const ae2f_pMathFloat af, ae2f_iMathMem af_vec,
+                                 ae2f_oMathMem o_vec) {
+  if ((af) && (af_vec) && (o_vec)) {
+    __ae2f_MathUtilBVCpy(o_vec, 0, af_vec, (af)->bstart + (af)->man,
+                         ae2f_CmpGetLs((sizeof(size_t) << 3), (af)->exp));
+  }
+}
+
+ae2f_MAC() _ae2f_MathFloatSetExpPtr(const ae2f_pMathFloat af,
+                                    ae2f_oMathMem af_vec, ae2f_iMathMem i_vec) {
+  if ((af) && (af_vec) && (i_vec)) {
+    __ae2f_MathUtilBVCpy(af_vec, (af)->bstart + (af)->man, i_vec, 0,
+                         ae2f_CmpGetLs((sizeof(size_t) << 3), (af)->exp));
+  }
+}
+
+ae2f_MAC() _ae2f_MathFloatSetExp(const ae2f_pMathFloat af, ae2f_oMathMem af_vec,
+                                 size_t newexp) {
+  typedef union vt_fsexp vt_fsexp_t;
+  union vt_fsexp {
+    size_t m_a;
+    uint8_t m_b[1];
+  } v_fsexp = ae2f_RecordMk(vt_fsexp_t, .m_a = (newexp));
+
+  __ae2f_MathFloatSetExpPtr(af, af_vec, v_fsexp.m_b);
 }
 
 #define __ae2f_MathFloatExpEndIdx(af) ((af)->man + (af)->exp + (af)->bstart - 1)
@@ -552,13 +590,8 @@ ae2f_MAC()
   else if ((_af)->exp > sizeof(size_t) << 3 || (_bf)->exp > sizeof(size_t) << 3)
     (err) && (*(err) |= ae2f_errGlob_IMP_NOT_FOUND);
   else {
-
+    typedef struct vt_cmp vt_cmp_t;
     struct vt_cmp {
-      unsigned m_sign : 1;
-      unsigned m_av : 1;
-      unsigned m_bv : 1;
-      ae2f_CmpFunRet_t m_ret : 8;
-
       union vt_cmpexp {
         uintptr_t m_sz;
 
@@ -566,12 +599,15 @@ ae2f_MAC()
         intptr_t m_ubias;
         unsigned char m_a[1];
       } m_exp[2];
-      size_t m_expidx[2];
+
       size_t m_i, m_c;
 
-      ae2f_MathInt m_inth[3];
+      unsigned m_sign : 1;
+      unsigned m_av : 1;
+      unsigned m_bv : 1;
+      ae2f_CmpFunRet_t m_ret : 5;
 
-    } v_cmp;
+    } v_cmp = ae2f_RecordMk(vt_cmp_t, 0, );
 
     if ((v_cmp.m_sign = __ae2f_MathFloatGetSign(_af, _af_vec)) !=
         __ae2f_MathFloatGetSign(_bf, _bf_vec)) {
@@ -579,17 +615,8 @@ ae2f_MAC()
           v_cmp.m_sign ? ae2f_CmpFunRet_LISLESSER : ae2f_CmpFunRet_RISLESSER;
     } else {
       {
-        v_cmp.m_inth[2].sign = 0;
-        v_cmp.m_inth[2].sz = (sizeof(size_t)) << 3;
-        v_cmp.m_inth[2].vecbegpoint = 0;
-
-        __ae2f_MathFloatExp(err, _af, &v_cmp.m_inth[0], &v_cmp.m_expidx[0]);
-        __ae2f_MathFloatExp(err, _bf, &v_cmp.m_inth[1], &v_cmp.m_expidx[1]);
-
-        __ae2f_MathIntCast(err, &v_cmp.m_inth[0], (_af_vec) + v_cmp.m_expidx[0],
-                           &v_cmp.m_inth[2], v_cmp.m_exp[0].m_a);
-        __ae2f_MathIntCast(err, &v_cmp.m_inth[1], (_bf_vec) + v_cmp.m_expidx[1],
-                           &v_cmp.m_inth[2], v_cmp.m_exp[1].m_a);
+        __ae2f_MathFloatGetExp(_af, _af_vec, v_cmp.m_exp[0].m_a);
+        __ae2f_MathFloatGetExp(_bf, _bf_vec, v_cmp.m_exp[1].m_a);
 
         /** unbias */
         v_cmp.m_exp[0].m_ubias -= __ae2f_MathFloatBias(_af);
@@ -717,26 +744,17 @@ ae2f_MAC()
          *
          * For 6th index must be a constant.
          * */
-        ae2f_MathInt m_exp_man[7];
+        ae2f_MathInt m_exp_man[4];
       } v_addu;
 
       {
-        v_addu.m_exp_man[6].sign = 0;
-        v_addu.m_exp_man[6].sz = sizeof(size_t) << 3;
-        v_addu.m_exp_man[6].vecbegpoint = 0; /** constant */
-      }
+        v_addu.m_expint[0].m_u = __ae2f_MathFloatExpEndIdx(_af);
+        v_addu.m_expint[1].m_u = __ae2f_MathFloatExpEndIdx(_bf);
+        v_addu.m_expint[2].m_u = __ae2f_MathFloatExpEndIdx(_of);
 
-      {
-        __ae2f_MathFloatExp(err, _af, &v_addu.m_exp_man[0],
-                            &v_addu.m_expint[0].m_u);
-        __ae2f_MathFloatExp(err, _bf, &v_addu.m_exp_man[1],
-                            &v_addu.m_expint[1].m_u);
-        __ae2f_MathFloatExp(err, _of, &v_addu.m_exp_man[2],
-                            &v_addu.m_expint[2].m_u);
-
-        __ae2f_MathFloatMan(err, _af, &v_addu.m_exp_man[3]);
-        __ae2f_MathFloatMan(err, _bf, &v_addu.m_exp_man[4]);
-        __ae2f_MathFloatMan(err, _of, &v_addu.m_exp_man[5]);
+        __ae2f_MathFloatMan(err, _af, &v_addu.m_exp_man[0]);
+        __ae2f_MathFloatMan(err, _bf, &v_addu.m_exp_man[1]);
+        __ae2f_MathFloatMan(err, _of, &v_addu.m_exp_man[2]);
       } /** Get mantissas and exponents */
 
       /**
@@ -749,11 +767,11 @@ ae2f_MAC()
        * Provided it goes negative, value should be left-shifted.
        * */
       {
-        v_addu.m_mansz[0].m_u = v_addu.m_exp_man[3].sz;
-        v_addu.m_mansz[1].m_u = v_addu.m_exp_man[4].sz;
+        v_addu.m_mansz[0].m_u = v_addu.m_exp_man[0].sz;
+        v_addu.m_mansz[1].m_u = v_addu.m_exp_man[1].sz;
 
-        v_addu.m_mansz[0].m_u -= v_addu.m_exp_man[5].sz;
-        v_addu.m_mansz[1].m_u -= v_addu.m_exp_man[5].sz;
+        v_addu.m_mansz[0].m_u -= v_addu.m_exp_man[2].sz;
+        v_addu.m_mansz[1].m_u -= v_addu.m_exp_man[2].sz;
 
         /**
          * For output is not necessary.
@@ -761,15 +779,8 @@ ae2f_MAC()
       }
 
       {
-        v_addu.m_expint[3].m_u = v_addu.m_expint[0].m_u;
-        __ae2f_MathIntCast(err, &v_addu.m_exp_man[0],
-                           _af_vec + v_addu.m_expint[3].m_u,
-                           &v_addu.m_exp_man[6], v_addu.m_expint[0].m_b);
-
-        v_addu.m_expint[3].m_u = v_addu.m_expint[1].m_u;
-        __ae2f_MathIntCast(err, &v_addu.m_exp_man[1],
-                           _bf_vec + v_addu.m_expint[3].m_u,
-                           &v_addu.m_exp_man[6], v_addu.m_expint[1].m_b);
+        __ae2f_MathFloatGetExp(_af, _af_vec, v_addu.m_expint[0].m_b);
+        __ae2f_MathFloatGetExp(_bf, _bf_vec, v_addu.m_expint[1].m_b);
 
         v_addu.m_expint[0].m_i -= __ae2f_MathFloatBias(_af);
         v_addu.m_expint[1].m_i -= __ae2f_MathFloatBias(_bf);
@@ -784,9 +795,7 @@ ae2f_MAC()
             __ae2f_MathFloatBias(_of) +
             (v_addu.m_expint[0].m_i == v_addu.m_expint[1].m_i);
 
-        __ae2f_MathIntCast(err, &v_addu.m_exp_man[6], v_addu.m_expint[3].m_b,
-                           &v_addu.m_exp_man[2],
-                           (_of_vec) + v_addu.m_expint[2].m_u);
+        __ae2f_MathFloatSetExpPtr(_of, _of_vec, v_addu.m_expint[3].m_b);
 
         v_addu.m_expint[3].m_i =
             ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i);
@@ -818,7 +827,7 @@ ae2f_MAC()
        * */
       {
         /** Fill with zero */
-        __ae2f_MathIntFill(err, &v_addu.m_exp_man[5], (_of_vec), 0, 1);
+        __ae2f_MathIntFill(err, &v_addu.m_exp_man[2], (_of_vec), 0, 1);
 
         if (!(v_addu.m_expint[1].m_i || v_addu.m_expint[0].m_i)) {
           /** two are zero : means leading ones are being ascended */
@@ -848,9 +857,9 @@ ae2f_MAC()
           if (v_addu.m_mansz[0].m_i > 0)
             v_addu.m_expint[0].m_i += v_addu.m_mansz[0].m_u;
 
-          v_addu.m_exp_man[3].sz -= v_addu.m_expint[0].m_i;
-          v_addu.m_exp_man[3].vecbegpoint = v_addu.m_expint[3].m_u =
-              (v_addu.m_exp_man[3].vecbegpoint) + v_addu.m_expint[0].m_i;
+          v_addu.m_exp_man[0].sz -= v_addu.m_expint[0].m_i;
+          v_addu.m_exp_man[0].vecbegpoint = v_addu.m_expint[3].m_u =
+              (v_addu.m_exp_man[0].vecbegpoint) + v_addu.m_expint[0].m_i;
 
           v_addu.m_expint[3].m_u >>= 3;
         }
@@ -869,9 +878,9 @@ ae2f_MAC()
           if (v_addu.m_mansz[1].m_i > 0)
             v_addu.m_expint[1].m_i += v_addu.m_mansz[1].m_u;
 
-          v_addu.m_exp_man[4].sz -= v_addu.m_expint[1].m_i;
-          v_addu.m_exp_man[4].vecbegpoint = v_addu.m_expint[4].m_u =
-              (v_addu.m_exp_man[4].vecbegpoint) + v_addu.m_expint[1].m_i;
+          v_addu.m_exp_man[1].sz -= v_addu.m_expint[1].m_i;
+          v_addu.m_exp_man[1].vecbegpoint = v_addu.m_expint[4].m_u =
+              (v_addu.m_exp_man[1].vecbegpoint) + v_addu.m_expint[1].m_i;
 
           v_addu.m_expint[4].m_u >>= 3;
         }
@@ -888,45 +897,45 @@ ae2f_MAC()
        * m_expint[5]	: rbitzero size
        * */
       for (v_addu.m_expint[5].m_u = 0;; v_addu.m_expint[5].m_u++) {
-        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[3].sz)
+        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[0].sz)
           break;
-        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[4].sz)
+        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[1].sz)
           break;
-        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[5].sz)
+        if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[2].sz)
           break;
 
         if ((__ae2f_MathUtilBVGetArr((_of_vec),
-                                     v_addu.m_exp_man[5].vecbegpoint +
+                                     v_addu.m_exp_man[2].vecbegpoint +
                                          v_addu.m_expint[5].m_u) ||
 
              __ae2f_MathUtilBVGetArr((_af_vec) + v_addu.m_expint[3].m_u,
                                      v_addu.m_expint[5].m_u +
-                                         v_addu.m_exp_man[3].vecbegpoint) ||
+                                         v_addu.m_exp_man[0].vecbegpoint) ||
 
              __ae2f_MathUtilBVGetArr((_bf_vec) + v_addu.m_expint[4].m_u,
                                      v_addu.m_expint[5].m_u +
-                                         v_addu.m_exp_man[4].vecbegpoint))) {
+                                         v_addu.m_exp_man[1].vecbegpoint))) {
           break;
         }
       }
 
       {
-        v_addu.m_exp_man[3].sz -= v_addu.m_expint[5].m_u;
-        v_addu.m_exp_man[3].vecbegpoint = v_addu.m_expint[3].m_u =
-            (v_addu.m_exp_man[3].vecbegpoint) + (v_addu.m_expint[3].m_u << 3) +
+        v_addu.m_exp_man[0].sz -= v_addu.m_expint[5].m_u;
+        v_addu.m_exp_man[0].vecbegpoint = v_addu.m_expint[3].m_u =
+            (v_addu.m_exp_man[0].vecbegpoint) + (v_addu.m_expint[3].m_u << 3) +
             v_addu.m_expint[5].m_u;
         v_addu.m_expint[3].m_u >>= 3;
 
-        v_addu.m_exp_man[4].sz -= v_addu.m_expint[5].m_u;
-        v_addu.m_exp_man[4].vecbegpoint = v_addu.m_expint[4].m_u =
-            (v_addu.m_exp_man[4].vecbegpoint) + (v_addu.m_expint[4].m_u << 3) +
+        v_addu.m_exp_man[1].sz -= v_addu.m_expint[5].m_u;
+        v_addu.m_exp_man[1].vecbegpoint = v_addu.m_expint[4].m_u =
+            (v_addu.m_exp_man[1].vecbegpoint) + (v_addu.m_expint[4].m_u << 3) +
             v_addu.m_expint[5].m_u;
         v_addu.m_expint[4].m_u >>= 3;
 
-        v_addu.m_exp_man[5].sz -= v_addu.m_expint[5].m_u;
+        v_addu.m_exp_man[2].sz -= v_addu.m_expint[5].m_u;
 
-        v_addu.m_exp_man[5].vecbegpoint = v_addu.m_expint[5].m_u =
-            (v_addu.m_exp_man[5].vecbegpoint) + v_addu.m_expint[5].m_u;
+        v_addu.m_exp_man[2].vecbegpoint = v_addu.m_expint[5].m_u =
+            (v_addu.m_exp_man[2].vecbegpoint) + v_addu.m_expint[5].m_u;
         v_addu.m_expint[5].m_u >>= 3;
       }
 
@@ -946,16 +955,16 @@ ae2f_MAC()
            * need to store the mantissa index somewhere
            * expint[0] will store it.
            * */
-          v_addu.m_exp_man[6] = v_addu.m_exp_man[5];
+          v_addu.m_exp_man[3] = v_addu.m_exp_man[2];
           v_addu.m_mansz[2].m_u = v_addu.m_expint[5].m_u;
         }
 
         if (v_addu.m_mansz[0].m_i < 0) {
-          v_addu.m_exp_man[5].sz =
-              v_addu.m_exp_man[6].sz + v_addu.m_mansz[0].m_i;
+          v_addu.m_exp_man[2].sz =
+              v_addu.m_exp_man[3].sz + v_addu.m_mansz[0].m_i;
 
-          v_addu.m_exp_man[5].vecbegpoint = v_addu.m_expint[5].m_u =
-              v_addu.m_exp_man[6].vecbegpoint + (v_addu.m_mansz[2].m_u << 3) -
+          v_addu.m_exp_man[2].vecbegpoint = v_addu.m_expint[5].m_u =
+              v_addu.m_exp_man[3].vecbegpoint + (v_addu.m_mansz[2].m_u << 3) -
               v_addu.m_mansz[0].m_i;
 
           v_addu.m_expint[5].m_u >>= 3;
@@ -963,30 +972,30 @@ ae2f_MAC()
 
         /** O = A + O */
         __ae2f_MathIntAdd(
-            err, &v_addu.m_exp_man[3], (_af_vec) + v_addu.m_expint[3].m_u,
-            &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec),
-            &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec));
+            err, &v_addu.m_exp_man[0], (_af_vec) + v_addu.m_expint[3].m_u,
+            &v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec),
+            &v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec));
 
         if (v_addu.m_mansz[1].m_i < 0) {
-          v_addu.m_exp_man[5].sz =
-              v_addu.m_exp_man[6].sz + v_addu.m_mansz[1].m_i;
+          v_addu.m_exp_man[2].sz =
+              v_addu.m_exp_man[3].sz + v_addu.m_mansz[1].m_i;
 
-          v_addu.m_exp_man[5].vecbegpoint = v_addu.m_expint[5].m_u =
-              v_addu.m_exp_man[6].vecbegpoint + (v_addu.m_mansz[2].m_u << 3) -
+          v_addu.m_exp_man[2].vecbegpoint = v_addu.m_expint[5].m_u =
+              v_addu.m_exp_man[3].vecbegpoint + (v_addu.m_mansz[2].m_u << 3) -
               v_addu.m_mansz[1].m_i;
 
           v_addu.m_expint[5].m_u >>= 3;
         } else if (v_addu.m_mansz[0].m_i < 0) {
           /** Original */
-          v_addu.m_exp_man[5] = v_addu.m_exp_man[6];
+          v_addu.m_exp_man[2] = v_addu.m_exp_man[3];
           v_addu.m_expint[5].m_u = v_addu.m_mansz[2].m_u;
         }
 
         /** O = O + B */
         __ae2f_MathIntAdd(
-            err, &v_addu.m_exp_man[4], (_bf_vec) + v_addu.m_expint[4].m_u,
-            &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec),
-            &v_addu.m_exp_man[5], v_addu.m_expint[5].m_u + (_of_vec));
+            err, &v_addu.m_exp_man[1], (_bf_vec) + v_addu.m_expint[4].m_u,
+            &v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec),
+            &v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec));
       }
 
       /**

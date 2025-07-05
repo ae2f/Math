@@ -73,4 +73,15 @@ ae2f_MAC() _ae2f_MathUtilBVSetAssignArrRanged(unsigned char *const vecarr,
     }
 }
 
+ae2f_MAC()
+    _ae2f_MathUtilBVCpy(unsigned char *const ov, const size_t ovi,
+                        char *const iv, const size_t ivi, const size_t len) {
+  size_t v_cpy = 0;
+  while (v_cpy < (len)) {
+    __ae2f_MathUtilBVSetAssignArr(ov, (ovi) + (v_cpy),
+                                  __ae2f_MathUtilBVGetArr(iv, (ivi) + (v_cpy)));
+    v_cpy++;
+  }
+}
+
 #endif
