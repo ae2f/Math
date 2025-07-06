@@ -657,7 +657,7 @@ ae2f_MAC()
 
 #if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathFloatAddU _ae2f_MathFloatAddU
-#define __ae2f_MathFloatAdd _ae2f_MathFloatAddU
+#define __ae2f_MathFloatAdd _ae2f_MathFloatAdd
 #define __ae2f_MathFloatSubU _ae2f_MathFloatSubU
 #define __ae2f_MathFloatSub _ae2f_MathFloatSub
 
@@ -666,7 +666,6 @@ ae2f_MAC()
 #undef __ae2f_MathFloatAdd
 #undef __ae2f_MathFloatSubU
 #undef __ae2f_MathFloatSub
-#define __ae2f_MathFloatAdd __ae2f_MathFloatAddU
 #endif
 
 /**
@@ -780,15 +779,21 @@ ae2f_MAC()
 
         __ae2f_MathFloatSetExpPtr(_of, _of_vec, v_addu.m_expint[3].m_b);
 
-        v_addu.m_expint[3].m_i =
-            ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i);
+        if (v_addu.m_expint[0].m_i < v_addu.m_expint[1].m_i) {
+          *(err) |= ae2f_errGlob_WRONG_OPERATION | ae2f_errGlob_IMP_NOT_FOUND;
+          break;
+        }
+
+        v_addu.m_expint[3].m_i = v_addu.m_expint[0].m_i;
 
         /**
          * Now two of them represents the bitcount to be shifted. \n
          * They are guaranteed to be positive value.
          * */
-        v_addu.m_expint[0].m_i =
-            v_addu.m_expint[3].m_i - v_addu.m_expint[0].m_i;
+        v_addu.m_expint[0].m_i = v_addu.m_expint[3].m_i -
+                                 v_addu.m_expint[0].m_i; /* this must be 0. */
+
+        /* this must be a bit count */
         v_addu.m_expint[1].m_i =
             v_addu.m_expint[3].m_i - v_addu.m_expint[1].m_i;
       } /** Unbias exponent */
@@ -818,43 +823,14 @@ ae2f_MAC()
           v_addu.m_expint[1].m_i++;
         }
 
-        /**
-         * @brief
-         * Output fraction configuration
-         * Bitshift
-         *
-         * Leading one.
-         * From here, m_expint[3:4] stands for mantissa's index point.
-         * m_expint[5] will be temporary.
-         * */
-        {
-          if (v_addu.m_expint[0].m_i) {
-
-            /** when two mantissa goes different,
-             * leading one shifted could be somewhere unexpected.
-             * */
-            __ae2f_MathUtilBVSetAssignArr(
-                _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i,
-                (v_addu.m_expint[0].m_u != v_addu.m_expint[1].m_u));
-          }
-          if (v_addu.m_mansz[0].m_i > 0)
-            v_addu.m_expint[0].m_i += v_addu.m_mansz[0].m_u;
-
-          v_addu.m_exp_man[0].sz -= v_addu.m_expint[0].m_i;
-          v_addu.m_exp_man[0].vecbegpoint = v_addu.m_expint[3].m_u =
-              (v_addu.m_exp_man[0].vecbegpoint) + v_addu.m_expint[0].m_i;
-
-          v_addu.m_expint[3].m_u >>= 3;
-        }
-
         if (v_addu.m_mansz[0].m_i > 0)
           v_addu.m_expint[0].m_i -= v_addu.m_mansz[0].m_u;
 
         {
           if (v_addu.m_expint[1].m_i) {
-
-            __ae2f_MathUtilBVSetAssignArr(
+            __ae2f_MathUtilBVSetAssignArrRanged(
                 _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i,
+                (_of)->bstart + (_of)->man + 1,
                 (v_addu.m_expint[0].m_u != v_addu.m_expint[1].m_u));
           }
 

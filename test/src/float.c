@@ -454,22 +454,22 @@ static uint64_t compare() {
   return A;
 }
 
-static uint64_t add() {
+static uint64_t add_sub() {
   char A = 0;
   size_t i;
 
   for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
 #undef putsprefix
-#define putsprefix "[f32addf32f32]"
+#define putsprefix "[f32addsubf32f32]"
 
-    ___TEST_FLOAT_ADD(float32buf, float32buf, float32buf, TESTA, TESTB, i,
-                      float32header, float32header, float32header, (&A));
+    ___TEST_FLOAT_ADD_SUB(float32buf, float32buf, float32buf, TESTA, TESTB, i,
+                          float32header, float32header, float32header, (&A));
 
-#if 1
+#if 0
 #undef putsprefix
-#define putsprefix "[f64addf64f64]"
-    ___TEST_FLOAT_ADD(float64buf, float64buf, float64buf, TESTA, TESTB, i,
-                      float64header, float64header, float64header, (&A));
+#define putsprefix "[f64addsubf64f64]"
+    ___TEST_FLOAT_ADD_SUB(float64buf, float64buf, float64buf, TESTA, TESTB, i,
+                          float64header, float64header, float64header, (&A));
 
 #endif
     /**
@@ -480,43 +480,45 @@ static uint64_t add() {
      *  on large number it crashes.
      * */
 
-#if 01
+#if 0
 #undef putsprefix
-#define putsprefix "[f32addf64f64]"
-    ___TEST_FLOAT_ADD(float64buf, float64buf, float32buf, TESTA, TESTB, i,
-                      float64header, float64header, float32header, (&A));
+#define putsprefix "[f32addsubf64f64]"
+    ___TEST_FLOAT_ADD_SUB(float64buf, float64buf, float32buf, TESTA, TESTB, i,
+                          float64header, float64header, float32header, (&A));
 #endif
 
-#if 01
+#if 0
 #undef putsprefix
-#define putsprefix "[f32addf64f32]"
-    ___TEST_FLOAT_ADD(float64buf, float32buf, float32buf, TESTA, TESTB, i,
-                      float64header, float32header, float32header, (&A));
+#define putsprefix "[f32addsubf64f32]"
+    ___TEST_FLOAT_ADD_SUB(float64buf, float32buf, float32buf, TESTA, TESTB, i,
+                          float64header, float32header, float32header, (&A));
 #endif
 
-#if 01
+#if 0
 #undef putsprefix
-#define putsprefix "[f32addf32f64]"
-    ___TEST_FLOAT_ADD(float32buf, float64buf, float32buf, TESTA, TESTB, i,
-                      float32header, float64header, float32header, (&A));
+#define putsprefix "[f32addsubf32f64]"
+    ___TEST_FLOAT_ADD_SUB(float32buf, float64buf, float32buf, TESTA, TESTB, i,
+                          float32header, float64header, float32header, (&A));
 #endif
 
-#if 01
+#if 0
 #undef putsprefix
-#define putsprefix "[f64addf32f32]"
-    ___TEST_FLOAT_ADD(float32buf, float32buf, float64buf, TESTA, TESTB, i,
-                      float32header, float32header, float64header, (&A));
+#define putsprefix "[f64addsubf32f32]"
+    ___TEST_FLOAT_ADD_SUB(float32buf, float32buf, float64buf, TESTA, TESTB, i,
+                          float32header, float32header, float64header, (&A));
 #endif
 
-#if 01
+#if 0
 #undef putsprefix
-#define putsprefix "[f64addf64f32]"
-    ___TEST_FLOAT_ADD(float64buf, float32buf, float64buf, TESTA, TESTB, i,
-                      float64header, float32header, float64header, (&A));
+#define putsprefix "[f64addsubf64f32]"
+    ___TEST_FLOAT_ADD_SUB(float64buf, float32buf, float64buf, TESTA, TESTB, i,
+                          float64header, float32header, float64header, (&A));
 #endif
   }
 
   return A;
 }
 
-int main() { return castftof() || flip() || normalise() || compare() || add(); }
+int main() {
+  return castftof() || flip() || normalise() || compare() || add_sub();
+}

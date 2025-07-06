@@ -492,12 +492,12 @@ ae2f_MAC()
 #define __ae2f_MathIntBitRHeaderA _ae2f_MathIntBitRHeaderA
 #endif
 
-#define __ae2f_MathIntBitRHeader(_ai, bitcount, _oi, _oiidx)                   \
+#define __ae2f_MathIntBitRRef(_ai, bitcount, _oi, _oiidx)                      \
   *(_oiidx) = 0;                                                               \
-  __ae2f_MathIntBitRHeaderA(_ai, bitcount, _oi, _oiidx);
+  __ae2f_MathIntBitRRefA(_ai, bitcount, _oi, _oiidx);
 
 /**
- * @def __ae2f_MathIntBitRHeaderA
+ * @def __ae2f_MathIntBitRRefA
  * @brief
  * `_oi` = `_ai` << `bitcount`;
  *
@@ -508,8 +508,8 @@ ae2f_MAC()
  * The result will be added with its stored original value, not initialised.
  * For zeroing version, use __ae2f_MathIntBitRHeader.
  * */
-ae2f_MAC() _ae2f_MathIntBitRHeaderA(const ae2f_pMathInt _ai, size_t bitcount,
-                                    ae2f_pMathInt _oi, size_t *const _oiidx) {
+ae2f_MAC() _ae2f_MathIntBitRRefA(const ae2f_pMathInt _ai, size_t bitcount,
+                                 ae2f_pMathInt _oi, size_t *const _oiidx) {
   if ((_ai) && (_oi) && *(_oiidx)) {
     if (bitcount) {
       size_t v_bitrh = 0;
