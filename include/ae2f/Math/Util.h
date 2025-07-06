@@ -14,14 +14,14 @@
  * */
 #define __ae2f_MathUtilFlag2(c_sz, ...)                                        \
   union __ae2f_MathUtilFlag2__##c_sz {                                         \
-    unsigned a : 2;                                                            \
+    unsigned char a : 2;                                                       \
     struct __ae2f_MathUtilFlag2__##c_sz##__C {                                 \
-      unsigned a : 2;                                                          \
-      unsigned c : c_sz;                                                       \
+      unsigned char a : 2;                                                     \
+      unsigned char c : c_sz;                                                  \
     } c;                                                                       \
     struct __ae2f_MathUtilFlag2__##c_sz##__packer {                            \
-      unsigned _0 : 1;                                                         \
-      unsigned _1 : 1;                                                         \
+      unsigned char _0 : 1;                                                    \
+      unsigned char _1 : 1;                                                    \
       __VA_ARGS__                                                              \
     } b;                                                                       \
   }
@@ -50,8 +50,15 @@ typedef __ae2f_MathUtilFlag2(2) ae2f_MathUtilFlag2;
 #define __ae2f_MathUtilBVSetAssign(vec, i, val)                                \
   ((vec) = (__ae2f_MathUtilBVSet((vec), (i), (val))))
 
+#define __ae2f_MathUtilBVSetAssignO(ivec, ovec, i, val)                        \
+  ((ovec) = (__ae2f_MathUtilBVSet((ivec), (i), (val))))
+
 #define __ae2f_MathUtilBVSetAssignArr(vecarr, i, val)                          \
   __ae2f_MathUtilBVSetAssign((vecarr)[(i) >> 3], ((i) & 7), (val))
+
+#define __ae2f_MathUtilBVSetAssignArrO(ivecarr, ovecarr, i, val)               \
+  __ae2f_MathUtilBVSetAssignO((ivecarr)[(i) >> 3], (ovecarr)[(i) >> 3],        \
+                              ((i) & 7), (val))
 
 #define __ae2f_MathUtilDiff(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
 

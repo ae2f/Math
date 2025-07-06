@@ -222,45 +222,39 @@ ae2f_MAC() _ae2f_MathIntAdd(ae2f_err_t *reterr, const ae2f_MathInt *const _a,
   else if (!((_a) && (_b) && (_o) && (_a_vec) && (_b_vec) && (_o_vec))) {
     ((reterr) && (*(reterr) |= ae2f_errGlob_PTR_IS_NULL));
   } else {
-    struct __ae2f_MathIntAddVar_t {
+    struct vi_add_t {
       size_t j;
       size_t ovec, avec, bvec;
       __ae2f_MathUtilFlag2(4, unsigned sb_0 : 1; unsigned sb_1 : 1;) buf;
-    } __ae2f_MathIntAddVar;
-    __ae2f_MathIntAddVar.buf.a = 0b00; /**
-                                        * 0: a
-                                        * 1: b
-                                        * */
+    } vi_add;
+    vi_add.buf.a = 0b00; /**
+                          * 0: a
+                          * 1: b
+                          * */
 
-    __ae2f_MathIntAddVar.buf.b.sb_0 =
+    vi_add.buf.b.sb_0 =
         ((_a)->sign &&
-         __ae2f_MathUtilBVGet((_a_vec)[((_a)->vecbegpoint + (_a)->sz - 1) >> 3],
-                              ((_a)->vecbegpoint + (_a)->sz - 1) & 7));
+         __ae2f_MathUtilBVGetArr((_a_vec), ((_a)->vecbegpoint + (_a)->sz - 1)));
 
-    __ae2f_MathIntAddVar.buf.b.sb_1 =
-        (((_b)->sign && __ae2f_MathUtilBVGet(
-                            (_b_vec)[((_b)->vecbegpoint + (_b)->sz - 1) >> 3],
-                            ((_b)->vecbegpoint + (_b)->sz - 1) & 7)));
+    vi_add.buf.b.sb_1 =
+        (((_b)->sign && __ae2f_MathUtilBVGetArr(
+                            (_b_vec), ((_b)->vecbegpoint + (_b)->sz - 1))));
 
-    for (__ae2f_MathIntAddVar.j = 0; __ae2f_MathIntAddVar.j < (_o)->sz;
-         __ae2f_MathIntAddVar.j++) {
-      __ae2f_MathIntAddVar.avec = (_a)->vecbegpoint + __ae2f_MathIntAddVar.j;
+    for (vi_add.j = 0; vi_add.j < (_o)->sz; vi_add.j++) {
+      vi_add.avec = (_a)->vecbegpoint + vi_add.j;
 
-      __ae2f_MathIntAddVar.bvec = (_b)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      vi_add.bvec = (_b)->vecbegpoint + vi_add.j;
 
-      __ae2f_MathIntAddVar.ovec = (_o)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      vi_add.ovec = (_o)->vecbegpoint + vi_add.j;
 
-      __ae2f_MathIntAddVar.buf.c.a =
-          (__ae2f_MathIntAddVar.j < (_a)->sz
-               ? __ae2f_MathUtilBVGetArr(_a_vec, __ae2f_MathIntAddVar.avec)
-               : __ae2f_MathIntAddVar.buf.b.sb_0) +
-          (__ae2f_MathIntAddVar.j < (_b)->sz
-               ? __ae2f_MathUtilBVGetArr(_b_vec, __ae2f_MathIntAddVar.bvec)
-               : __ae2f_MathIntAddVar.buf.b.sb_1) +
-          (__ae2f_MathIntAddVar.buf.b._1);
+      vi_add.buf.c.a =
+          (vi_add.j < (_a)->sz ? __ae2f_MathUtilBVGetArr(_a_vec, vi_add.avec)
+                               : vi_add.buf.b.sb_0) +
+          (vi_add.j < (_b)->sz ? __ae2f_MathUtilBVGetArr(_b_vec, vi_add.bvec)
+                               : vi_add.buf.b.sb_1) +
+          (vi_add.buf.b._1);
 
-      __ae2f_MathUtilBVSetAssignArr(_o_vec, __ae2f_MathIntAddVar.ovec,
-                                    __ae2f_MathIntAddVar.buf.b._0);
+      __ae2f_MathUtilBVSetAssignArr(_o_vec, vi_add.ovec, vi_add.buf.b._0);
     }
   }
 }
@@ -288,42 +282,39 @@ ae2f_MAC()
     struct __ae2f_MathIntSubVar_t {
       size_t j;
       size_t ovec, avec, bvec;
-      __ae2f_MathUtilFlag2(4, unsigned sb_0 : 1; unsigned sb_1 : 1;) buf;
-    } __ae2f_MathIntAddVar;
-    __ae2f_MathIntAddVar.buf.a = 0b10; /**
-                                        * 0: a
-                                        * 1: b
-                                        * */
+      __ae2f_MathUtilFlag2(4, unsigned char sb_0 : 1;
+                           unsigned char sb_1 : 1;) buf;
+    } vi_add;
+    vi_add.buf.a = 0b10; /**
+                          * 0: a
+                          * 1: b
+                          * */
 
-    __ae2f_MathIntAddVar.buf.b.sb_0 =
+    vi_add.buf.b.sb_0 =
         ((_a)->sign &&
          __ae2f_MathUtilBVGet((_a_vec)[((_a)->vecbegpoint + (_a)->sz - 1) >> 3],
                               ((_a)->vecbegpoint + (_a)->sz - 1) & 7));
 
-    __ae2f_MathIntAddVar.buf.b.sb_1 =
+    vi_add.buf.b.sb_1 =
         (((_b)->sign && __ae2f_MathUtilBVGet(
                             (_b_vec)[((_b)->vecbegpoint + (_b)->sz - 1) >> 3],
                             ((_b)->vecbegpoint + (_b)->sz - 1) & 7)));
 
-    for (__ae2f_MathIntAddVar.j = 0; __ae2f_MathIntAddVar.j < (_o)->sz;
-         __ae2f_MathIntAddVar.j++) {
-      __ae2f_MathIntAddVar.avec = (_a)->vecbegpoint + __ae2f_MathIntAddVar.j;
+    for (vi_add.j = 0; vi_add.j < (_o)->sz; vi_add.j++) {
+      vi_add.avec = (_a)->vecbegpoint + vi_add.j;
 
-      __ae2f_MathIntAddVar.bvec = (_b)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      vi_add.bvec = (_b)->vecbegpoint + vi_add.j;
 
-      __ae2f_MathIntAddVar.ovec = (_o)->vecbegpoint + __ae2f_MathIntAddVar.j;
+      vi_add.ovec = (_o)->vecbegpoint + vi_add.j;
 
-      __ae2f_MathIntAddVar.buf.a =
-          (__ae2f_MathIntAddVar.j < (_a)->sz
-               ? __ae2f_MathUtilBVGetArr(_a_vec, __ae2f_MathIntAddVar.avec)
-               : __ae2f_MathIntAddVar.buf.b.sb_0) +
-          !(__ae2f_MathIntAddVar.j < (_b)->sz
-                ? __ae2f_MathUtilBVGetArr(_b_vec, __ae2f_MathIntAddVar.bvec)
-                : __ae2f_MathIntAddVar.buf.b.sb_1) +
-          (__ae2f_MathIntAddVar.buf.b._1);
+      vi_add.buf.a =
+          (vi_add.j < (_a)->sz ? __ae2f_MathUtilBVGetArr(_a_vec, vi_add.avec)
+                               : vi_add.buf.b.sb_0) +
+          !(vi_add.j < (_b)->sz ? __ae2f_MathUtilBVGetArr(_b_vec, vi_add.bvec)
+                                : vi_add.buf.b.sb_1) +
+          (vi_add.buf.b._1);
 
-      __ae2f_MathUtilBVSetAssignArr(_o_vec, __ae2f_MathIntAddVar.ovec,
-                                    __ae2f_MathIntAddVar.buf.b._0);
+      __ae2f_MathUtilBVSetAssignArr(_o_vec, vi_add.ovec, vi_add.buf.b._0);
     }
   }
 }
@@ -491,16 +482,52 @@ ae2f_MAC()
   }
 }
 
-#if !__ae2f_MACRO_GENERATED
-#define __ae2f_MathIntBitL _ae2f_MathIntBitL
-#else
+#if __ae2f_MACRO_GENERATED
 #undef __ae2f_MathIntBitL
+#undef __ae2f_MathIntBitR
+#undef __ae2f_MathIntBitRHeaderA
+#else
+#define __ae2f_MathIntBitL _ae2f_MathIntBitL
+#define __ae2f_MathIntBitR _ae2f_MathIntBitR
+#define __ae2f_MathIntBitRHeaderA _ae2f_MathIntBitRHeaderA
 #endif
+
+#define __ae2f_MathIntBitRHeader(_ai, bitcount, _oi, _oiidx)                   \
+  *(_oiidx) = 0;                                                               \
+  __ae2f_MathIntBitRHeaderA(_ai, bitcount, _oi, _oiidx);
+
+/**
+ * @def __ae2f_MathIntBitRHeaderA
+ * @brief
+ * `_oi` = `_ai` << `bitcount`;
+ *
+ * @param _oiidx
+ * The pointer where the additional byte padding for adding to the original
+ * vector pointer.
+ *
+ * The result will be added with its stored original value, not initialised.
+ * For zeroing version, use __ae2f_MathIntBitRHeader.
+ * */
+ae2f_MAC() _ae2f_MathIntBitRHeaderA(const ae2f_pMathInt _ai, size_t bitcount,
+                                    ae2f_pMathInt _oi, size_t *const _oiidx) {
+  if ((_ai) && (_oi) && *(_oiidx)) {
+    if (bitcount) {
+      size_t v_bitrh = 0;
+      (_oi)->sign = (_ai)->sign;
+      (_oi)->sz = (_ai)->sz - bitcount;
+
+      (_oi)->vecbegpoint = v_bitrh = (_oi)->vecbegpoint + bitcount;
+      *(_oiidx) += v_bitrh >> 3;
+    } else {
+      *(_oi) = *(_ai);
+    }
+  }
+}
 
 /**
  * @macro __ae2f_MathIntBitL
  * @brief
- * `in` << `bitcount`;
+ * `out` = `in` << `bitcount`;
  * */
 ae2f_MAC()
     _ae2f_MathIntBitL(ae2f_MathMemOutErr reterr, intptr_t bitcount,
@@ -528,16 +555,10 @@ ae2f_MAC()
   }
 }
 
-#if __ae2f_MACRO_GENERATED
-#undef __ae2f_MathIntBitR
-#else
-#define __ae2f_MathIntBitR _ae2f_MathIntBitR
-#endif
-
 /**
  * @macro __ae2f_MathIntBitR
  * @brief
- * `in` >> `bitcount`;
+ * `out` = `in` >> `bitcount`;
  * @param reterr	{ae2f_err_t*}
  * @param bitcount	{intptr_t}
  * @param in		{const ae2f_MathInt*}
@@ -710,9 +731,9 @@ ae2f_MAC()
 #define ae2f_MathIntBump_NEGATIVE 1
 
 #if !__ae2f_MACRO_GENERATED
-#define __ae2f_MathIntBump _ae2f_MathIntBump
+#define __ae2f_MathIntBumpO _ae2f_MathIntBumpO
 #else
-#undef __ae2f_MathIntBump
+#undef __ae2f_MathIntBumpO
 #endif
 
 /**
@@ -721,36 +742,40 @@ ae2f_MAC()
  * if (`bump`) `a`--; else `a`++;
  * */
 ae2f_MAC()
-    _ae2f_MathIntBump(ae2f_MathMemOutErr reterr, const unsigned char bump,
-                      const ae2f_MathInt *const _a, ae2f_oMathMem a_vec) {
-  if ((reterr) && *(reterr))
+    _ae2f_MathIntBumpO(ae2f_MathMemOutErr reterr, const unsigned char bump,
+                       const ae2f_MathInt *const _a, ae2f_iMathMem a_vec,
+                       ae2f_oMathMem o_vec) {
+  if (((reterr) && *(reterr)))
     ;
-  else if (!((_a) && (a_vec))) {
-    if (reterr)
-      *(reterr) |= ae2f_errGlob_PTR_IS_NULL;
+  else if (!((_a) && (a_vec) && (o_vec))) {
+    ((reterr) && (*(reterr) |= ae2f_errGlob_PTR_IS_NULL));
   } else {
-    struct __ae2f_MathIntBumpVar_t {
-      size_t i, j;
-      uint8_t b, c;
-    } __ae2f_MathIntBumpVar;
+    struct __ae2f_MathIntSubVar_t {
+      size_t j;
+      size_t avec;
+      __ae2f_MathUtilFlag2(4, unsigned char sb_0 : 1;
+                           unsigned char sb_1 : 1;) buf;
+    } vi_add;
 
-    __ae2f_MathIntBumpVar.b = 0b10;
+    vi_add.buf.a = 0;
 
-    for (__ae2f_MathIntBumpVar.j = 0; __ae2f_MathIntBumpVar.j < (_a)->sz;
-         __ae2f_MathIntBumpVar.j++) {
-      __ae2f_MathIntBumpVar.c =
-          a_vec[((_a)->vecbegpoint + __ae2f_MathIntBumpVar.j) >> 3];
-      __ae2f_MathIntBumpVar.b =
-          (__ae2f_MathIntBumpVar.b >> 1) + !!(bump) +
-          __ae2f_MathUtilBVGet(__ae2f_MathIntBumpVar.c,
-                               ((_a)->vecbegpoint + __ae2f_MathIntBumpVar.j) &
-                                   7);
-      (a_vec)[((_a)->vecbegpoint + __ae2f_MathIntBumpVar.j) >> 3] =
-          __ae2f_MathUtilBVSet(__ae2f_MathIntBumpVar.c, ((_a)->vecbegpoint) & 7,
-                               __ae2f_MathIntBumpVar.b & 1);
+    for (vi_add.j = 0; vi_add.j < (_a)->sz; vi_add.j++) {
+      vi_add.avec = (_a)->vecbegpoint + vi_add.j;
+      vi_add.buf.c.a =
+          (vi_add.j < (_a)->sz ? __ae2f_MathUtilBVGetArr(a_vec, vi_add.avec)
+                               : vi_add.buf.b.sb_0) +
+          (vi_add.j ? (bump) : 1) + (vi_add.buf.b._1);
+
+      __ae2f_MathUtilBVSetAssignArr(o_vec, vi_add.avec, vi_add.buf.b._0);
     }
   }
 }
+
+#if 1
+#undef __ae2f_MathIntBump
+#define __ae2f_MathIntBump(reterr, bump, _a, a_vec)                            \
+  __ae2f_MathIntBumpO(reterr, bump, _a, a_vec, a_vec)
+#endif
 
 #if !__ae2f_MACRO_GENERATED
 #define __ae2f_MathIntDivU _ae2f_MathIntDivU
@@ -891,6 +916,21 @@ ae2f_MAC()
                         prm_o_vec);
     }
   }
+}
+
+#if __ae2f_MACRO_GENERATED
+#undef __ae2f_MathIntBumpShifted
+#else
+#define __ae2f_MathIntBumpShifted _ae2f_MathIntBumpShifted
+#endif
+
+ae2f_MAC()
+    _ae2f_MathIntBumpShifted(ae2f_MathMemOutErr outerr, const ae2f_pMathInt _ai,
+                             ae2f_iMathMem _ai_vec, ae2f_oMathMem _oi_vec,
+                             unsigned char bump, size_t bitcount) {
+  if (bitcount) {
+  }
+  __ae2f_MathIntBump(outerr, bump, _ai, _oi_vec);
 }
 
 #endif

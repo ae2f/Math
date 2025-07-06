@@ -2,8 +2,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-
-
 static int flip() {
   {
     ae2f_err_t e = 0;
@@ -247,7 +245,9 @@ int cmp() {
     bi.sz = 15;
     bi.vecbegpoint = 0; /* Making a number */
 
-    ae2f_bMathMem __mem[2] = {0, };
+    ae2f_bMathMem __mem[2] = {
+        0,
+    };
     __ae2f_MathIntCmp(&e, &ai, a.b, &bi, b.b, &ret);
     if (e) {
       printf("Test::cmp::equal casted error: %d\n", e);
@@ -638,9 +638,62 @@ int shiftr() {
   return 0;
 }
 
+int bump() {
+  puts("test::bump begun");
+
+  {
+    ae2f_MathInt a;
+    union {
+      size_t a;
+      uint8_t b[1];
+    } avec = {.a = 0};
+
+    a.sign = 0;
+    a.sz = sizeof(size_t) << 3;
+    a.vecbegpoint = 0;
+
+    ae2f_err_t e = 0;
+
+    __ae2f_MathIntBump(&e, 0, &a, avec.b);
+    if (e) {
+      printf("error: %d\n", e);
+      return 1;
+    } else if (avec.a != 1) {
+      printf("Expected %lu but got %lu\n", 1lu, avec.a);
+      return 1;
+    }
+  }
+
+  {
+    ae2f_MathInt a;
+    union {
+      size_t a;
+      uint8_t b[1];
+    } avec = {.a = 0};
+
+    a.sign = 0;
+    a.sz = sizeof(size_t) << 3;
+    a.vecbegpoint = 0;
+
+    ae2f_err_t e = 0;
+
+    __ae2f_MathIntBump(&e, 1, &a, avec.b);
+    if (e) {
+      printf("error: %d\n", e);
+      return 1;
+    } else if (avec.a != (size_t)(-1)) {
+      printf("Expected %lu but got %lu\n", 1lu, avec.a);
+      return 1;
+    }
+  }
+
+  puts("test::bump end");
+  return 0;
+}
+
 int main() {
   int a = flip() || cast() || add_sub() || cmp() || mul() || div() ||
-          select() || shiftl() || shiftr() || 0;
+          select() || shiftl() || shiftr() || bump() || 0;
 
   printf("Final Output: %d\n", a);
   return a; //!(a == 0 || a == -0);
