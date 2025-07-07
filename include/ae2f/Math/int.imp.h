@@ -485,16 +485,42 @@ ae2f_MAC()
 #if __ae2f_MACRO_GENERATED
 #undef __ae2f_MathIntBitL
 #undef __ae2f_MathIntBitR
-#undef __ae2f_MathIntBitRHeaderA
+#undef __ae2f_MathIntBitRRefA
+#undef __ae2f_MathIntBitRRef
 #else
 #define __ae2f_MathIntBitL _ae2f_MathIntBitL
 #define __ae2f_MathIntBitR _ae2f_MathIntBitR
-#define __ae2f_MathIntBitRHeaderA _ae2f_MathIntBitRHeaderA
+#define __ae2f_MathIntBitRRefA _ae2f_MathIntBitRRefA
+#define __ae2f_MathIntBitRRef _ae2f_MathIntBitRRef
 #endif
 
-#define __ae2f_MathIntBitRRef(_ai, bitcount, _oi, _oiidx)                      \
-  *(_oiidx) = 0;                                                               \
-  __ae2f_MathIntBitRRefA(_ai, bitcount, _oi, _oiidx);
+/**
+ * @def __ae2f_MathIntBitRRef
+ * @brief
+ * `_oi` = `_ai` << `bitcount`;
+ *
+ * @param _oiidx
+ * Unlike __ae2f_MathIntBitRRefA, the stored original value will be initialised.
+ * */
+ae2f_MAC() _ae2f_MathIntBitRRef(ae2f_MathMemOutErr err, const ae2f_pMathInt _ai,
+                                size_t bitcount, ae2f_pMathInt _oi,
+                                size_t *const _oiidx) {
+  if ((err) && *(err))
+    ;
+  else if ((_ai) && (_oi) && (_oiidx)) {
+    if (bitcount) {
+      size_t v_bitrh = 0;
+      (_oi)->sign = (_ai)->sign;
+      (_oi)->sz = (_ai)->sz - (bitcount);
+      (_oi)->vecbegpoint = v_bitrh = (_oi)->vecbegpoint + (bitcount);
+      *(_oiidx) = v_bitrh >> 3;
+    } else {
+      *(_oi) = *(_ai);
+      *(_oiidx) = 0;
+    }
+  } else
+    (err) && (*(err) |= ae2f_errGlob_PTR_IS_NULL);
+}
 
 /**
  * @def __ae2f_MathIntBitRRefA
@@ -508,20 +534,24 @@ ae2f_MAC()
  * The result will be added with its stored original value, not initialised.
  * For zeroing version, use __ae2f_MathIntBitRHeader.
  * */
-ae2f_MAC() _ae2f_MathIntBitRRefA(const ae2f_pMathInt _ai, size_t bitcount,
+ae2f_MAC() _ae2f_MathIntBitRRefA(ae2f_MathMemOutErr err,
+                                 const ae2f_pMathInt _ai, size_t bitcount,
                                  ae2f_pMathInt _oi, size_t *const _oiidx) {
-  if ((_ai) && (_oi) && *(_oiidx)) {
+
+  if ((err) && *(err))
+    ;
+  else if ((_ai) && (_oi) && (_oiidx)) {
     if (bitcount) {
       size_t v_bitrh = 0;
       (_oi)->sign = (_ai)->sign;
-      (_oi)->sz = (_ai)->sz - bitcount;
-
-      (_oi)->vecbegpoint = v_bitrh = (_oi)->vecbegpoint + bitcount;
+      (_oi)->sz = (_ai)->sz - (bitcount);
+      (_oi)->vecbegpoint = v_bitrh = (_oi)->vecbegpoint + (bitcount);
       *(_oiidx) += v_bitrh >> 3;
     } else {
       *(_oi) = *(_ai);
     }
-  }
+  } else
+    (err) && (*(err) |= ae2f_errGlob_PTR_IS_NULL);
 }
 
 /**

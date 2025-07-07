@@ -111,126 +111,130 @@ ae2f_MAC(floatbuf_A, floatbuf_B, floatbuf_O, )
       fputc('\n', stdout);
     }
 
-    __ae2f_MathFloatAddU((&e), (&a), af.b, (&b), bf.b, (&o), of.b);
+    if (1) {
+      __ae2f_MathFloatAddU((&e), (&a), af.b, (&b), bf.b, (&o), of.b);
 
-    if ((e)) {
-      printf("got error %d\n", (e));
-      *(A) |= 1;
-      continue;
+      if ((e)) {
+        printf("got error %d\n", (e));
+        *(A) |= 1;
+        continue;
+      }
+
+      if (of.a != af.a + bf.a) {
+        printf(" Expected %f but got %.3f\n", af.a + bf.a, of.a);
+        printf("af: %f %f\n", af.a, TESTA[i]);
+        printf("bf: %f %f\n", bf.a, TESTB[i]);
+
+        fputs("o:\n0b", stdout);
+        size_t ii;
+        for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+        }
+        fputc('\n', stdout);
+
+        of.a = af.a + bf.a;
+        fprintf(stdout, "%.3f:\n0b", of.a);
+        for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+        }
+        fputc('\n', stdout);
+
+        of.a = TESTA[i];
+        fputs("A:\n0b", stdout);
+        for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+        }
+        fputc('\n', stdout);
+
+        of.a = TESTB[i];
+        fputs("B:\n0b", stdout);
+        for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+        }
+        fputc('\n', stdout);
+
+        fprintf(stdout, "%.3f:\n0b", af.a);
+        for (ii = __ae2f_MathFloatElSz(&a) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(af.b, ii));
+        }
+        fputc('\n', stdout);
+
+        fprintf(stdout, "%.3f:\n0b", bf.a);
+        for (ii = __ae2f_MathFloatElSz(&b) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(bf.b, ii));
+        }
+        fputc('\n', stdout);
+        *(A) |= 1;
+        continue;
+      }
+
+      puts("add went successful");
     }
 
-    if (of.a != af.a + bf.a) {
-      printf(" Expected %f but got %.3f\n", af.a + bf.a, of.a);
-      printf("af: %f %f\n", af.a, TESTA[i]);
-      printf("bf: %f %f\n", bf.a, TESTB[i]);
-
-      fputs("o:\n0b", stdout);
-      size_t ii;
-      for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+    if (0) {
+      if (af.a < bf.a) {
+        float ___v = af.a;
+        af.a = bf.a;
+        bf.a = ___v;
       }
-      fputc('\n', stdout);
 
-      of.a = af.a + bf.a;
-      fprintf(stdout, "%.3f:\n0b", of.a);
-      for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
-      }
-      fputc('\n', stdout);
+      __ae2f_MathFloatSubU((&e), (&a), af.b, (&b), bf.b, (&o), of.b);
 
-      of.a = TESTA[i];
-      fputs("A:\n0b", stdout);
-      for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+      if ((e)) {
+        printf("got error %d\n", (e));
+        *(A) |= 1;
+        continue;
       }
-      fputc('\n', stdout);
 
-      of.a = TESTB[i];
-      fputs("B:\n0b", stdout);
-      for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
-      }
-      fputc('\n', stdout);
+      if (of.a != af.a - bf.a) {
+        printf(" Expected %f but got %.3f\n", af.a - bf.a, of.a);
+        printf("af: %f %f\n", af.a, TESTA[i]);
+        printf("bf: %f %f\n", bf.a, TESTB[i]);
 
-      fprintf(stdout, "%.3f:\n0b", af.a);
-      for (ii = __ae2f_MathFloatElSz(&a) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(af.b, ii));
-      }
-      fputc('\n', stdout);
+        fputs("o:\n0b", stdout);
+        size_t ii;
+        for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+        }
+        fputc('\n', stdout);
 
-      fprintf(stdout, "%.3f:\n0b", bf.a);
-      for (ii = __ae2f_MathFloatElSz(&b) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(bf.b, ii));
+        of.a = af.a - bf.a;
+        fprintf(stdout, "%.3f:\n0b", of.a);
+        for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+        }
+        fputc('\n', stdout);
+
+        of.a = TESTA[i];
+        fputs("A:\n0b", stdout);
+        for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+        }
+        fputc('\n', stdout);
+
+        of.a = TESTB[i];
+        fputs("B:\n0b", stdout);
+        for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
+        }
+        fputc('\n', stdout);
+
+        fprintf(stdout, "%.3f:\n0b", af.a);
+        for (ii = __ae2f_MathFloatElSz(&a) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(af.b, ii));
+        }
+        fputc('\n', stdout);
+
+        fprintf(stdout, "%.3f:\n0b", bf.a);
+        for (ii = __ae2f_MathFloatElSz(&b) - 1; ii != -1; ii--) {
+          fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(bf.b, ii));
+        }
+        fputc('\n', stdout);
+        *(A) |= 1;
+        continue;
       }
-      fputc('\n', stdout);
-      *(A) |= 1;
-      continue;
+
+      puts("sub went successful");
     }
-
-    puts("add went successful");
-
-    if (af.a < bf.a) {
-      float ___v = af.a;
-      af.a = bf.a;
-      bf.a = ___v;
-    }
-
-    __ae2f_MathFloatSubU((&e), (&a), af.b, (&b), bf.b, (&o), of.b);
-
-    if ((e)) {
-      printf("got error %d\n", (e));
-      *(A) |= 1;
-      continue;
-    }
-
-    if (of.a != af.a - bf.a) {
-      printf(" Expected %f but got %.3f\n", af.a - bf.a, of.a);
-      printf("af: %f %f\n", af.a, TESTA[i]);
-      printf("bf: %f %f\n", bf.a, TESTB[i]);
-
-      fputs("o:\n0b", stdout);
-      size_t ii;
-      for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
-      }
-      fputc('\n', stdout);
-
-      of.a = af.a - bf.a;
-      fprintf(stdout, "%.3f:\n0b", of.a);
-      for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
-      }
-      fputc('\n', stdout);
-
-      of.a = TESTA[i];
-      fputs("A:\n0b", stdout);
-      for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
-      }
-      fputc('\n', stdout);
-
-      of.a = TESTB[i];
-      fputs("B:\n0b", stdout);
-      for (ii = __ae2f_MathFloatElSz(&o) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(of.b, ii));
-      }
-      fputc('\n', stdout);
-
-      fprintf(stdout, "%.3f:\n0b", af.a);
-      for (ii = __ae2f_MathFloatElSz(&a) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(af.b, ii));
-      }
-      fputc('\n', stdout);
-
-      fprintf(stdout, "%.3f:\n0b", bf.a);
-      for (ii = __ae2f_MathFloatElSz(&b) - 1; ii != -1; ii--) {
-        fprintf(stdout, "%d", __ae2f_MathUtilBVGetArr(bf.b, ii));
-      }
-      fputc('\n', stdout);
-      *(A) |= 1;
-      continue;
-    }
-
-    puts("add went successful");
   } while (0);
 }

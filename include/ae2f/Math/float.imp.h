@@ -668,6 +668,8 @@ ae2f_MAC()
 #undef __ae2f_MathFloatSub
 #endif
 
+#include <stdio.h>
+
 /**
  * @TODO
  * I don't think this function is complete. \n
@@ -774,7 +776,7 @@ ae2f_MAC()
          * */
         v_addu.m_expint[3].m_i =
             ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i) +
-            __ae2f_MathFloatBias(_of) +
+            __ae2f_MathFloatBias(_of) -
             (v_addu.m_expint[0].m_i == v_addu.m_expint[1].m_i);
 
         __ae2f_MathFloatSetExpPtr(_of, _of_vec, v_addu.m_expint[3].m_b);
@@ -818,16 +820,19 @@ ae2f_MAC()
         __ae2f_MathIntFill(err, &v_addu.m_exp_man[2], (_of_vec), 0, 1);
 
         if (!(v_addu.m_expint[1].m_i || v_addu.m_expint[0].m_i)) {
-          /** two are zero : means leading ones are being ascended */
-          v_addu.m_expint[0].m_i++;
-          v_addu.m_expint[1].m_i++;
-        }
+          /** two are zero : means leading ones are being descended */
 
-        if (v_addu.m_mansz[0].m_i > 0)
-          v_addu.m_expint[0].m_i -= v_addu.m_mansz[0].m_u;
+          puts("Two are same");
+
+          if (0) {
+            v_addu.m_expint[0].m_i--;
+            v_addu.m_expint[1].m_i--;
+          }
+        }
 
         {
           if (v_addu.m_expint[1].m_i) {
+            puts("Two are not same");
             __ae2f_MathUtilBVSetAssignArrRanged(
                 _of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i,
                 (_of)->bstart + (_of)->man + 1,
@@ -1135,11 +1140,9 @@ ae2f_MAC()
           if (v_addu.m_mansz[0].m_i > 0)
             v_addu.m_expint[0].m_i += v_addu.m_mansz[0].m_u;
 
-          v_addu.m_exp_man[0].sz -= v_addu.m_expint[0].m_i;
-          v_addu.m_exp_man[0].vecbegpoint = v_addu.m_expint[3].m_u =
-              (v_addu.m_exp_man[0].vecbegpoint) + v_addu.m_expint[0].m_i;
-
-          v_addu.m_expint[3].m_u >>= 3;
+          __ae2f_MathIntBitRRef(err, &v_addu.m_exp_man[0],
+                                v_addu.m_expint[0].m_u, &v_addu.m_exp_man[0],
+                                &v_addu.m_expint[3].m_u);
         }
 
         if (v_addu.m_mansz[0].m_i > 0)
@@ -1156,11 +1159,9 @@ ae2f_MAC()
           if (v_addu.m_mansz[1].m_i > 0)
             v_addu.m_expint[1].m_i += v_addu.m_mansz[1].m_u;
 
-          v_addu.m_exp_man[1].sz -= v_addu.m_expint[1].m_i;
-          v_addu.m_exp_man[1].vecbegpoint = v_addu.m_expint[4].m_u =
-              (v_addu.m_exp_man[1].vecbegpoint) + v_addu.m_expint[1].m_i;
-
-          v_addu.m_expint[4].m_u >>= 3;
+          __ae2f_MathIntBitRRef(err, &v_addu.m_exp_man[1],
+                                v_addu.m_expint[1].m_i, &v_addu.m_exp_man[1],
+                                &v_addu.m_expint[4].m_u);
         }
       }
 
@@ -1198,23 +1199,16 @@ ae2f_MAC()
       }
 
       {
-        v_addu.m_exp_man[0].sz -= v_addu.m_expint[5].m_u;
-        v_addu.m_exp_man[0].vecbegpoint = v_addu.m_expint[3].m_u =
-            (v_addu.m_exp_man[0].vecbegpoint) + (v_addu.m_expint[3].m_u << 3) +
-            v_addu.m_expint[5].m_u;
-        v_addu.m_expint[3].m_u >>= 3;
+        __ae2f_MathIntBitRRefA(err, &v_addu.m_exp_man[0],
+                               v_addu.m_expint[5].m_u, &v_addu.m_exp_man[0],
+                               &v_addu.m_expint[3].m_u);
 
-        v_addu.m_exp_man[1].sz -= v_addu.m_expint[5].m_u;
-        v_addu.m_exp_man[1].vecbegpoint = v_addu.m_expint[4].m_u =
-            (v_addu.m_exp_man[1].vecbegpoint) + (v_addu.m_expint[4].m_u << 3) +
-            v_addu.m_expint[5].m_u;
-        v_addu.m_expint[4].m_u >>= 3;
+        __ae2f_MathIntBitRRefA(err, &v_addu.m_exp_man[1],
+                               v_addu.m_expint[5].m_u, &v_addu.m_exp_man[1],
+                               &v_addu.m_expint[4].m_u);
 
-        v_addu.m_exp_man[2].sz -= v_addu.m_expint[5].m_u;
-
-        v_addu.m_exp_man[2].vecbegpoint = v_addu.m_expint[5].m_u =
-            (v_addu.m_exp_man[2].vecbegpoint) + v_addu.m_expint[5].m_u;
-        v_addu.m_expint[5].m_u >>= 3;
+        __ae2f_MathIntBitRRef(err, &v_addu.m_exp_man[2], v_addu.m_expint[5].m_u,
+                              &v_addu.m_exp_man[2], &v_addu.m_expint[5].m_u);
       }
 
       /**
@@ -1238,14 +1232,9 @@ ae2f_MAC()
         }
 
         if (v_addu.m_mansz[0].m_i < 0) {
-          v_addu.m_exp_man[2].sz =
-              v_addu.m_exp_man[3].sz + v_addu.m_mansz[0].m_i;
-
-          v_addu.m_exp_man[2].vecbegpoint = v_addu.m_expint[5].m_u =
-              v_addu.m_exp_man[3].vecbegpoint + (v_addu.m_mansz[2].m_u << 3) -
-              v_addu.m_mansz[0].m_i;
-
-          v_addu.m_expint[5].m_u >>= 3;
+          __ae2f_MathIntBitRRefA(err, &v_addu.m_exp_man[3],
+                                 -v_addu.m_mansz[0].m_i, &v_addu.m_exp_man[2],
+                                 &v_addu.m_expint[5].m_u);
         }
 
         /** O = A + O */
@@ -1255,14 +1244,10 @@ ae2f_MAC()
             &v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec));
 
         if (v_addu.m_mansz[1].m_i < 0) {
-          v_addu.m_exp_man[2].sz =
-              v_addu.m_exp_man[3].sz + v_addu.m_mansz[1].m_i;
+          __ae2f_MathIntBitRRefA(err, &v_addu.m_exp_man[3],
+                                 -v_addu.m_mansz[1].m_i, &v_addu.m_exp_man[2],
+                                 &v_addu.m_expint[5].m_u);
 
-          v_addu.m_exp_man[2].vecbegpoint = v_addu.m_expint[5].m_u =
-              v_addu.m_exp_man[3].vecbegpoint + (v_addu.m_mansz[2].m_u << 3) -
-              v_addu.m_mansz[1].m_i;
-
-          v_addu.m_expint[5].m_u >>= 3;
         } else if (v_addu.m_mansz[0].m_i < 0) {
           /** Original */
           v_addu.m_exp_man[2] = v_addu.m_exp_man[3];
