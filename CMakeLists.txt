@@ -39,8 +39,6 @@ if(NOT TARGET ae2f::${PROJECT_NAME})
 	ae2f_Macro_autoname(${PROJECT_SOURCE_DIR}/test/__float.h)
 endif()
 
-set(ae2f_DEVEL ON)
-
 # This is a fake library for debugging
 if(NOT TARGET ae2f::${PROJECT_NAME}::devel AND ae2f_DEVEL)
 	file(GLOB src ${PROJECT_SOURCE_DIR}/ainc/*)
