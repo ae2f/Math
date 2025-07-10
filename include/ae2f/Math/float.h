@@ -43,25 +43,5 @@ struct ae2f_MathFloat {
 #define ae2f_MathFloat64_EXP 11
 #define ae2f_MathFloat64_MAN 52
 
-typedef enum ae2f_eMathFloatWhich {
-  /** @brief NaN */
-  ae2f_eMathFloatWhich_NAN = 0b011,
-  /** @brief Infinity */
-  ae2f_eMathFloatWhich_INF = 0b010,
-
-  /** @brief Number (mantissa) */
-  ae2f_eMathFloatWhich_NUM = 0b001,
-
-  /** @brief Number, 1. */
-  ae2f_eMathFloatWhich_ONE = 0b001,
-
-  /** @brief 0 */
-  ae2f_eMathFloatWhich_NIL = 0b000,
-
-  /** @brief Sign bit */
-  ae2f_eMathFloatWhich_SGN = 0b100,
-} ae2f_eMathFloatWhich;
-
-typedef unsigned char ae2f_eMathFloatWhich_t;
 
 #endif
