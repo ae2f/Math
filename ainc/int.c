@@ -627,7 +627,7 @@ ae2f_MAC()
 	for(vi_bitl = (out)->sz; vi_bitl != -1 && (in)->sz + (bitcount) <= vi_bitl; vi_bitl--)
 		__ae2f_MathUtilBVSetAssignArr(out_vec, vi_bitl, 0);
 
-	for (vi_bitl = (out)->sz; vi_bitl != -1 && vi_bitl >= (bitcount); vi_bitl--)
+	for (; vi_bitl != -1 && vi_bitl >= (bitcount); vi_bitl--)
 		__ae2f_MathUtilBVSetAssignArr(
 				out_vec, vi_bitl,
 				__ae2f_MathUtilBVGetArr(in_vec, vi_bitl - (bitcount)));
