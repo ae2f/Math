@@ -387,7 +387,9 @@ static uint64_t normalise() {
 		ae2f_err_t e = 0;
 
 		printf(" [normalise32] %f:\n\t0b", (af.a));
-		for(unsigned i = 0; i < 32; i++) {
+		
+		unsigned i = 0;
+		for(; i < 32; i++) {
 			fputc('0' + __ae2f_MathUtilBVGetArr(af.b, i), stdout);
 		}
 		fputc('\n', stdout);
@@ -403,13 +405,13 @@ static uint64_t normalise() {
 			printf("[normalise32] Expected %f but got %f\n", 134., af.a);
 
 			printf(" [normalise32] %f:\n\t0b", af.a);
-			for(unsigned i = 0; i < 32; i++) {
+			for(i = 0; i < 32; i++) {
 				fputc('0' + __ae2f_MathUtilBVGetArr(af.b, i), stdout);
 			}
 			fputc('\n', stdout);
 
 			printf(" [normalise32] %f:\n\t0b", (af.a = 134));
-			for(unsigned i = 0; i < 32; i++) {
+			for(i = 0; i < 32; i++) {
 				fputc('0' + __ae2f_MathUtilBVGetArr(af.b, i), stdout);
 			}
 			fputc('\n', stdout);
