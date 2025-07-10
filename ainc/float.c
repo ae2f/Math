@@ -492,7 +492,7 @@ ae2f_structdef(struct, ae2f_MathFloatGetWhich_t) {
 ae2f_MAC() _ae2f_MathFloatGetWhich_imp(
 		ae2f_MathFloatGetWhich_t vf_which
 		, const ae2f_pMathFloat _af, ae2f_iMathMem _af_vec
-		) 
+		)
 {
 	vf_which.m_build.m_flag.m_manfirst = __ae2f_MathUtilBVGetArr(_af_vec, (_af)->bstart);
 	vf_which.m_build.m_flag.m_expfirst = __ae2f_MathUtilBVGetArr(_af_vec, (_af)->bstart + (_af)->exp);
@@ -517,7 +517,7 @@ ae2f_MAC() _ae2f_MathFloatGetWhich_imp(
 			vf_which.i = 0;
 			vf_which.i < (_af)->man && !vf_which.m_build.m_flag.m_manch;
 			vf_which.i++
-	    ) 
+	    )
 	{
 		vf_which.vec = (_af)->bstart + vf_which.i;
 		vf_which.m_build.m_flag.m_manch 
@@ -594,11 +594,10 @@ ae2f_MAC() _ae2f_MathFloatNormalise_imp(
 				vf_norm.shift = 0;
 				vf_norm.div = (_if)->bstart;
 				/* Search for the first 1 bit in the mantissa */
-				for (vf_norm.i = 0; vf_norm.i < (_if)->man;
+				for (
+						vf_norm.i = 0; 
+						vf_norm.i < (_if)->man && !__ae2f_MathUtilBVGetArr((_if_vec), vf_norm.div);
 						vf_norm.i++, vf_norm.div++) {
-					if (__ae2f_MathUtilBVGetArr((_if_vec), vf_norm.div)) {
-						break;
-					}
 					vf_norm.shift++;
 				} /* If no 1 bit found, the number is zero */
 
@@ -762,21 +761,18 @@ ae2f_MAC() _ae2f_MathFloatCmp_imp(
 							_bf_vec, (_bf)->bstart + v_cmp.m_exp[1].m_u -
 							1 - v_cmp.m_stack.m_smatch.m_i)
 					: 0;
-
-				if (v_cmp.m_stack.m_smatch.m_av != v_cmp.m_stack.m_smatch.m_bv) {
-					v_cmp.m_stack.m_smatch.m_ret = 
-						v_cmp.m_stack.m_smatch.m_bv ? ae2f_CmpFunRet_LISLESSER
-						: ae2f_CmpFunRet_RISLESSER;
-					break;
-				}
 			}
 
+			v_cmp.m_stack.m_smatch.m_ret = (v_cmp.m_stack.m_smatch.m_i < v_cmp.m_stack.m_smatch.m_c);
+			v_cmp.m_stack.m_smatch.m_sign ^= !!v_cmp.m_stack.m_smatch.m_bv;
 		}; /** for jump */
 
-
+		/** flip when sign is on */
 		v_cmp.m_stack.m_smatch.m_ret = 
-			v_cmp.m_stack.m_smatch.m_ret 
-			^ ~((ae2f_static_cast(ae2f_CmpFunRet_t, v_cmp.m_stack.m_smatch.m_sign) << 6) - 1);
+			(v_cmp.m_stack.m_smatch.m_ret 
+			^ ((v_cmp.m_stack.m_smatch.m_sign) << 5) - v_cmp.m_stack.m_smatch.m_sign)
+			+ v_cmp.m_stack.m_smatch.m_sign
+			;
 	}
 }
 
@@ -1158,237 +1154,237 @@ ae2f_MAC() _ae2f_MathFloatAddU_imp(
 		, const ae2f_pMathFloat _bf, ae2f_iMathMem _bf_vec
 		, ae2f_pMathFloat _of, ae2f_oMathMem _of_vec
 		) {
-		/** Get mantissas and exponents */
-		v_addu.m_expint[0].m_u = __ae2f_MathFloatExpEndIdx(_af);
-		v_addu.m_expint[1].m_u = __ae2f_MathFloatExpEndIdx(_bf);
-		v_addu.m_expint[2].m_u = __ae2f_MathFloatExpEndIdx(_of);
+	/** Get mantissas and exponents */
+	v_addu.m_expint[0].m_u = __ae2f_MathFloatExpEndIdx(_af);
+	v_addu.m_expint[1].m_u = __ae2f_MathFloatExpEndIdx(_bf);
+	v_addu.m_expint[2].m_u = __ae2f_MathFloatExpEndIdx(_of);
 
-		__ae2f_MathFloatMan_imp(_af, &v_addu.m_exp_man[0]);
-		__ae2f_MathFloatMan_imp(_bf, &v_addu.m_exp_man[1]);
-		__ae2f_MathFloatMan_imp(_of, &v_addu.m_exp_man[2]);
+	__ae2f_MathFloatMan_imp(_af, &v_addu.m_exp_man[0]);
+	__ae2f_MathFloatMan_imp(_bf, &v_addu.m_exp_man[1]);
+	__ae2f_MathFloatMan_imp(_of, &v_addu.m_exp_man[2]);
 
 
-		/**
-		 * Getting the difference of size as unsigned positive value.
-		 * Will be used for bit-shifting
-		 *
-		 * Perhaps the shift for it is needed for output buffer.
-		 *
-		 * Provided it goes positive, value should be traunacted.
-		 * Provided it goes negative, value should be left-shifted.
+	/**
+	 * Getting the difference of size as unsigned positive value.
+	 * Will be used for bit-shifting
+	 *
+	 * Perhaps the shift for it is needed for output buffer.
+	 *
+	 * Provided it goes positive, value should be traunacted.
+	 * Provided it goes negative, value should be left-shifted.
+	 * */
+	v_addu.m_mansz[0].m_u = v_addu.m_exp_man[0].sz;
+	v_addu.m_mansz[1].m_u = v_addu.m_exp_man[1].sz;
+
+	v_addu.m_mansz[0].m_u -= v_addu.m_exp_man[2].sz;
+	v_addu.m_mansz[1].m_u -= v_addu.m_exp_man[2].sz;
+
+
+	/** Get and Unbias exponent */
+	__ae2f_MathFloatGetExp_imp(
+			v_addu.m_stack.m_sz
+			, _af, _af_vec, v_addu.m_expint[0].m_b
+			);
+	__ae2f_MathFloatGetExp_imp(
+			v_addu.m_stack.m_sz
+			, _bf, _bf_vec, v_addu.m_expint[1].m_b
+			);
+
+	v_addu.m_expint[0].m_i -= __ae2f_MathFloatBias(_af);
+	v_addu.m_expint[1].m_i -= __ae2f_MathFloatBias(_bf);
+
+	/**
+	 * greater one and will be first exponent. \n
+	 * leading one would increment the final when two exponent meets \n
+	 * 		> (which means no bitshift is needed)
+	 * */
+	v_addu.m_expint[3].m_i =
+		ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i) +
+		__ae2f_MathFloatBias(_of) +
+		(v_addu.m_expint[0].m_i == v_addu.m_expint[1].m_i);
+
+	__ae2f_MathFloatSetExpPtr_imp(
+			v_addu.m_stack.m_sz
+			,  _of, _of_vec
+			, v_addu.m_expint[3].m_b
+			);
+
+	v_addu.m_expint[3].m_i =
+		ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i);
+
+	/**
+	 * Now two of them represents the bitcount to be shifted. \n
+	 * They are guaranteed to be positive value.
+	 * */
+	v_addu.m_expint[0].m_i =
+		v_addu.m_expint[3].m_i - v_addu.m_expint[0].m_i;
+	v_addu.m_expint[1].m_i =
+		v_addu.m_expint[3].m_i - v_addu.m_expint[1].m_i;
+
+	/**
+	 * It needs to be done with right-shifting.
+	 * Lower one's exponent shall be higher, leaving its fraction
+	 * right-shifted.
+	 *
+	 * Right shifting does not require additional bits copying.
+	 * It would be granted by simple adjustment of bitstride or something.
+	 *
+	 * Challenging is leading one: \n
+	 * 	> Its value must have been shifted by `m_i` \n
+	 * 	> from the outside of mantissa bits.
+	 *
+	 * When overflown: \n
+	 * 	>
+	 * */
+
+	/** Fill with zero */
+	__ae2f_MathIntFill_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[2], (_of_vec), 0, 1);
+
+	if (!(v_addu.m_expint[1].m_i || v_addu.m_expint[0].m_i)) {
+		/** two are zero : means leading ones are being ascended */
+		v_addu.m_expint[0].m_i++;
+		v_addu.m_expint[1].m_i++;
+	}
+
+	/**
+	 * @brief
+	 * Output fraction configuration
+	 * Bitshift
+	 *
+	 * Leading one.
+	 * From here, m_expint[3:4] stands for mantissa's index point.
+	 * m_expint[5] will be temporary.
+	 * */
+	if (v_addu.m_expint[0].m_i) {
+
+		/** when two mantissa goes different,
+		 * leading one shifted could be somewhere unexpected.
 		 * */
-		v_addu.m_mansz[0].m_u = v_addu.m_exp_man[0].sz;
-		v_addu.m_mansz[1].m_u = v_addu.m_exp_man[1].sz;
+		__ae2f_MathUtilBVSetAssignArr(
+				_of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i,
+				(v_addu.m_expint[0].m_u != v_addu.m_expint[1].m_u));
+	}
+	if (v_addu.m_mansz[0].m_i > 0)
+		v_addu.m_expint[0].m_i += v_addu.m_mansz[0].m_u;
 
-		v_addu.m_mansz[0].m_u -= v_addu.m_exp_man[2].sz;
-		v_addu.m_mansz[1].m_u -= v_addu.m_exp_man[2].sz;
+	__ae2f_MathIntBitRRef_imp(v_addu.m_expint[3].m_u, &v_addu.m_exp_man[0]
+			, v_addu.m_expint[0].m_u, &v_addu.m_exp_man[0]
+			);
 
 
-		/** Get and Unbias exponent */
-		__ae2f_MathFloatGetExp_imp(
-				v_addu.m_stack.m_sz
-				, _af, _af_vec, v_addu.m_expint[0].m_b
-				);
-		__ae2f_MathFloatGetExp_imp(
-				v_addu.m_stack.m_sz
-				, _bf, _bf_vec, v_addu.m_expint[1].m_b
-				);
+	if (v_addu.m_mansz[0].m_i > 0)
+		v_addu.m_expint[0].m_i -= v_addu.m_mansz[0].m_u;
 
-		v_addu.m_expint[0].m_i -= __ae2f_MathFloatBias(_af);
-		v_addu.m_expint[1].m_i -= __ae2f_MathFloatBias(_bf);
+	{
+		if (v_addu.m_expint[1].m_i) {
 
-		/**
-		 * greater one and will be first exponent. \n
-		 * leading one would increment the final when two exponent meets \n
-		 * 		> (which means no bitshift is needed)
-		 * */
-		v_addu.m_expint[3].m_i =
-			ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i) +
-			__ae2f_MathFloatBias(_of) +
-			(v_addu.m_expint[0].m_i == v_addu.m_expint[1].m_i);
-
-		__ae2f_MathFloatSetExpPtr_imp(
-				v_addu.m_stack.m_sz
-				,  _of, _of_vec
-				, v_addu.m_expint[3].m_b
-				);
-
-		v_addu.m_expint[3].m_i =
-			ae2f_CmpGetGt(v_addu.m_expint[0].m_i, v_addu.m_expint[1].m_i);
-
-		/**
-		 * Now two of them represents the bitcount to be shifted. \n
-		 * They are guaranteed to be positive value.
-		 * */
-		v_addu.m_expint[0].m_i =
-			v_addu.m_expint[3].m_i - v_addu.m_expint[0].m_i;
-		v_addu.m_expint[1].m_i =
-			v_addu.m_expint[3].m_i - v_addu.m_expint[1].m_i;
-
-		/**
-		 * It needs to be done with right-shifting.
-		 * Lower one's exponent shall be higher, leaving its fraction
-		 * right-shifted.
-		 *
-		 * Right shifting does not require additional bits copying.
-		 * It would be granted by simple adjustment of bitstride or something.
-		 *
-		 * Challenging is leading one: \n
-		 * 	> Its value must have been shifted by `m_i` \n
-		 * 	> from the outside of mantissa bits.
-		 *
-		 * When overflown: \n
-		 * 	>
-		 * */
-
-		/** Fill with zero */
-		__ae2f_MathIntFill_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[2], (_of_vec), 0, 1);
-
-		if (!(v_addu.m_expint[1].m_i || v_addu.m_expint[0].m_i)) {
-			/** two are zero : means leading ones are being ascended */
-			v_addu.m_expint[0].m_i++;
-			v_addu.m_expint[1].m_i++;
-		}
-
-		/**
-		 * @brief
-		 * Output fraction configuration
-		 * Bitshift
-		 *
-		 * Leading one.
-		 * From here, m_expint[3:4] stands for mantissa's index point.
-		 * m_expint[5] will be temporary.
-		 * */
-		if (v_addu.m_expint[0].m_i) {
-
-			/** when two mantissa goes different,
-			 * leading one shifted could be somewhere unexpected.
-			 * */
 			__ae2f_MathUtilBVSetAssignArr(
-					_of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[0].m_i,
+					_of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i,
 					(v_addu.m_expint[0].m_u != v_addu.m_expint[1].m_u));
 		}
-		if (v_addu.m_mansz[0].m_i > 0)
-			v_addu.m_expint[0].m_i += v_addu.m_mansz[0].m_u;
 
-		__ae2f_MathIntBitRRef_imp(v_addu.m_expint[3].m_u, &v_addu.m_exp_man[0]
-				, v_addu.m_expint[0].m_u, &v_addu.m_exp_man[0]
-				);
+		if (v_addu.m_mansz[1].m_i > 0)
+			v_addu.m_expint[1].m_i += v_addu.m_mansz[1].m_u;
+
+		__ae2f_MathIntBitRRef_imp(v_addu.m_expint[4].m_u, &v_addu.m_exp_man[1]
+				, v_addu.m_expint[1].m_i, &v_addu.m_exp_man[1]);
+	}
 
 
-		if (v_addu.m_mansz[0].m_i > 0)
-			v_addu.m_expint[0].m_i -= v_addu.m_mansz[0].m_u;
+	/**
+	 * @brief
+	 * - Make count zeros from right side(whatever) and trim by index
+	 * - perform add
+	 * - if the value is not greater than any three of original value, means
+	 * it has been overflown. bump and bitshift it. (critical?)
+	 *
+	 * m_expint[3:4]	: mantissa index point
+	 * m_expint[5]	: rbitzero size
+	 * */
+	for (v_addu.m_expint[5].m_u = 0;; v_addu.m_expint[5].m_u++) {
+		if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[0].sz)
+			break;
+		if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[1].sz)
+			break;
+		if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[2].sz)
+			break;
 
-		{
-			if (v_addu.m_expint[1].m_i) {
+		if ((__ae2f_MathUtilBVGetArr((_of_vec),
+						v_addu.m_exp_man[2].vecbegpoint +
+						v_addu.m_expint[5].m_u) ||
 
-				__ae2f_MathUtilBVSetAssignArr(
-						_of_vec, (_of)->bstart + (_of)->man - v_addu.m_expint[1].m_i,
-						(v_addu.m_expint[0].m_u != v_addu.m_expint[1].m_u));
-			}
+					__ae2f_MathUtilBVGetArr((_af_vec) + v_addu.m_expint[3].m_u,
+						v_addu.m_expint[5].m_u +
+						v_addu.m_exp_man[0].vecbegpoint) ||
 
-			if (v_addu.m_mansz[1].m_i > 0)
-				v_addu.m_expint[1].m_i += v_addu.m_mansz[1].m_u;
-
-			__ae2f_MathIntBitRRef_imp(v_addu.m_expint[4].m_u, &v_addu.m_exp_man[1]
-					, v_addu.m_expint[1].m_i, &v_addu.m_exp_man[1]);
+					__ae2f_MathUtilBVGetArr((_bf_vec) + v_addu.m_expint[4].m_u,
+						v_addu.m_expint[5].m_u +
+						v_addu.m_exp_man[1].vecbegpoint))) {
+			break;
 		}
+	}
 
 
+	__ae2f_MathIntBitRRef_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[0]
+			, v_addu.m_expint[5].m_u, &v_addu.m_exp_man[0]);
+	v_addu.m_expint[3].m_u += v_addu.m_stack.m_sz;
+
+	__ae2f_MathIntBitRRef_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[1]
+			, v_addu.m_expint[5].m_u, &v_addu.m_exp_man[1]);
+	v_addu.m_expint[4].m_u +=  v_addu.m_stack.m_sz;
+
+
+	__ae2f_MathIntBitRRef_imp(v_addu.m_expint[5].m_u, &v_addu.m_exp_man[2]
+			, v_addu.m_expint[5].m_u, &v_addu.m_exp_man[2]);
+
+
+	/**
+	 * - Make count zeros from right side(whatever) and trim by index
+	 * - perform add
+	 * - if the value is not greater than any three of original value, means
+	 * it has been overflown. bump and bitshift it. (critical?)
+	 *
+	 * m_expint[3:4:5]	: mantissa index point
+	 *
+	 * Maybe making a temprary integer header would help
+	 * */
+	if (v_addu.m_mansz[0].m_i < 0 || v_addu.m_mansz[1].m_i < 0) {
 		/**
-		 * @brief
-		 * - Make count zeros from right side(whatever) and trim by index
-		 * - perform add
-		 * - if the value is not greater than any three of original value, means
-		 * it has been overflown. bump and bitshift it. (critical?)
-		 *
-		 * m_expint[3:4]	: mantissa index point
-		 * m_expint[5]	: rbitzero size
+		 * need to store the mantissa index somewhere
+		 * expint[0] will store it.
 		 * */
-		for (v_addu.m_expint[5].m_u = 0;; v_addu.m_expint[5].m_u++) {
-			if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[0].sz)
-				break;
-			if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[1].sz)
-				break;
-			if (v_addu.m_expint[5].m_u == v_addu.m_exp_man[2].sz)
-				break;
+		v_addu.m_exp_man[3] = v_addu.m_exp_man[2];
+		v_addu.m_mansz[2].m_u = v_addu.m_expint[5].m_u;
+	}
 
-			if ((__ae2f_MathUtilBVGetArr((_of_vec),
-							v_addu.m_exp_man[2].vecbegpoint +
-							v_addu.m_expint[5].m_u) ||
+	if (v_addu.m_mansz[0].m_i < 0) {
+		__ae2f_MathIntBitRRef_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[3]
+				, v_addu.m_mansz[0].m_i, &v_addu.m_exp_man[2]);
+		v_addu.m_expint[5].m_u += v_addu.m_stack.m_sz;
+	}
 
-						__ae2f_MathUtilBVGetArr((_af_vec) + v_addu.m_expint[3].m_u,
-							v_addu.m_expint[5].m_u +
-							v_addu.m_exp_man[0].vecbegpoint) ||
+	/** O = A + O */
+	__ae2f_MathIntAdd_imp(
+			v_addu.m_stack.m_iadd, &v_addu.m_exp_man[0], (_af_vec) + v_addu.m_expint[3].m_u,
+			&v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec),
+			&v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec));
 
-						__ae2f_MathUtilBVGetArr((_bf_vec) + v_addu.m_expint[4].m_u,
-							v_addu.m_expint[5].m_u +
-							v_addu.m_exp_man[1].vecbegpoint))) {
-				break;
-			}
-		}
+	if (v_addu.m_mansz[1].m_i < 0) {
+		__ae2f_MathIntBitRRef_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[3],
+				-v_addu.m_mansz[1].m_i, &v_addu.m_exp_man[2]);
+		v_addu.m_expint[5].m_u += v_addu.m_stack.m_sz;
 
+	} else if (v_addu.m_mansz[0].m_i < 0) {
+		/** Original */
+		v_addu.m_exp_man[2] = v_addu.m_exp_man[3];
+		v_addu.m_expint[5].m_u = v_addu.m_mansz[2].m_u;
+	}
 
-		__ae2f_MathIntBitRRef_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[0]
-				, v_addu.m_expint[5].m_u, &v_addu.m_exp_man[0]);
-		v_addu.m_expint[3].m_u += v_addu.m_stack.m_sz;
-
-		__ae2f_MathIntBitRRef_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[1]
-				, v_addu.m_expint[5].m_u, &v_addu.m_exp_man[1]);
-		v_addu.m_expint[4].m_u +=  v_addu.m_stack.m_sz;
-
-
-		__ae2f_MathIntBitRRef_imp(v_addu.m_expint[5].m_u, &v_addu.m_exp_man[2]
-				, v_addu.m_expint[5].m_u, &v_addu.m_exp_man[2]);
-
-
-		/**
-		 * - Make count zeros from right side(whatever) and trim by index
-		 * - perform add
-		 * - if the value is not greater than any three of original value, means
-		 * it has been overflown. bump and bitshift it. (critical?)
-		 *
-		 * m_expint[3:4:5]	: mantissa index point
-		 *
-		 * Maybe making a temprary integer header would help
-		 * */
-		if (v_addu.m_mansz[0].m_i < 0 || v_addu.m_mansz[1].m_i < 0) {
-			/**
-			 * need to store the mantissa index somewhere
-			 * expint[0] will store it.
-			 * */
-			v_addu.m_exp_man[3] = v_addu.m_exp_man[2];
-			v_addu.m_mansz[2].m_u = v_addu.m_expint[5].m_u;
-		}
-
-		if (v_addu.m_mansz[0].m_i < 0) {
-			__ae2f_MathIntBitRRef_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[3]
-					, v_addu.m_mansz[0].m_i, &v_addu.m_exp_man[2]);
-			v_addu.m_expint[5].m_u += v_addu.m_stack.m_sz;
-		}
-
-		/** O = A + O */
-		__ae2f_MathIntAdd_imp(
-				v_addu.m_stack.m_iadd, &v_addu.m_exp_man[0], (_af_vec) + v_addu.m_expint[3].m_u,
-				&v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec),
-				&v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec));
-
-		if (v_addu.m_mansz[1].m_i < 0) {
-			__ae2f_MathIntBitRRef_imp(v_addu.m_stack.m_sz, &v_addu.m_exp_man[3],
-					-v_addu.m_mansz[1].m_i, &v_addu.m_exp_man[2]);
-			v_addu.m_expint[5].m_u += v_addu.m_stack.m_sz;
-
-		} else if (v_addu.m_mansz[0].m_i < 0) {
-			/** Original */
-			v_addu.m_exp_man[2] = v_addu.m_exp_man[3];
-			v_addu.m_expint[5].m_u = v_addu.m_mansz[2].m_u;
-		}
-
-		/** O = O + B */
-		__ae2f_MathIntAdd_imp(
-				v_addu.m_stack.m_iadd, &v_addu.m_exp_man[1], (_bf_vec) + v_addu.m_expint[4].m_u,
-				&v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec),
-				&v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec));
+	/** O = O + B */
+	__ae2f_MathIntAdd_imp(
+			v_addu.m_stack.m_iadd, &v_addu.m_exp_man[1], (_bf_vec) + v_addu.m_expint[4].m_u,
+			&v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec),
+			&v_addu.m_exp_man[2], v_addu.m_expint[5].m_u + (_of_vec));
 }
 
 /**

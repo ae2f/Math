@@ -47,11 +47,11 @@ ae2f_MAC(floatbuf_A, floatbuf_B, )
     floatbuf_A af;
     floatbuf_B bf;
 
-    af.a = TESTA[i];
-    bf.a = TESTB[j];
-
     ae2f_err_t e = 0;
     ae2f_CmpFunRet_t ret;
+
+    af.a = TESTA[i];
+    bf.a = TESTB[j];
 
     __ae2f_MathFloatCmp(&e, &headA, af.b, &headB, bf.b, &ret);
 
@@ -64,7 +64,26 @@ ae2f_MAC(floatbuf_A, floatbuf_B, )
 
     if ((ret < 0) != (TESTA[i] < TESTB[j])) {
       /** unexpected value */
-      printf("Expected %d but got %d\n", TESTA[i] < TESTB[j], ret < 0);
+      printf("Expected %d but got %d\n", -TESTA[i] < -TESTB[j], ret < 0);
+      *A = 1;
+      break;
+    }
+
+    af.a = -TESTA[i];
+    bf.a = -TESTB[j];
+
+    __ae2f_MathFloatCmp(&e, &headA, af.b, &headB, bf.b, &ret);
+
+    if (e) {
+      /** error code was not 0. */
+      printf("Problem occured: %d\n", e);
+      *A = 1;
+      break;
+    }
+
+    if ((ret < 0) != (-TESTA[i] < -TESTB[j])) {
+      /** unexpected value */
+      printf("Expected %d but got %d\n", -TESTA[i] < -TESTB[j], ret < 0);
       *A = 1;
       break;
     }

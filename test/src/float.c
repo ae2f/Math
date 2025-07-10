@@ -450,7 +450,7 @@ static uint64_t compare() {
 	size_t i, j;
 
 	for (i = 0; i < sizeof(TESTA) / sizeof(TESTA[0]); i++) {
-		for (j = 0; j < sizeof(TESTB) / sizeof(TESTB[0]); j++)
+		for (j = 0; j < sizeof(TESTB) / sizeof(TESTB[0]); j++) {
 #undef putsprefix
 #define putsprefix "[f32cmpf32]"
 			___TEST_FLOAT_CMP(float32buf, float32buf, TESTA, TESTB, i, j,
@@ -458,18 +458,19 @@ static uint64_t compare() {
 
 #undef putsprefix
 #define putsprefix "[f32cmpf64]"
-		___TEST_FLOAT_CMP(float32buf, float64buf, TESTA, TESTB, i, j, float32header,
-				float64header, (&A));
+			___TEST_FLOAT_CMP(float32buf, float64buf, TESTA, TESTB, i, j, float32header,
+					float64header, (&A));
 
 #undef putsprefix
 #define putsprefix "[f64cmpf32]"
-		___TEST_FLOAT_CMP(float64buf, float32buf, TESTA, TESTB, i, j, float64header,
-				float32header, (&A));
+			___TEST_FLOAT_CMP(float64buf, float32buf, TESTA, TESTB, i, j, float64header,
+					float32header, (&A));
 
 #undef putsprefix
 #define putsprefix "[f64cmpf64]"
-		___TEST_FLOAT_CMP(float64buf, float64buf, TESTA, TESTB, i, j, float64header,
-				float64header, (&A));
+			___TEST_FLOAT_CMP(float64buf, float64buf, TESTA, TESTB, i, j, float64header,
+					float64header, (&A));
+		}
 	}
 
 	return A;

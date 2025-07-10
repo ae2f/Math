@@ -1266,11 +1266,20 @@ ae2f_MAC() _ae2f_MathIntBumpShifted_imp(ae2f_MathIntBumpShifted_t vi_bumpsh, con
 		unsigned char bump, size_t bitcount) 
 {
 	if (bitcount) {
-		__ae2f_MathIntBitRRef_imp(vi_bumpsh.m_stack.m_bitrref, _ai, bitcount, &vi_bumpsh.m_ai_tmp);
-		__ae2f_MathIntBumpO_imp(vi_bumpsh.m_stack.m_bump, bump, &vi_bumpsh.m_ai_tmp, _oi_vec, _oi_vec);
-
+		__ae2f_MathIntBitRRef_imp(
+				vi_bumpsh.m_stack.m_bitrref
+				, _ai, bitcount
+				, &vi_bumpsh.m_ai_tmp
+				);
+		__ae2f_MathIntBumpO_imp(
+				vi_bumpsh.m_stack.m_bump, bump
+				, &vi_bumpsh.m_ai_tmp, _oi_vec, _oi_vec
+				);
 	} else {
-		__ae2f_MathIntBumpO_imp(vi_bumpsh.m_stack.m_bump, bump, _ai, _oi_vec, _oi_vec);
+		__ae2f_MathIntBumpO_imp(
+				vi_bumpsh.m_stack.m_bump, bump
+				, _ai, _oi_vec, _oi_vec
+				);
 	}
 }
 
