@@ -1389,8 +1389,7 @@ ae2f_MAC() _ae2f_MathFloatAddU_imp(
 
 /**
  * @TODO
- * I don't think this function is complete. \n
- * It will definately stuck on overload.
+ * When unbias exponent is under zero, it will throw exception.
  *
  * Now, somehow for different structure is being mess.
  *
